@@ -5,12 +5,28 @@ namespace AiPathFinding.Model
 {
     public class Graph
     {
+        #region Fields
+
         public Node[][] Nodes { get; set; }
 
+        #endregion
+
+        #region Constructor
+
+        private Graph(Node[][] nodes)
+        {
+            Nodes = nodes;
+        }
+
+        #endregion
+
+        #region Creation Methods
         public static Graph EmptyGraph(int width, int height)
         {
+            // create array
             var nodes = new Node[width][];
 
+            // fill nodes
             for (var i = 0; i < width; i++)
             {
                 nodes[i] = new Node[height];
@@ -18,19 +34,19 @@ namespace AiPathFinding.Model
                     nodes[i][j] = new Node(new Point(i, j), true, NodeType.Street);
             }
 
-            for (var i = 0; i < width - 1; i++)
-                for (var j = 0; j < height - 1; j++)
+            // add edges
+            for (var i = 0; i < width; i++)
+                for (var j = 0; j < height; j++)
                 {
-                    Edge.AddEdge(nodes[i][j], Direction.East, nodes[i + 1][j], Direction.West);
-                    Edge.AddEdge(nodes[i][j], Direction.South, nodes[i][j + 1], Direction.North);
+                    if (i < width - 1)
+                        Edge.AddEdge(nodes[i][j], Direction.East, nodes[i + 1][j], Direction.West);
+                    if (j < height - 1)
+                        Edge.AddEdge(nodes[i][j], Direction.South, nodes[i][j + 1], Direction.North);
                 }
 
             return new Graph(nodes);
         }
 
-        private Graph(Node[][] nodes)
-        {
-            Nodes = nodes;
-        }
+        #endregion
     }
 }

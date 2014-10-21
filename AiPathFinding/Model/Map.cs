@@ -6,6 +6,14 @@ namespace AiPathFinding.Model
 {
     public class Map
     {
+        #region Fields
+
+        private Graph Graph { get; set; }
+
+        #endregion
+
+        #region Events
+
         public delegate void OnCellTypeChanged(Point locatoin, NodeType oldType, NodeType newType);
 
         public event OnCellTypeChanged CellTypeChanged;
@@ -14,10 +22,18 @@ namespace AiPathFinding.Model
 
         public event OnMapSizeChanged MapSizeChanged;
 
+        #endregion
+
+        #region Constructor
+
         public Map(Graph graph)
         {
             Graph = graph;
         }
+
+        #endregion
+
+        #region Methods
 
         public NodeType GetNodeType(Point location)
         {
@@ -26,6 +42,7 @@ namespace AiPathFinding.Model
 
         public void SetNodeType(Point location, NodeType type)
         {
+            // set node type and trigger event
             var oldType = Graph.Nodes[location.X][location.Y].Type;
             Graph.Nodes[location.X][location.Y].Type = type;
             CellTypeChanged(location, oldType, type);
@@ -33,6 +50,7 @@ namespace AiPathFinding.Model
 
         public void SetMapSize(int width, int height)
         {
+            // get current width/height
             var oldWidth = Graph.Nodes.Length;
             while (Graph.Nodes[oldWidth - 1] == null)
                 oldWidth--;
@@ -135,6 +153,6 @@ namespace AiPathFinding.Model
             MapSizeChanged(oldWidth, oldHeight, width, height);
         }
 
-        private Graph Graph { get; set; }
+        #endregion
     }
 }

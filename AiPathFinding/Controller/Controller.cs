@@ -6,14 +6,27 @@ namespace AiPathFinding.Controller
 {
     public class Controller
     {
-        public Controller(Map map)
-        {
-            Map = map;
-
-            MainForm.CellClicked += OnCellClick;
-        }
+        #region Fields
 
         public Map Map { get; private set; }
+
+        #endregion
+
+        #region Constructor
+
+        public Controller(Map map, MainForm form, MapSettings settings)
+        {
+            // assign fields
+            Map = map;
+
+            // register events
+            form.CellClicked += OnCellClick;
+            settings.MapSizeChanged += OnMapSizeChanged;
+        }
+
+        #endregion
+
+        #region Event Handling
 
         public void OnCellClick(Point location)
         {
@@ -24,7 +37,10 @@ namespace AiPathFinding.Controller
 
         public void OnMapSizeChanged(int width, int height)
         {
+            // tell model to adjust map size
             Map.SetMapSize(width, height);
         }
+
+        #endregion 
     }
 }

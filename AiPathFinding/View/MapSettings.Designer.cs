@@ -103,7 +103,7 @@
             this.numMapHeight.Size = new System.Drawing.Size(72, 20);
             this.numMapHeight.TabIndex = 2;
             this.numMapHeight.Value = new decimal(new int[] {
-            7,
+            2,
             0,
             0,
             0});
@@ -129,7 +129,7 @@
             this.numMapWidth.Size = new System.Drawing.Size(72, 20);
             this.numMapWidth.TabIndex = 0;
             this.numMapWidth.Value = new decimal(new int[] {
-            10,
+            3,
             0,
             0,
             0});

@@ -4,12 +4,7 @@ namespace AiPathFinding.Model
 {
     public class Node
     {
-        public Node(Point location, bool knownToAi, NodeType type)
-        {
-            Location = location;
-            KnownToAi = knownToAi;
-            Type = type;
-        }
+        #region Fields
 
         public NodeType Type { get; set; }
 
@@ -19,9 +14,26 @@ namespace AiPathFinding.Model
 
         public readonly Edge[] Edges = new Edge[4];
 
+        #endregion
+
+        #region Constructor
+
+        public Node(Point location, bool knownToAi, NodeType type)
+        {
+            Location = location;
+            KnownToAi = knownToAi;
+            Type = type;
+        }
+
+        #endregion
+
+        #region Methods
+
         public override string ToString()
         {
             return "(" + Location.X + "/" + Location.Y + ")";
         }
+
+        #endregion
     }
 }
