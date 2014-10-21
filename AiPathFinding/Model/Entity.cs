@@ -23,6 +23,12 @@ namespace AiPathFinding.Model
                 if (value == _node) return;
                 var oldNode = _node;
                 _node = value;
+
+                if (oldNode != null)
+                    oldNode.EntityOnNode = null;
+                if (_node != null)
+                    _node.EntityOnNode = this;
+
                 if (NodeChanged != null)
                     NodeChanged(oldNode, _node, this);
             }

@@ -29,8 +29,9 @@
         private void InitializeComponent()
         {
             this._canvas = new System.Windows.Forms.Panel();
-            this.algorithmSettings1 = new AlgorithmSettings();
-            this.mapSettings = new MapSettings();
+            this.algorithmSettings1 = new AiPathFinding.View.AlgorithmSettings();
+            this.mapSettings = new AiPathFinding.View.MapSettings();
+            this.status = new AiPathFinding.View.Status();
             this.SuspendLayout();
             // 
             // _canvas
@@ -44,25 +45,37 @@
             // 
             // algorithmSettings1
             // 
+            this.algorithmSettings1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.algorithmSettings1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.algorithmSettings1.Location = new System.Drawing.Point(12, 218);
+            this.algorithmSettings1.Location = new System.Drawing.Point(12, 235);
             this.algorithmSettings1.Name = "algorithmSettings1";
             this.algorithmSettings1.Size = new System.Drawing.Size(150, 150);
             this.algorithmSettings1.TabIndex = 2;
             // 
             // mapSettings
             // 
+            this.mapSettings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.mapSettings.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.mapSettings.Location = new System.Drawing.Point(12, 12);
             this.mapSettings.Name = "mapSettings";
-            this.mapSettings.Size = new System.Drawing.Size(208, 163);
+            this.mapSettings.Size = new System.Drawing.Size(208, 217);
             this.mapSettings.TabIndex = 1;
+            // 
+            // status
+            // 
+            this.status.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.status.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.status.Location = new System.Drawing.Point(12, 391);
+            this.status.Name = "status";
+            this.status.Size = new System.Drawing.Size(208, 181);
+            this.status.TabIndex = 3;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1039, 584);
+            this.Controls.Add(this.status);
             this.Controls.Add(this.algorithmSettings1);
             this.Controls.Add(this.mapSettings);
             this.Controls.Add(this._canvas);
@@ -77,6 +90,7 @@
         private System.Windows.Forms.Panel _canvas;
         private MapSettings mapSettings;
         private AlgorithmSettings algorithmSettings1;
+        private Status status;
 
 
 

@@ -10,9 +10,11 @@ namespace AiPathFinding.Model
 
         public Point Location { get; private set; }
 
-        public bool KnownToAi { get; set; }
+        public bool KnownToPlayer { get; set; }
 
         public readonly Edge[] Edges = new Edge[4];
+
+        public Entity EntityOnNode { get; set; }
 
         #endregion
 
@@ -21,7 +23,7 @@ namespace AiPathFinding.Model
         public Node(Point location, bool knownToAi, NodeType type)
         {
             Location = location;
-            KnownToAi = knownToAi;
+            KnownToPlayer = knownToAi;
             Type = type;
         }
 

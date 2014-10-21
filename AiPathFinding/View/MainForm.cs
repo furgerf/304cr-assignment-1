@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using AiPathFinding.Model;
 
@@ -23,8 +24,6 @@ namespace AiPathFinding.View
 
         // pens
         private readonly Pen _gridPen = new Pen(Color.LightGray, 1);
-        private readonly Pen _startPen = new Pen(Color.Blue, 1);
-        private readonly Pen _goalPen = new Pen(Color.Red, 1);
         
         // brushes
         private readonly Brush _streetBrush = Brushes.Gray;
@@ -42,7 +41,7 @@ namespace AiPathFinding.View
 
         #region Events
 
-        public delegate void OnCellClicked(Point location);
+        public delegate void OnCellClicked(Point location, MouseButtons button);
 
         public event OnCellClicked CellClicked;
 
@@ -68,6 +67,7 @@ namespace AiPathFinding.View
             // track changes in the model
             Map.CellTypeChanged += OnCellTypeChanged;
             Map.MapSizeChanged += OnMapSizeChanged;
+            Map.EntityNodeChanged += OnEntityNodeChanged;
             // track user input
             _canvas.Click += OnClick;
 
@@ -82,7 +82,6 @@ namespace AiPathFinding.View
         private void SetCanvasSize()
         {
             _canvas.Size = new Size(mapSettings.CellSize * mapSettings.MapWidth + 3, mapSettings.CellSize * mapSettings.MapHeight + 3);
-
         }
 
         private Rectangle MapPointToCanvasRectangle(Point point)
@@ -106,7 +105,14 @@ namespace AiPathFinding.View
             {
                 DrawGrid(g);
                 DrawLandscape(g);
+                DrawEntities(g);
             }
+        }
+
+        private void DrawEntities(Graphics g)
+        {
+            foreach (var e in Entity.Entities.Where(ee => ee.IsVisible))
+                g.FillEllipse(e.Brush, MapPointToCanvasRectangle(new Point(e.Node.Location.X, e.Node.Location.Y)));
         }
 
         private void DrawLandscape(Graphics g)
@@ -128,6 +134,23 @@ namespace AiPathFinding.View
         #endregion
 
         #region Event Handling
+
+        private void OnEntityNodeChanged(Node oldnode, Node newnode, Entity entity)
+        {
+            switch (entity.Type)
+            {
+                case EntityType.Player:
+                    status.PlayerPosition = newnode.Location;
+                    break;
+                case EntityType.Target:
+                    status.TargetPosition = newnode.Location;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            _canvas.Invalidate();
+        }
 
         private void OnCellSizeChanged(int cellSize)
         {
@@ -157,8 +180,14 @@ namespace AiPathFinding.View
 
         private void OnClick(object sender, EventArgs e)
         {
-            if (!IsPointOnGrid(((MouseEventArgs) e).Location))
-                CellClicked(CanvasPointToMapPoint(((MouseEventArgs)e).Location));
+            var me = e as MouseEventArgs;
+
+            if (me == null)
+                throw new Exception("e should be me...");
+
+            if (IsPointOnGrid(me.Location)) return;
+
+            CellClicked(CanvasPointToMapPoint(me.Location), me.Button);
         }
 
         #endregion

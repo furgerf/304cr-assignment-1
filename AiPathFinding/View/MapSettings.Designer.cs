@@ -103,7 +103,7 @@
             this.numMapHeight.Size = new System.Drawing.Size(72, 20);
             this.numMapHeight.TabIndex = 2;
             this.numMapHeight.Value = new decimal(new int[] {
-            2,
+            9,
             0,
             0,
             0});
@@ -129,7 +129,7 @@
             this.numMapWidth.Size = new System.Drawing.Size(72, 20);
             this.numMapWidth.TabIndex = 0;
             this.numMapWidth.Value = new decimal(new int[] {
-            3,
+            12,
             0,
             0,
             0});
@@ -138,6 +138,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.grpMapSize);
             this.Name = "MapSettings";

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using AiPathFinding.Common;
 
 namespace AiPathFinding.Model
@@ -81,7 +82,12 @@ namespace AiPathFinding.Model
             {
                 // if width decreased, set pointers null
                 for (var i = width; i < oldWidth; i++)
+                {
+                    foreach (var n in Graph.Nodes[i].Where(n => n.EntityOnNode != null))
+                        n.EntityOnNode.Node = null;
+
                     Graph.Nodes[i] = null;
+                }
 
                 // remove east-bound edges in left-most column
                 for (var r = 0; r < height; r++)
@@ -123,7 +129,12 @@ namespace AiPathFinding.Model
             {
                 for (var i = 0; i < width; i++)
                     for (var j = height; j < oldHeight; j++)
+                    {
+                        if (Graph.Nodes[i][j].EntityOnNode != null)
+                            Graph.Nodes[i][j].EntityOnNode.Node = null;
+
                         Graph.Nodes[i][j] = null;
+                    }
 
                 // remove south-bound edges in bottom row
                 for (var i = 0; i < width; i++)
