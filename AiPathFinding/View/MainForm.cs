@@ -7,9 +7,6 @@ namespace AiPathFinding.View
 {
     public partial class MainForm : Form
     {
-        // constants
-        private const int GridSize = 20;
-
         // pens
         private readonly Pen _gridPen = new Pen(Color.LightGray, 1);
         private readonly Pen _startPen = new Pen(Color.Blue, 1);
@@ -44,19 +41,29 @@ namespace AiPathFinding.View
 
             Map = new Map(Graph.EmptyGraph(mapSettings.MapWidth, mapSettings.MapHeight));
 
-            _canvas.Size = new Size(GridSize * mapSettings.MapWidth + 3, GridSize * mapSettings.MapHeight + 3);
+            _canvas.Size = new Size(mapSettings.CellSize * mapSettings.MapWidth + 3, mapSettings.CellSize * mapSettings.MapHeight + 3);
 
             Controller = new Controller.Controller(Map);
 
             _canvas.Paint += DrawMap;
 
             Map.CellTypeChanged += OnCellTypeChanged;
-            Map.MapSizeChanged += OnMapSizeChanged;
 
             mapSettings.MapSizeChanged += Controller.OnMapSizeChanged;
 
+            Map.MapSizeChanged += OnMapSizeChanged;
+
+            mapSettings.CellSizeChanged += OnCellSizeChanged;
+
             // for controller
             _canvas.Click += OnClick;
+        }
+
+        private void OnCellSizeChanged(int cellSize)
+        {
+            SetCanvasSize();
+
+            _canvas.Invalidate();
         }
 
         private void OnCellTypeChanged(Point location, NodeType oldType, NodeType newType)
@@ -65,19 +72,25 @@ namespace AiPathFinding.View
         }
         private void OnMapSizeChanged(int oldWidth, int oldHeight, int newWidth, int newHeight)
         {
-            _canvas.Size = new Size(GridSize * newWidth+ 3, GridSize * newHeight + 3);
+            SetCanvasSize();
 
             _canvas.Invalidate();
         }
 
+        private void SetCanvasSize()
+        {
+            _canvas.Size = new Size(mapSettings.CellSize * mapSettings.MapWidth + 3, mapSettings.CellSize * mapSettings.MapHeight + 3);
+
+        }
+
         private Rectangle MapPointToCanvasRectangle(Point point)
         {
-            return new Rectangle(new Point(point.X * GridSize + 1, point.Y * GridSize + 1), new Size(GridSize - 1, GridSize - 1));
+            return new Rectangle(new Point(point.X * mapSettings.CellSize + 1, point.Y * mapSettings.CellSize + 1), new Size(mapSettings.CellSize - 1, mapSettings.CellSize - 1));
         }
 
         private Point CanvasPointToMapPoint(Point point)
         {
-            return new Point(point.X / GridSize, point.Y / GridSize);
+            return new Point(point.X / mapSettings.CellSize, point.Y / mapSettings.CellSize);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -95,7 +108,7 @@ namespace AiPathFinding.View
 
         private bool IsPointOnGrid(Point location)
         {
-            return location.X%GridSize == 0 || location.Y%GridSize == 0;
+            return location.X%mapSettings.CellSize == 0 || location.Y%mapSettings.CellSize == 0;
         }
 
         public readonly Map Map;
@@ -120,10 +133,10 @@ namespace AiPathFinding.View
 
         private void DrawGrid(Graphics g)
         {
-            for (var i = 0; i < _canvas.Height; i += GridSize)
+            for (var i = 0; i < _canvas.Height; i += mapSettings.CellSize)
                 g.DrawLine(_gridPen, 0, i, _canvas.Width, i);
 
-            for (var i = 0; i < _canvas.Width; i += GridSize)
+            for (var i = 0; i < _canvas.Width; i += mapSettings.CellSize)
                 g.DrawLine(_gridPen, i, 0, i, _canvas.Height);
         }
     }
