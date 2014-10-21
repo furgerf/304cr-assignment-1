@@ -68,8 +68,8 @@ namespace AiPathFinding.Model
                     Graph.Nodes[i] = null;
 
                 // remove east-bound edges in left-most column
-                foreach (var n in Graph.Nodes[width - 1])
-                    n.Edges[(int) Direction.East] = null;
+                for (var r = 0; r < height; r++)
+                     Graph.Nodes[width - 1][r].Edges[(int) Direction.East] = null;
             }
             
             if (width > oldWidth)
