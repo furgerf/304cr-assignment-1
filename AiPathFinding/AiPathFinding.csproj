@@ -66,7 +66,7 @@
     <Compile Include="View\MapSettings.Designer.cs">
       <DependentUpon>MapSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model\Model.cs" />
+    <Compile Include="Model\Map.cs" />
     <Compile Include="Model\Node.cs" />
     <Compile Include="Model\NodeType.cs" />
     <Compile Include="Common\Program.cs" />

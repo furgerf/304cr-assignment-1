@@ -33,8 +33,12 @@ namespace AiPathFinding.Model
         public void SetMapSize(int width, int height)
         {
             var oldWidth = Graph.Nodes.Length;
+            while (Graph.Nodes[oldWidth - 1] == null)
+                oldWidth--;
             var oldHeight = Graph.Nodes[0].Length;
-
+            while (Graph.Nodes[0][oldHeight - 1] == null)
+                oldHeight--;
+            
             if (width == oldWidth && height == oldHeight)
                 return;
             
@@ -59,7 +63,7 @@ namespace AiPathFinding.Model
                     // initialize null-pointers with new arrays and nodes
                     for (var i = oldWidth; i < width; i++)
                     {
-                        Graph.Nodes[i] = new Node[height];
+                        Graph.Nodes[i] = new Node[Graph.Nodes[0].Length];
                         for (var j = 0; j < height; j++)
                             Graph.Nodes[i][j] = new Node(new Point(i, j), true, NodeType.Street);
                     }
@@ -79,6 +83,9 @@ namespace AiPathFinding.Model
                     if (height > Graph.Nodes[0].Length)
                         for (var i = 0; i < Graph.Nodes.Length; i++)
                         {
+                            if (Graph.Nodes[i] == null)
+                                continue;
+
                             var newArray = new Node[height];
                             Array.Copy(Graph.Nodes[i], newArray, Graph.Nodes[i].Length);
                             Graph.Nodes[i] = newArray;
@@ -95,7 +102,7 @@ namespace AiPathFinding.Model
             foreach (var t in Graph.Nodes)
                 if (t != null && t.Length != Graph.Nodes[0].Length)
                     throw new Exception("Array size doesnt match!");
-                else if (t != null && t.Length != height && t[height] == null)
+                else if (t != null && height > Graph.Nodes[0].Length && t[height] == null)
                     throw new Exception("should be null!");
 
             MapSizeChanged(oldWidth, oldHeight, width, height);
