@@ -42,16 +42,16 @@ namespace AiPathFinding.View
 
             _landscapeBrushes = new[] {_streetBrush, _plainsBrush, _forestBrush, _hillBrush, _mountainBrush};
 
-            Model = new Model.Model(Graph.EmptyGraph(mapSettings.MapWidth, mapSettings.MapHeight));
+            Map = new Map(Graph.EmptyGraph(mapSettings.MapWidth, mapSettings.MapHeight));
 
             _canvas.Size = new Size(GridSize * mapSettings.MapWidth + 3, GridSize * mapSettings.MapHeight + 3);
 
-            Controller = new Controller.Controller(Model);
+            Controller = new Controller.Controller(Map);
 
             _canvas.Paint += DrawMap;
 
-            Model.CellTypeChanged += OnCellTypeChanged;
-            Model.MapSizeChanged += OnMapSizeChanged;
+            Map.CellTypeChanged += OnCellTypeChanged;
+            Map.MapSizeChanged += OnMapSizeChanged;
 
             mapSettings.MapSizeChanged += Controller.OnMapSizeChanged;
 
@@ -98,7 +98,7 @@ namespace AiPathFinding.View
             return location.X%GridSize == 0 || location.Y%GridSize == 0;
         }
 
-        public readonly Model.Model Model;
+        public readonly Map Map;
 
         public readonly Controller.Controller Controller;
 
@@ -115,7 +115,7 @@ namespace AiPathFinding.View
         {
             for (var i = 0; i < mapSettings.MapWidth; i++)
                 for (var j = 0; j < mapSettings.MapHeight; j++)
-                    g.FillRectangle(_landscapeBrushes[(int)Model.GetNodeType(new Point(i, j))], MapPointToCanvasRectangle(new Point(i, j)));
+                    g.FillRectangle(_landscapeBrushes[(int)Map.GetNodeType(new Point(i, j))], MapPointToCanvasRectangle(new Point(i, j)));
         }
 
         private void DrawGrid(Graphics g)

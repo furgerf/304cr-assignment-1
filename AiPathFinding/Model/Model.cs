@@ -3,9 +3,8 @@ using System.Drawing;
 
 namespace AiPathFinding.Model
 {
-    public class Model
+    public class Map
     {
-
         public delegate void OnCellTypeChanged(Point locatoin, NodeType oldType, NodeType newType);
 
         public event OnCellTypeChanged CellTypeChanged;
@@ -14,7 +13,7 @@ namespace AiPathFinding.Model
 
         public event OnMapSizeChanged MapSizeChanged;
 
-        public Model(Graph graph)
+        public Map(Graph graph)
         {
             Graph = graph;
         }

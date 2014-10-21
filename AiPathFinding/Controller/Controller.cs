@@ -6,25 +6,25 @@ namespace AiPathFinding.Controller
 {
     public class Controller
     {
-        public Controller(Model.Model model)
+        public Controller(Map map)
         {
-            Model = model;
+            Map = map;
 
             MainForm.CellClicked += OnCellClick;
         }
 
-        public Model.Model Model { get; private set; }
+        public Map Map { get; private set; }
 
         public void OnCellClick(Point location)
         {
             // TODO: Change cell click behavior here
 
-            Model.SetNodeType(location, (NodeType)(((int)Model.GetNodeType(location) + 1) % (int)NodeType.Count));
+            Map.SetNodeType(location, (NodeType)(((int)Map.GetNodeType(location) + 1) % (int)NodeType.Count));
         }
 
         public void OnMapSizeChanged(int width, int height)
         {
-            Model.SetMapSize(width, height);
+            Map.SetMapSize(width, height);
         }
     }
 }
