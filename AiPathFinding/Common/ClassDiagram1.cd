@@ -1,88 +1,84 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="AiPathFinding.MainForm" Collapsed="true">
+  <Class Name="AiPathFinding.View.MainForm" Collapsed="true">
     <Position X="9.5" Y="2" Width="1.5" />
+    <NestedTypes>
+      <Delegate Name="AiPathFinding.View.MainForm.OnCellClicked" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>View\MainForm.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>EgAAAAAAAWAgAIECAACAAAACAAQAABEBBAgIAAaBAEA=</HashCode>
-      <FileName>MainForm.cs</FileName>
+      <HashCode>EgAAAAAgAWAgAIECAACAAAACAAQAABEBBAgKAAaBAEA=</HashCode>
+      <FileName>View\MainForm.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
-      <Field Name="Model" />
       <Field Name="Controller" />
     </ShowAsAssociation>
   </Class>
-  <Class Name="AiPathFinding.Model">
+  <Class Name="AiPathFinding.Model.Model">
     <Position X="5.25" Y="3.75" Width="1.5" />
     <NestedTypes>
-      <Delegate Name="AiPathFinding.Model.OnMapSizeChanged" Collapsed="true">
+      <Delegate Name="AiPathFinding.Model.Model.OnCellTypeChanged" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>Model.cs</NewMemberFileName>
         </TypeIdentifier>
       </Delegate>
-      <Delegate Name="AiPathFinding.Model.OnCellTypeChanged" Collapsed="true">
+      <Delegate Name="AiPathFinding.Model.Model.OnMapSizeChanged" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>Model.cs</NewMemberFileName>
         </TypeIdentifier>
       </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAACAAACgABAAAAAAAAAA=</HashCode>
-      <FileName>Model.cs</FileName>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAACAAACgABAAEAAAAAAA=</HashCode>
+      <FileName>Model\Model.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
       <Property Name="Graph" />
     </ShowAsAssociation>
   </Class>
-  <Class Name="AiPathFinding.Controller">
+  <Class Name="AiPathFinding.Controller.Controller">
     <Position X="5.75" Y="0.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAgCAAAAAAA=</HashCode>
-      <FileName>Controller.cs</FileName>
+      <FileName>Controller\Controller.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Model" />
-    </ShowAsAssociation>
   </Class>
-  <Class Name="AiPathFinding.Node">
+  <Class Name="AiPathFinding.Model.Node">
     <Position X="7" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAgAAAAAAAAAAEAAIAAAAAAAAAAEAAAQAAAAAAAAA=</HashCode>
-      <FileName>Node.cs</FileName>
+      <FileName>Model\Node.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="AiPathFinding.Edge">
+  <Class Name="AiPathFinding.Model.Edge">
     <Position X="9.5" Y="5.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAABAAAAACAAgABAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Edge.cs</FileName>
+      <FileName>Model\Edge.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="AiPathFinding.Graph">
+  <Class Name="AiPathFinding.Model.Graph">
     <Position X="3.5" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
-      <FileName>Graph.cs</FileName>
+      <FileName>Model\Graph.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="AiPathFinding.CellChangedEventArgs">
-    <Position X="3.25" Y="1.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>CellChangedEventArgs.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Enum Name="AiPathFinding.Direction">
+  <Enum Name="AiPathFinding.Common.Direction">
     <Position X="0.75" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AACAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAABAAQ=</HashCode>
-      <FileName>Direction.cs</FileName>
+      <FileName>Common\Direction.cs</FileName>
     </TypeIdentifier>
   </Enum>
-  <Enum Name="AiPathFinding.NodeType">
+  <Enum Name="AiPathFinding.Model.NodeType">
     <Position X="0.75" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAIAAAAAACAAAgAAAAAAQAAAAAAAAAAgIAAAAAAAA=</HashCode>
-      <FileName>NodeType.cs</FileName>
+      <FileName>Model\NodeType.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Font Name="Tahoma" Size="8.25" />

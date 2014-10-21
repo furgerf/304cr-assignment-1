@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
+using AiPathFinding.Common;
 
-namespace AiPathFinding
+namespace AiPathFinding.Model
 {
     public class Graph
     {

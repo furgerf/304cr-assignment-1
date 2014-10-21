@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using AiPathFinding.Model;
 
-namespace AiPathFinding
+namespace AiPathFinding.View
 {
     public partial class MainForm : Form
     {
@@ -41,11 +42,11 @@ namespace AiPathFinding
 
             _landscapeBrushes = new[] {_streetBrush, _plainsBrush, _forestBrush, _hillBrush, _mountainBrush};
 
-            Model = new Model(Graph.EmptyGraph(mapSettings.MapWidth, mapSettings.MapHeight));
+            Model = new Model.Model(Graph.EmptyGraph(mapSettings.MapWidth, mapSettings.MapHeight));
 
             _canvas.Size = new Size(GridSize * mapSettings.MapWidth + 3, GridSize * mapSettings.MapHeight + 3);
 
-            Controller = new Controller(Model);
+            Controller = new Controller.Controller(Model);
 
             _canvas.Paint += DrawMap;
 
@@ -97,9 +98,9 @@ namespace AiPathFinding
             return location.X%GridSize == 0 || location.Y%GridSize == 0;
         }
 
-        public readonly Model Model;
+        public readonly Model.Model Model;
 
-        public readonly Controller Controller;
+        public readonly Controller.Controller Controller;
 
         private void DrawMap(object sender, PaintEventArgs e)
         {

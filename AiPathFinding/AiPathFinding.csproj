@@ -44,40 +44,40 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AlgorithmSettings.cs">
+    <Compile Include="View\AlgorithmSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="AlgorithmSettings.Designer.cs">
+    <Compile Include="View\AlgorithmSettings.Designer.cs">
       <DependentUpon>AlgorithmSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controller.cs" />
-    <Compile Include="Direction.cs" />
-    <Compile Include="Edge.cs" />
-    <Compile Include="Graph.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="Controller\Controller.cs" />
+    <Compile Include="Common\Direction.cs" />
+    <Compile Include="Model\Edge.cs" />
+    <Compile Include="Model\Graph.cs" />
+    <Compile Include="View\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="View\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MapSettings.cs">
+    <Compile Include="View\MapSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="MapSettings.Designer.cs">
+    <Compile Include="View\MapSettings.Designer.cs">
       <DependentUpon>MapSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model.cs" />
-    <Compile Include="Node.cs" />
-    <Compile Include="NodeType.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Model\Model.cs" />
+    <Compile Include="Model\Node.cs" />
+    <Compile Include="Model\NodeType.cs" />
+    <Compile Include="Common\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="AlgorithmSettings.resx">
+    <EmbeddedResource Include="View\AlgorithmSettings.resx">
       <DependentUpon>AlgorithmSettings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="View\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MapSettings.resx">
+    <EmbeddedResource Include="View\MapSettings.resx">
       <DependentUpon>MapSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -89,7 +89,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="ClassDiagram1.cd" />
+    <None Include="Common\ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

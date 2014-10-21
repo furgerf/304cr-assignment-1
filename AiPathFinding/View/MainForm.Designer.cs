@@ -1,4 +1,4 @@
-﻿namespace AiPathFinding
+﻿namespace AiPathFinding.View
 {
     partial class MainForm
     {
@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this._canvas = new System.Windows.Forms.Panel();
-            this.algorithmSettings1 = new AiPathFinding.AlgorithmSettings();
-            this.mapSettings = new AiPathFinding.MapSettings();
+            this.algorithmSettings1 = new AlgorithmSettings();
+            this.mapSettings = new MapSettings();
             this.SuspendLayout();
             // 
             // _canvas

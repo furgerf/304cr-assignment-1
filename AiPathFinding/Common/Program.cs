@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
+using AiPathFinding.View;
 
-namespace AiPathFinding
+namespace AiPathFinding.Common
 {
     static class Program
     {

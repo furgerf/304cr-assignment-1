@@ -1,4 +1,4 @@
-﻿namespace AiPathFinding
+﻿namespace AiPathFinding.Common
 {
     public enum Direction
     {

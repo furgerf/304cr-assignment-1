@@ -1,4 +1,4 @@
-﻿namespace AiPathFinding
+﻿namespace AiPathFinding.Model
 {
     public enum NodeType
     {

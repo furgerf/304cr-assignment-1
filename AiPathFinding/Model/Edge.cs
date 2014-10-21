@@ -1,6 +1,7 @@
 ﻿using System;
+using AiPathFinding.Common;
 
-namespace AiPathFinding
+namespace AiPathFinding.Model
 {
     public class Edge
     {

@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace AiPathFinding
+namespace AiPathFinding.Model
 {
     public class Node
     {

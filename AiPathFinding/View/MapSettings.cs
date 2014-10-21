@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace AiPathFinding
+namespace AiPathFinding.View
 {
     public partial class MapSettings : UserControl
     {

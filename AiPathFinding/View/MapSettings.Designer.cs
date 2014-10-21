@@ -1,4 +1,4 @@
-﻿namespace AiPathFinding
+﻿namespace AiPathFinding.View
 {
     partial class MapSettings
     {

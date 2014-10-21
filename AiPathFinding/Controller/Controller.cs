@@ -1,18 +1,19 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
+using AiPathFinding.Model;
+using AiPathFinding.View;
 
-namespace AiPathFinding
+namespace AiPathFinding.Controller
 {
     public class Controller
     {
-        public Controller(Model model)
+        public Controller(Model.Model model)
         {
             Model = model;
 
             MainForm.CellClicked += OnCellClick;
         }
 
-        public Model Model { get; private set; }
+        public Model.Model Model { get; private set; }
 
         public void OnCellClick(Point location)
         {
