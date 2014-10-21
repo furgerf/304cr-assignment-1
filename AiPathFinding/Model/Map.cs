@@ -22,6 +22,10 @@ namespace AiPathFinding.Model
 
         public event OnMapSizeChanged MapSizeChanged;
 
+        public delegate void OnEntityNodeChanged(Node oldNode, Node newNode, Entity entity);
+
+        public event OnEntityNodeChanged EntityNodeChanged;
+
         #endregion
 
         #region Constructor
@@ -29,11 +33,22 @@ namespace AiPathFinding.Model
         public Map(Graph graph)
         {
             Graph = graph;
+
+            Entity.NodeChanged += (o, n, e) => EntityNodeChanged(o, n, e);
         }
 
         #endregion
 
         #region Methods
+
+        public void SetEntityLocation(Entity player, Point location)
+        {
+            // set location and trigger event
+            var oldNode = player.Node;
+            player.Node = Graph.GetNode(location);
+            if (EntityNodeChanged != null)
+                EntityNodeChanged(oldNode, player.Node, player);
+        }
 
         public NodeType GetNodeType(Point location)
         {
@@ -45,7 +60,8 @@ namespace AiPathFinding.Model
             // set node type and trigger event
             var oldType = Graph.Nodes[location.X][location.Y].Type;
             Graph.Nodes[location.X][location.Y].Type = type;
-            CellTypeChanged(location, oldType, type);
+            if (CellTypeChanged != null)
+                CellTypeChanged(location, oldType, type);
         }
 
         public void SetMapSize(int width, int height)
@@ -150,7 +166,8 @@ namespace AiPathFinding.Model
                 else if (t != null && height > Graph.Nodes[0].Length && t[height] == null)
                     throw new Exception("should be null!");
 
-            MapSizeChanged(oldWidth, oldHeight, width, height);
+            if (MapSizeChanged != null)
+                MapSizeChanged(oldWidth, oldHeight, width, height);
         }
 
         #endregion

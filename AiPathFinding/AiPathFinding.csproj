@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Entity.cs" />
+    <Compile Include="Model\EntityType.cs" />
     <Compile Include="View\AlgorithmSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>

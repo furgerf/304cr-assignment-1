@@ -21,6 +21,7 @@ namespace AiPathFinding.Model
         #endregion
 
         #region Creation Methods
+
         public static Graph EmptyGraph(int width, int height)
         {
             // create array
@@ -45,6 +46,15 @@ namespace AiPathFinding.Model
                 }
 
             return new Graph(nodes);
+        }
+
+        #endregion
+
+        #region Methods
+
+        public Node GetNode(Point p)
+        {
+            return Nodes[p.X][p.Y];
         }
 
         #endregion
