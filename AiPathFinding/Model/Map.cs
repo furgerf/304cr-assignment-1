@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using AiPathFinding.Common;
 
 namespace AiPathFinding.Model
 {
@@ -38,63 +39,89 @@ namespace AiPathFinding.Model
             var oldHeight = Graph.Nodes[0].Length;
             while (Graph.Nodes[0][oldHeight - 1] == null)
                 oldHeight--;
-            
+
             if (width == oldWidth && height == oldHeight)
                 return;
-            
-            if (width != oldWidth)
+
+            if (width < oldWidth)
             {
                 // if width decreased, set pointers null
                 for (var i = width; i < oldWidth; i++)
                     Graph.Nodes[i] = null;
 
+                // remove east-bound edges in left-most column
+                foreach (var n in Graph.Nodes[width - 1])
+                    n.Edges[(int) Direction.East] = null;
+            }
+            
+            if (width > oldWidth)
+            {
                 // if width increased, copy to new array if necessary
-                if (oldWidth < width)
+                if (width > Graph.Nodes.Length)
                 {
-                    if (width > Graph.Nodes.Length)
-                    {
-                        var newNodes = new Node[width][];
-                        Array.Copy(Graph.Nodes, newNodes, Graph.Nodes.Length);
-                        for (var i = Graph.Nodes.Length; i < width; i++)
-                            newNodes[i] = new Node[Graph.Nodes[0].Length];
-                        Graph.Nodes = newNodes;
-                    }
+                    var newNodes = new Node[width][];
+                    Array.Copy(Graph.Nodes, newNodes, Graph.Nodes.Length);
+                    for (var i = Graph.Nodes.Length; i < width; i++)
+                        newNodes[i] = new Node[Graph.Nodes[0].Length];
+                    Graph.Nodes = newNodes;
+                }
 
-                    // initialize null-pointers with new arrays and nodes
-                    for (var i = oldWidth; i < width; i++)
-                    {
-                        Graph.Nodes[i] = new Node[Graph.Nodes[0].Length];
-                        for (var j = 0; j < height; j++)
-                            Graph.Nodes[i][j] = new Node(new Point(i, j), true, NodeType.Street);
-                    }
+                // initialize new nodes
+                for (var i = oldWidth; i < width; i++)
+                {
+                    Graph.Nodes[i] = new Node[Graph.Nodes[0].Length];
+                    for (var j = 0; j < height; j++)
+                        Graph.Nodes[i][j] = new Node(new Point(i, j), true, NodeType.Street);
+                }
+
+                // add new edges
+                for (var j = 0; j < height; j++)
+                {
+                    Edge.AddEdge(Graph.Nodes[width - 2][j], Direction.East, Graph.Nodes[width - 1][j], Direction.West);
+                    
+                    if (j < height - 1)
+                        Edge.AddEdge(Graph.Nodes[width - 1][j], Direction.South, Graph.Nodes[width - 1][j + 1], Direction.North);
                 }
             }
-            else if (height != oldHeight)
+
+            // if height decreased, set pointers null
+            if (oldHeight > height)
             {
-                // if height decreased, set pointers null
-                if (oldHeight > height)
-                    for (var i = 0; i < width; i++)
-                        for (var j = height; j < oldHeight; j++)
-                            Graph.Nodes[i][j] = null;
+                for (var i = 0; i < width; i++)
+                    for (var j = height; j < oldHeight; j++)
+                        Graph.Nodes[i][j] = null;
 
-                // if height increased, copy to new array if necessary
-                if (oldHeight < height)
+                // remove south-bound edges in bottom row
+                for (var i = 0; i < width; i++)
+                    Graph.Nodes[i][height - 1].Edges[(int) Direction.South] = null;
+            }
+
+            // if height increased, copy to new array if necessary
+            if (oldHeight < height)
+            {
+                if (height > Graph.Nodes[0].Length)
+                    for (var i = 0; i < Graph.Nodes.Length; i++)
+                    {
+                        if (Graph.Nodes[i] == null)
+                            continue;
+
+                        var newArray = new Node[height];
+                        Array.Copy(Graph.Nodes[i], newArray, Graph.Nodes[i].Length);
+                        Graph.Nodes[i] = newArray;
+                    }
+
+                // add nodes
+                for (var i = 0; i < width; i++)
+                    for (var j = oldHeight; j < height; j++)
+                        Graph.Nodes[i][j] = new Node(new Point(i, j), true, NodeType.Street);
+
+                // add new edges
+                for (var i = 0; i < width; i++)
                 {
-                    if (height > Graph.Nodes[0].Length)
-                        for (var i = 0; i < Graph.Nodes.Length; i++)
-                        {
-                            if (Graph.Nodes[i] == null)
-                                continue;
+                    Edge.AddEdge(Graph.Nodes[i][height - 2], Direction.South, Graph.Nodes[i][height - 1], Direction.North);
 
-                            var newArray = new Node[height];
-                            Array.Copy(Graph.Nodes[i], newArray, Graph.Nodes[i].Length);
-                            Graph.Nodes[i] = newArray;
-                        }
-
-                    // add nodes
-                    for (var i = 0; i < width; i++)
-                        for (var j = oldHeight; j < height; j++)
-                            Graph.Nodes[i][j] = new Node(new Point(i, j), true, NodeType.Street);
+                    if (i < width - 1)
+                        Edge.AddEdge(Graph.Nodes[i][height - 1], Direction.East, Graph.Nodes[i + 1][height - 1], Direction.West);
                 }
             }
 
