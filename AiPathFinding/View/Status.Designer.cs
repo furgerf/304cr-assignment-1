@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
             this.grpEntities = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtPlayerPosition = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.txtTargetPosition = new System.Windows.Forms.TextBox();
-            this.txtMinimalDistance = new System.Windows.Forms.TextBox();
             this.txtManhattenDistance = new System.Windows.Forms.TextBox();
+            this.txtMinimalDistance = new System.Windows.Forms.TextBox();
+            this.txtTargetPosition = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtPlayerPosition = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.grpEntities.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -52,64 +52,19 @@
             this.grpEntities.Controls.Add(this.label1);
             this.grpEntities.Location = new System.Drawing.Point(3, 3);
             this.grpEntities.Name = "grpEntities";
-            this.grpEntities.Size = new System.Drawing.Size(200, 194);
+            this.grpEntities.Size = new System.Drawing.Size(200, 123);
             this.grpEntities.TabIndex = 0;
             this.grpEntities.TabStop = false;
             this.grpEntities.Text = "Entitites";
             // 
-            // label1
+            // txtManhattenDistance
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 22);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(76, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Player Position";
-            // 
-            // txtPlayerPosition
-            // 
-            this.txtPlayerPosition.Enabled = false;
-            this.txtPlayerPosition.Location = new System.Drawing.Point(115, 19);
-            this.txtPlayerPosition.Name = "txtPlayerPosition";
-            this.txtPlayerPosition.Size = new System.Drawing.Size(79, 20);
-            this.txtPlayerPosition.TabIndex = 1;
-            this.txtPlayerPosition.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 48);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(78, 13);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Target Position";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 74);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(87, 13);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "Minimal Distance";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 100);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(103, 13);
-            this.label4.TabIndex = 6;
-            this.label4.Text = "Manhatten Distance";
-            // 
-            // txtTargetPosition
-            // 
-            this.txtTargetPosition.Enabled = false;
-            this.txtTargetPosition.Location = new System.Drawing.Point(115, 45);
-            this.txtTargetPosition.Name = "txtTargetPosition";
-            this.txtTargetPosition.Size = new System.Drawing.Size(79, 20);
-            this.txtTargetPosition.TabIndex = 7;
-            this.txtTargetPosition.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.txtManhattenDistance.Enabled = false;
+            this.txtManhattenDistance.Location = new System.Drawing.Point(115, 97);
+            this.txtManhattenDistance.Name = "txtManhattenDistance";
+            this.txtManhattenDistance.Size = new System.Drawing.Size(79, 20);
+            this.txtManhattenDistance.TabIndex = 9;
+            this.txtManhattenDistance.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // txtMinimalDistance
             // 
@@ -120,14 +75,59 @@
             this.txtMinimalDistance.TabIndex = 8;
             this.txtMinimalDistance.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // txtManhattenDistance
+            // txtTargetPosition
             // 
-            this.txtManhattenDistance.Enabled = false;
-            this.txtManhattenDistance.Location = new System.Drawing.Point(115, 97);
-            this.txtManhattenDistance.Name = "txtManhattenDistance";
-            this.txtManhattenDistance.Size = new System.Drawing.Size(79, 20);
-            this.txtManhattenDistance.TabIndex = 9;
-            this.txtManhattenDistance.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.txtTargetPosition.Enabled = false;
+            this.txtTargetPosition.Location = new System.Drawing.Point(115, 45);
+            this.txtTargetPosition.Name = "txtTargetPosition";
+            this.txtTargetPosition.Size = new System.Drawing.Size(79, 20);
+            this.txtTargetPosition.TabIndex = 7;
+            this.txtTargetPosition.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(6, 100);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(103, 13);
+            this.label4.TabIndex = 6;
+            this.label4.Text = "Manhatten Distance";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 74);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(87, 13);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "Minimal Distance";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 48);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(78, 13);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Target Position";
+            // 
+            // txtPlayerPosition
+            // 
+            this.txtPlayerPosition.Enabled = false;
+            this.txtPlayerPosition.Location = new System.Drawing.Point(115, 19);
+            this.txtPlayerPosition.Name = "txtPlayerPosition";
+            this.txtPlayerPosition.Size = new System.Drawing.Size(79, 20);
+            this.txtPlayerPosition.TabIndex = 1;
+            this.txtPlayerPosition.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 22);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(76, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Player Position";
             // 
             // Status
             // 
