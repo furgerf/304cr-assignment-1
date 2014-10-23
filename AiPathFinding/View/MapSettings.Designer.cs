@@ -36,8 +36,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.numMapWidth = new System.Windows.Forms.NumericUpDown();
             this.grpSaveLoad = new System.Windows.Forms.GroupBox();
-            this.butSaveMap = new System.Windows.Forms.Button();
             this.butLoadMap = new System.Windows.Forms.Button();
+            this.butSaveMap = new System.Windows.Forms.Button();
             this.grpMapSize.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numCellSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMapHeight)).BeginInit();
@@ -81,7 +81,7 @@
             this.numCellSize.Size = new System.Drawing.Size(72, 20);
             this.numCellSize.TabIndex = 4;
             this.numCellSize.Value = new decimal(new int[] {
-            25,
+            50,
             0,
             0,
             0});
@@ -149,15 +149,6 @@
             this.grpSaveLoad.TabStop = false;
             this.grpSaveLoad.Text = "Save/Load";
             // 
-            // butSaveMap
-            // 
-            this.butSaveMap.Location = new System.Drawing.Point(6, 19);
-            this.butSaveMap.Name = "butSaveMap";
-            this.butSaveMap.Size = new System.Drawing.Size(91, 23);
-            this.butSaveMap.TabIndex = 0;
-            this.butSaveMap.Text = "Save Map";
-            this.butSaveMap.UseVisualStyleBackColor = true;
-            // 
             // butLoadMap
             // 
             this.butLoadMap.Location = new System.Drawing.Point(103, 19);
@@ -166,6 +157,15 @@
             this.butLoadMap.TabIndex = 1;
             this.butLoadMap.Text = "Load Map";
             this.butLoadMap.UseVisualStyleBackColor = true;
+            // 
+            // butSaveMap
+            // 
+            this.butSaveMap.Location = new System.Drawing.Point(6, 19);
+            this.butSaveMap.Name = "butSaveMap";
+            this.butSaveMap.Size = new System.Drawing.Size(91, 23);
+            this.butSaveMap.TabIndex = 0;
+            this.butSaveMap.Text = "Save Map";
+            this.butSaveMap.UseVisualStyleBackColor = true;
             // 
             // MapSettings
             // 

@@ -45,6 +45,16 @@ namespace AiPathFinding.Model
 
         #region Methods
 
+        public Node GetOtherNode(Node node)
+        {
+            if (node == Node1)
+                return Node2;
+            if (node == Node2)
+                return Node1;
+
+            throw new Exception("node isnt part of edge");
+        }
+
         public static void AddEdge(Node node1, Direction node1Direction, Node node2, Direction node2Direction)
         {
             AddEdge(node1, node1Direction, node2, node2Direction, 1);

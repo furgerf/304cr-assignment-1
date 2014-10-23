@@ -19,6 +19,11 @@ namespace AiPathFinding.Algorithm
 
         #region Constructor
 
+        public AStarAbstractAlgorithm(Graph graph)
+            : base(graph)
+        {
+        }
+
         #endregion
 
         #region Main Methods

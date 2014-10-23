@@ -79,6 +79,11 @@ namespace AiPathFinding.Model
 
         #region Methods
 
+        public Graph GetGraph()
+        {
+            return Graph;
+        }
+
         public void SetEntityLocation(Entity player, Point location)
         {
             // set location and trigger event
