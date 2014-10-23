@@ -35,10 +35,14 @@
             this.numMapHeight = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.numMapWidth = new System.Windows.Forms.NumericUpDown();
+            this.grpSaveLoad = new System.Windows.Forms.GroupBox();
+            this.butSaveMap = new System.Windows.Forms.Button();
+            this.butLoadMap = new System.Windows.Forms.Button();
             this.grpMapSize.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numCellSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMapHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMapWidth)).BeginInit();
+            this.grpSaveLoad.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpMapSize
@@ -134,12 +138,42 @@
             0,
             0});
             // 
+            // grpSaveLoad
+            // 
+            this.grpSaveLoad.Controls.Add(this.butLoadMap);
+            this.grpSaveLoad.Controls.Add(this.butSaveMap);
+            this.grpSaveLoad.Location = new System.Drawing.Point(3, 106);
+            this.grpSaveLoad.Name = "grpSaveLoad";
+            this.grpSaveLoad.Size = new System.Drawing.Size(200, 49);
+            this.grpSaveLoad.TabIndex = 1;
+            this.grpSaveLoad.TabStop = false;
+            this.grpSaveLoad.Text = "Save/Load";
+            // 
+            // butSaveMap
+            // 
+            this.butSaveMap.Location = new System.Drawing.Point(6, 19);
+            this.butSaveMap.Name = "butSaveMap";
+            this.butSaveMap.Size = new System.Drawing.Size(91, 23);
+            this.butSaveMap.TabIndex = 0;
+            this.butSaveMap.Text = "Save Map";
+            this.butSaveMap.UseVisualStyleBackColor = true;
+            // 
+            // butLoadMap
+            // 
+            this.butLoadMap.Location = new System.Drawing.Point(103, 19);
+            this.butLoadMap.Name = "butLoadMap";
+            this.butLoadMap.Size = new System.Drawing.Size(91, 23);
+            this.butLoadMap.TabIndex = 1;
+            this.butLoadMap.Text = "Load Map";
+            this.butLoadMap.UseVisualStyleBackColor = true;
+            // 
             // MapSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.grpSaveLoad);
             this.Controls.Add(this.grpMapSize);
             this.Name = "MapSettings";
             this.Size = new System.Drawing.Size(206, 363);
@@ -148,6 +182,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numCellSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMapHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMapWidth)).EndInit();
+            this.grpSaveLoad.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -161,5 +196,8 @@
         private System.Windows.Forms.NumericUpDown numMapWidth;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numCellSize;
+        private System.Windows.Forms.GroupBox grpSaveLoad;
+        public System.Windows.Forms.Button butLoadMap;
+        public System.Windows.Forms.Button butSaveMap;
     }
 }

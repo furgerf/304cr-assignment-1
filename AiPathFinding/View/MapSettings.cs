@@ -47,5 +47,15 @@ namespace AiPathFinding.View
         }
 
         #endregion
+
+        #region Methods
+
+        public void SetMapSize(int width, int height)
+        {
+            numMapWidth.Value = width;
+            numMapHeight.Value = height;
+        }
+
+        #endregion
     }
 }
