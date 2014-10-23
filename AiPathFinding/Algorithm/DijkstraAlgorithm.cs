@@ -34,26 +34,27 @@ namespace AiPathFinding.Algorithm
         {
             PrepareData(from);
 
-            while (_nodeDataMap[to].Item2 == int.MaxValue && _unvisitedNodes.Count > 0)
+            // loop while we have options an at least one of the options and we have not yet found a way
+            while (_unvisitedNodes.Count > 0 && _nodeDataMap[to].Item2 == int.MaxValue)
             {
-                if (_nodeDataMap[to].Item2 != int.MaxValue &&
-                    _unvisitedNodes.Any(n => _nodeDataMap[n].Item2 > _nodeDataMap[to].Item2))
-                    break;
-
+                // apply the algorithm to do the actual pathfinding
                 var currentNode = _unvisitedNodes[0];
                 ProcessNode(currentNode);
 
+                // prepare data for drawing
                 var data = new List<Tuple<string, Point, Brush, Font>>();
-
                 foreach (var n in _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue))
-                    data.Add(new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14, _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold)));
+                    data.Add(new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location,
+                        n == currentNode ? Brushes.DarkRed : Brushes.Turquoise,
+                        new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14,
+                            _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold)));
 
+                // create new step
                 var newStep = new AlgorithmStep(g =>
                 {
                     foreach (var d in data)
                         g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
                 });
-
                 Steps.Add(newStep);
             }
         }
@@ -66,26 +67,29 @@ namespace AiPathFinding.Algorithm
                 // get other node
                 var otherNode = e.GetOtherNode(node);
 
+                // insert node if it's not yet inserted (this way is cheaper to test that)
                 var insert = _nodeDataMap[otherNode].Item2 == int.MaxValue;
 
+                // if the current way is cheaper, update data
                 if (_nodeDataMap[otherNode].Item2 > _nodeDataMap[node].Item2 + otherNode.Cost)
                     _nodeDataMap[otherNode] = new Tuple<bool, int>(false, _nodeDataMap[node].Item2 + otherNode.Cost);
 
-                if (insert)
-                {
-                    if (_unvisitedNodes.Count == 0)
-                        _unvisitedNodes.Add(otherNode);
-                    for (var i = 0; i < _unvisitedNodes.Count; i++)
-                        if (_nodeDataMap[_unvisitedNodes[i]].Item2 >= _nodeDataMap[otherNode].Item2)
-                        {
-                            _unvisitedNodes.Insert(i, otherNode);
-                            insert = false;
-                            break;
-                        }
+                if (!insert) continue;
 
-                    if (insert)
-                        _unvisitedNodes.Add(otherNode);
-                }
+                // insert node in proper place
+                if (_unvisitedNodes.Count == 0)
+                    _unvisitedNodes.Add(otherNode);
+                for (var i = 0; i < _unvisitedNodes.Count; i++)
+                    if (_nodeDataMap[_unvisitedNodes[i]].Item2 >= _nodeDataMap[otherNode].Item2)
+                    {
+                        _unvisitedNodes.Insert(i, otherNode);
+                        insert = false;
+                        break;
+                    }
+
+                // couldn't insert, our node must be the most expensive one
+                if (insert)
+                    _unvisitedNodes.Add(otherNode);
             }
 
             // mark current node as visited and move it to the other list
