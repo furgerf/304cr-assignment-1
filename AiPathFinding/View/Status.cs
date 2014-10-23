@@ -73,5 +73,9 @@ namespace AiPathFinding.View
         }
 
         #endregion
+
+        #region Event Handling
+
+        #endregion
     }
 }

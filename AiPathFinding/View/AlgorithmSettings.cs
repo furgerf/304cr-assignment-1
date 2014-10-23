@@ -6,7 +6,7 @@ namespace AiPathFinding.View
 {
     public partial class AlgorithmSettings : UserControl
     {
-        private readonly static IAlgorithm[] Algorithms = {new AStarAlgorithm(), new DijkstraAlgorithm()};
+        private readonly static AbstractAlgorithm[] AbstractAlgorithms = {new AStarAbstractAlgorithm(), new DijkstraAbstractAlgorithm()};
 
         public AlgorithmSettings()
         {
@@ -30,7 +30,7 @@ namespace AiPathFinding.View
 
         private void butStart_Click(object sender, System.EventArgs e)
         {
-            Algorithms[comKnownAreaAlgorithm.SelectedIndex].FindPath(Entity.Player.Node, Entity.Target.Node);
+            AbstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].FindPath(Entity.Player.Node, Entity.Target.Node);
         }
     }
 }

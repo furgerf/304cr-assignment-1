@@ -3,7 +3,7 @@ using AiPathFinding.Model;
 
 namespace AiPathFinding.Algorithm
 {
-    public class AStarAlgorithm : IAlgorithm
+    public class AStarAbstractAlgorithm : AbstractAlgorithm
     {
         #region Public Fields
 
@@ -19,16 +19,11 @@ namespace AiPathFinding.Algorithm
 
         #region Constructor
 
-        public AStarAlgorithm()
-        {
-
-        }
-
         #endregion
 
         #region Main Methods
 
-        public void FindPath(Node from, Node to)
+        override public void FindPath(Node from, Node to)
         {
             throw new NotImplementedException();
         }

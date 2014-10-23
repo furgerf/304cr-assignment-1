@@ -76,6 +76,8 @@ namespace AiPathFinding.View
             _canvas.Click += OnClick;
             mapSettings.butLoadMap.Click += (s, e) => LoadMap();
             mapSettings.butSaveMap.Click += (s, e) => SaveMap();
+            status.PlayerPosition = Entity.Player.Node.Location;
+            status.TargetPosition = Entity.Target.Node.Location;
 
             algorithmSettings1.RegisterMap(Map);
             
@@ -180,10 +182,16 @@ namespace AiPathFinding.View
             switch (entity.Type)
             {
                 case EntityType.Player:
-                    status.PlayerPosition = newnode.Location;
+                    if (newnode == null)
+                        status.PlayerPosition = null;
+                    else
+                        status.PlayerPosition = newnode.Location;
                     break;
                 case EntityType.Target:
-                    status.TargetPosition = newnode.Location;
+                    if (newnode == null)
+                        status.TargetPosition = null;
+                    else
+                        status.TargetPosition = newnode.Location;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

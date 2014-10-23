@@ -2,7 +2,7 @@ using AiPathFinding.Model;
 
 namespace AiPathFinding.Algorithm
 {
-    public class DijkstraAlgorithm : IAlgorithm
+    public class DijkstraAbstractAlgorithm : AbstractAlgorithm
     {
         #region Public Fields
 
@@ -18,16 +18,11 @@ namespace AiPathFinding.Algorithm
 
         #region Constructor
 
-        public DijkstraAlgorithm()
-        {
-
-        }
-
         #endregion
 
         #region Main Methods
 
-        public void FindPath(Node from, Node to)
+        override public void FindPath(Node from, Node to)
         {
             throw new System.NotImplementedException();
         }

@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\Algorithm.cs" />
+    <Compile Include="Algorithm\AlgorithmStep.cs" />
     <Compile Include="Algorithm\AStarAlgorithm.cs" />
     <Compile Include="Algorithm\DijkstraAlgorithm.cs" />
     <Compile Include="Algorithm\IAlgorithm.cs" />

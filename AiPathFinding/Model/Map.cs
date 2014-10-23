@@ -116,7 +116,7 @@ namespace AiPathFinding.Model
                 // if width decreased, set pointers null
                 for (var i = width; i < oldWidth; i++)
                 {
-                    foreach (var n in Graph.Nodes[i].Where(n => n.EntityOnNode != null))
+                    foreach (var n in Graph.Nodes[i].Where(n => n != null &&  n.EntityOnNode != null))
                         n.EntityOnNode.Node = null;
 
                     Graph.Nodes[i] = null;

@@ -2,8 +2,11 @@
 
 namespace AiPathFinding.Algorithm
 {
-    interface IAlgorithm
+    public abstract class AbstractAlgorithm
     {
-        void FindPath(Node from, Node to);
+
+        public AlgorithmStep FirstStep { get; set; }
+
+        public abstract void FindPath(Node from, Node to);
     }
 }
