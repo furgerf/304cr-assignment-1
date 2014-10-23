@@ -32,10 +32,12 @@
             this.comKnownAreaAlgorithm = new System.Windows.Forms.ComboBox();
             this.butStart = new System.Windows.Forms.Button();
             this.grpPlayback = new System.Windows.Forms.GroupBox();
-            this.butFirst = new System.Windows.Forms.Button();
-            this.butPrevious = new System.Windows.Forms.Button();
-            this.butNext = new System.Windows.Forms.Button();
             this.butLast = new System.Windows.Forms.Button();
+            this.butNext = new System.Windows.Forms.Button();
+            this.butPrevious = new System.Windows.Forms.Button();
+            this.butFirst = new System.Windows.Forms.Button();
+            this.labStep = new System.Windows.Forms.Label();
+            this.progressSteps = new System.Windows.Forms.ProgressBar();
             this.grpKnownAreaAlgorithm.SuspendLayout();
             this.grpPlayback.SuspendLayout();
             this.SuspendLayout();
@@ -71,6 +73,8 @@
             // 
             // grpPlayback
             // 
+            this.grpPlayback.Controls.Add(this.progressSteps);
+            this.grpPlayback.Controls.Add(this.labStep);
             this.grpPlayback.Controls.Add(this.butLast);
             this.grpPlayback.Controls.Add(this.butNext);
             this.grpPlayback.Controls.Add(this.butPrevious);
@@ -83,29 +87,19 @@
             this.grpPlayback.TabStop = false;
             this.grpPlayback.Text = "Algorithm Playback";
             // 
-            // butFirst
+            // butLast
             // 
-            this.butFirst.Location = new System.Drawing.Point(6, 19);
-            this.butFirst.Name = "butFirst";
-            this.butFirst.Size = new System.Drawing.Size(40, 23);
-            this.butFirst.TabIndex = 0;
-            this.butFirst.Text = "First";
-            this.butFirst.UseVisualStyleBackColor = true;
-            this.butFirst.Click += new System.EventHandler(this.butFirst_Click);
-            // 
-            // butPrevious
-            // 
-            this.butPrevious.Location = new System.Drawing.Point(52, 19);
-            this.butPrevious.Name = "butPrevious";
-            this.butPrevious.Size = new System.Drawing.Size(40, 23);
-            this.butPrevious.TabIndex = 1;
-            this.butPrevious.Text = "Prev.";
-            this.butPrevious.UseVisualStyleBackColor = true;
-            this.butPrevious.Click += new System.EventHandler(this.butPrevious_Click);
+            this.butLast.Location = new System.Drawing.Point(154, 50);
+            this.butLast.Name = "butLast";
+            this.butLast.Size = new System.Drawing.Size(40, 23);
+            this.butLast.TabIndex = 3;
+            this.butLast.Text = "Last";
+            this.butLast.UseVisualStyleBackColor = true;
+            this.butLast.Click += new System.EventHandler(this.butLast_Click);
             // 
             // butNext
             // 
-            this.butNext.Location = new System.Drawing.Point(98, 19);
+            this.butNext.Location = new System.Drawing.Point(108, 50);
             this.butNext.Name = "butNext";
             this.butNext.Size = new System.Drawing.Size(40, 23);
             this.butNext.TabIndex = 2;
@@ -113,15 +107,41 @@
             this.butNext.UseVisualStyleBackColor = true;
             this.butNext.Click += new System.EventHandler(this.butNext_Click);
             // 
-            // butLast
+            // butPrevious
             // 
-            this.butLast.Location = new System.Drawing.Point(144, 19);
-            this.butLast.Name = "butLast";
-            this.butLast.Size = new System.Drawing.Size(40, 23);
-            this.butLast.TabIndex = 3;
-            this.butLast.Text = "Last";
-            this.butLast.UseVisualStyleBackColor = true;
-            this.butLast.Click += new System.EventHandler(this.butLast_Click);
+            this.butPrevious.Location = new System.Drawing.Point(52, 50);
+            this.butPrevious.Name = "butPrevious";
+            this.butPrevious.Size = new System.Drawing.Size(40, 23);
+            this.butPrevious.TabIndex = 1;
+            this.butPrevious.Text = "Prev.";
+            this.butPrevious.UseVisualStyleBackColor = true;
+            this.butPrevious.Click += new System.EventHandler(this.butPrevious_Click);
+            // 
+            // butFirst
+            // 
+            this.butFirst.Location = new System.Drawing.Point(6, 50);
+            this.butFirst.Name = "butFirst";
+            this.butFirst.Size = new System.Drawing.Size(40, 23);
+            this.butFirst.TabIndex = 0;
+            this.butFirst.Text = "First";
+            this.butFirst.UseVisualStyleBackColor = true;
+            this.butFirst.Click += new System.EventHandler(this.butFirst_Click);
+            // 
+            // labStep
+            // 
+            this.labStep.AutoSize = true;
+            this.labStep.Location = new System.Drawing.Point(6, 16);
+            this.labStep.Name = "labStep";
+            this.labStep.Size = new System.Drawing.Size(95, 13);
+            this.labStep.TabIndex = 4;
+            this.labStep.Text = "(No steps to show)";
+            // 
+            // progressSteps
+            // 
+            this.progressSteps.Location = new System.Drawing.Point(6, 32);
+            this.progressSteps.Name = "progressSteps";
+            this.progressSteps.Size = new System.Drawing.Size(188, 12);
+            this.progressSteps.TabIndex = 5;
             // 
             // AlgorithmSettings
             // 
@@ -136,6 +156,7 @@
             this.Size = new System.Drawing.Size(206, 200);
             this.grpKnownAreaAlgorithm.ResumeLayout(false);
             this.grpPlayback.ResumeLayout(false);
+            this.grpPlayback.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -150,5 +171,7 @@
         private System.Windows.Forms.Button butLast;
         private System.Windows.Forms.Button butNext;
         private System.Windows.Forms.Button butPrevious;
+        private System.Windows.Forms.ProgressBar progressSteps;
+        private System.Windows.Forms.Label labStep;
     }
 }

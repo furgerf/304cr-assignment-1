@@ -12,8 +12,22 @@ namespace AiPathFinding.View
         public event OnAlgorithmStepChanged AlgorithmStepChanged;
 
         private AbstractAlgorithm[] _abstractAlgorithms;
+        private int _stepIndex;
 
-        private int _stepIndex = 0;
+        private int StepIndex
+        {
+            get { return _stepIndex; }
+            set
+            {
+                if (StepIndex == value)
+                    return;
+
+                _stepIndex = value;
+
+                progressSteps.Value = StepIndex;
+                labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count;
+            }
+        }
 
         public AlgorithmSettings()
         {
@@ -28,11 +42,11 @@ namespace AiPathFinding.View
         {
             _abstractAlgorithms = new AbstractAlgorithm[] { new DijkstraAbstractAlgorithm(map.GetGraph()), new AStarAbstractAlgorithm(map.GetGraph()) };
 
-            map.EntityNodeChanged += (o, n, e) => SetButtonEnabled();
-            SetButtonEnabled();
+            map.EntityNodeChanged += (o, n, e) => SetStartButtonEnabled();
+            SetStartButtonEnabled();
         }
 
-        private void SetButtonEnabled()
+        private void SetStartButtonEnabled()
         {
             butStart.Enabled = Entity.Player.Node != null && Entity.Target.Node != null;
         }
@@ -45,56 +59,60 @@ namespace AiPathFinding.View
             butStart.Enabled = false;
             grpKnownAreaAlgorithm.Enabled = false;
 
+            progressSteps.Maximum = _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
+            labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count;
+            SetStepButtonsEnabled();
+
             if (AlgorithmStepChanged != null)
-                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[_stepIndex]);
+                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
         private void butFirst_Click(object sender, EventArgs e)
         {
-            _stepIndex = 0;
+            StepIndex = 0;
 
             SetStepButtonsEnabled();
 
             if (AlgorithmStepChanged != null)
-                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[_stepIndex]);
+                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
         private void butPrevious_Click(object sender, EventArgs e)
         {
-            _stepIndex--;
+            StepIndex--;
 
             SetStepButtonsEnabled();
 
             if (AlgorithmStepChanged != null)
-                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[_stepIndex]);
+                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
         private void butNext_Click(object sender, EventArgs e)
         {
-            _stepIndex++;
+            StepIndex++;
 
             SetStepButtonsEnabled();
 
             if (AlgorithmStepChanged != null)
-                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[_stepIndex]);
+                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
         private void butLast_Click(object sender, EventArgs e)
         {
-            _stepIndex = _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
+            StepIndex = _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
 
             SetStepButtonsEnabled();
 
             if (AlgorithmStepChanged != null)
-                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[_stepIndex]);
+                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
         private void SetStepButtonsEnabled()
         {
-            butFirst.Enabled = _stepIndex != 0;
-            butPrevious.Enabled = _stepIndex != 0;
-            butNext.Enabled = _stepIndex != _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
-            butLast.Enabled = _stepIndex != _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
+            butFirst.Enabled = StepIndex != 0;
+            butPrevious.Enabled = StepIndex != 0;
+            butNext.Enabled = StepIndex != _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
+            butLast.Enabled = StepIndex != _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
         }
 
     }

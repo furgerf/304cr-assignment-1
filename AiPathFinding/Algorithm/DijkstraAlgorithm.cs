@@ -46,7 +46,7 @@ namespace AiPathFinding.Algorithm
                 var data = new List<Tuple<string, Point, Brush, Font>>();
 
                 foreach (var n in _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue))
-                    data.Add(new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location, n == currentNode ? Brushes.Orange : Brushes.Turquoise, new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14, _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold)));
+                    data.Add(new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14, _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold)));
 
                 var newStep = new AlgorithmStep(g =>
                 {

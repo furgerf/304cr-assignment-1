@@ -49,7 +49,7 @@
             this.algorithmSettings1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.algorithmSettings1.Location = new System.Drawing.Point(12, 235);
             this.algorithmSettings1.Name = "algorithmSettings1";
-            this.algorithmSettings1.Size = new System.Drawing.Size(208, 150);
+            this.algorithmSettings1.Size = new System.Drawing.Size(208, 184);
             this.algorithmSettings1.TabIndex = 2;
             // 
             // mapSettings
@@ -65,10 +65,10 @@
             // 
             this.status.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.status.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.status.Location = new System.Drawing.Point(12, 391);
+            this.status.Location = new System.Drawing.Point(12, 425);
             this.status.Name = "status";
             this.status.PlayerPosition = null;
-            this.status.Size = new System.Drawing.Size(208, 181);
+            this.status.Size = new System.Drawing.Size(208, 147);
             this.status.TabIndex = 3;
             this.status.TargetPosition = null;
             // 
