@@ -54,13 +54,8 @@ namespace AiPathFinding.Algorithm
                         g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
                 });
 
-                LastStep.NextStep = newStep;
-                newStep.PreviousStep = LastStep;
-                LastStep = newStep;
+                Steps.Add(newStep);
             }
-
-            FirstStep = FirstStep.NextStep;
-            CurrentStep = FirstStep;
         }
 
         private void ProcessNode(Node node)
@@ -110,9 +105,6 @@ namespace AiPathFinding.Algorithm
             }
 
             _unvisitedNodes.Add(startNode);
-
-            FirstStep = new AlgorithmStep(g => { });
-            LastStep = FirstStep;
         }
 
         #endregion

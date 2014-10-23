@@ -1,4 +1,5 @@
-﻿using AiPathFinding.Model;
+﻿using System.Collections.Generic;
+using AiPathFinding.Model;
 
 namespace AiPathFinding.Algorithm
 {
@@ -9,11 +10,7 @@ namespace AiPathFinding.Algorithm
 
         #endregion
 
-        public AlgorithmStep FirstStep { get; set; }
-
-        public AlgorithmStep CurrentStep { get; set; }
-
-        public AlgorithmStep LastStep { get; set; }
+        public readonly List<AlgorithmStep> Steps = new List<AlgorithmStep>();
 
         protected readonly Graph Graph;
 

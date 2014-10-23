@@ -7,10 +7,6 @@ namespace AiPathFinding.Algorithm
     {
         #region Fields
 
-        public AlgorithmStep NextStep { get; set; }
-
-        public AlgorithmStep PreviousStep { get; set; }
-
         public Action<Graphics> DrawStep { get; private set; }
 
         #endregion
