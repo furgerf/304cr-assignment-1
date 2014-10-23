@@ -68,8 +68,11 @@ namespace AiPathFinding.View
             Map.CellTypeChanged += OnCellTypeChanged;
             Map.MapSizeChanged += OnMapSizeChanged;
             Map.EntityNodeChanged += OnEntityNodeChanged;
+            Map.MapLoaded += OnMapLoaded;
             // track user input
             _canvas.Click += OnClick;
+            mapSettings.butLoadMap.Click += (s, e) => LoadMap();
+            mapSettings.butSaveMap.Click += (s, e) => SaveMap();
 
             // prepare GUI
             SetCanvasSize();
@@ -78,6 +81,35 @@ namespace AiPathFinding.View
         #endregion
 
         #region Methods
+
+        private void SaveMap()
+        {
+            var dlg = new SaveFileDialog
+            {
+                AddExtension = true,
+                DefaultExt = "map",
+                Filter = "Map Files|*.map",
+                InitialDirectory = Environment.CurrentDirectory,
+                Title = "Select File to save"
+            };
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+                Map.SaveMap(dlg.FileName);
+        }
+        private void LoadMap()
+        {
+            var dlg = new OpenFileDialog
+            {
+                AddExtension = true,
+                DefaultExt = "map",
+                Filter = "Map Files|*.map",
+                InitialDirectory = Environment.CurrentDirectory,
+                Title = "Select File to load"
+            };
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+                Map.LoadMap(dlg.FileName);
+        }
 
         private void SetCanvasSize()
         {
@@ -166,6 +198,14 @@ namespace AiPathFinding.View
 
         private void OnMapSizeChanged(int oldWidth, int oldHeight, int newWidth, int newHeight)
         {
+            SetCanvasSize();
+
+            _canvas.Invalidate();
+        }
+
+        private void OnMapLoaded()
+        {
+            mapSettings.SetMapSize(Map.Width, Map.Height);
             SetCanvasSize();
 
             _canvas.Invalidate();

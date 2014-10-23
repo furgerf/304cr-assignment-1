@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using AiPathFinding.Common;
 
 namespace AiPathFinding.Model
@@ -10,6 +12,28 @@ namespace AiPathFinding.Model
         #region Fields
 
         private Graph Graph { get; set; }
+
+        public int Width
+        {
+            get
+            {
+                var width = Graph.Nodes.Length;
+                while (Graph.Nodes[width - 1] == null)
+                    width--;
+                return width;
+            }
+        }
+
+        public int Height
+        {
+            get
+            {
+                var height = Graph.Nodes[0].Length;
+                while (Graph.Nodes[0][height - 1] == null)
+                    height--;
+                return height;
+            }
+        }
 
         #endregion
 
@@ -26,6 +50,10 @@ namespace AiPathFinding.Model
         public delegate void OnEntityNodeChanged(Node oldNode, Node newNode, Entity entity);
 
         public event OnEntityNodeChanged EntityNodeChanged;
+
+        public delegate void OnMapLoaded();
+
+        public event OnMapLoaded MapLoaded;
 
         #endregion
 
@@ -68,12 +96,8 @@ namespace AiPathFinding.Model
         public void SetMapSize(int width, int height)
         {
             // get current width/height
-            var oldWidth = Graph.Nodes.Length;
-            while (Graph.Nodes[oldWidth - 1] == null)
-                oldWidth--;
-            var oldHeight = Graph.Nodes[0].Length;
-            while (Graph.Nodes[0][oldHeight - 1] == null)
-                oldHeight--;
+            var oldWidth = Width;
+            var oldHeight = Height;
 
             if (width == oldWidth && height == oldHeight)
                 return;
@@ -179,6 +203,46 @@ namespace AiPathFinding.Model
 
             if (MapSizeChanged != null)
                 MapSizeChanged(oldWidth, oldHeight, width, height);
+        }
+
+        public void SaveMap(string path)
+        {
+            var data = "";
+            for (var i = 0; i < (int) EntityType.Count; i++)
+            {
+                if (Entity.Entities[i].Node != null)
+                    data += "\t" + (EntityType) i + ";" + Entity.Entities[i].Node.Location;
+            }
+
+            if (data != "")
+                data = data.Substring(1);
+            
+            data += "\n" + Graph;
+
+            File.WriteAllText(path, data);
+        }
+
+        public void LoadMap(string path)
+        {
+            var data = File.ReadAllLines(path);
+            
+            // create graph
+            Graph = Graph.FromMap(data);
+
+            // move entities
+            foreach (var e in Entity.Entities)
+                e.Node = null;
+            var split = data[0].Split('\t');
+            foreach (var s in split)
+            {
+                var e = s.Split(';');
+                var g = Regex.Replace(e[1], @"[\{\}a-zA-Z=]", "").Split(',');
+                var p = new Point(int.Parse(g[0]), int.Parse(g[1]));
+                Entity.Entities[(int) Enum.Parse(typeof (EntityType), e[0])].Node = Graph.GetNode(p);
+            }
+
+            if (MapLoaded != null)
+                MapLoaded();
         }
 
         #endregion
