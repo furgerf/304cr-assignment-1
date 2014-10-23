@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Drawing;
+using AiPathFinding.Properties;
 
 namespace AiPathFinding.Model
 {
@@ -34,9 +35,9 @@ namespace AiPathFinding.Model
             }
         }
 
-        public Brush Brush
+        public Icon Icon
         {
-            get { return BrushMap[Type]; }
+            get { return IconMap[Type]; }
         }
 
         public bool IsVisible { get { return Node != null; } }
@@ -48,8 +49,8 @@ namespace AiPathFinding.Model
         public static readonly Entity Target = new Entity(EntityType.Target);
 
         public static Entity[] Entities = {Player, Target};
-        
-        private static readonly Dictionary<EntityType, Brush> BrushMap = new Dictionary<EntityType, Brush> { {EntityType.Player, Brushes.Blue}, {EntityType.Target, Brushes.Red}}; 
+
+        private static readonly Dictionary<EntityType, Icon> IconMap = new Dictionary<EntityType, Icon> { { EntityType.Player, Resources.runner}, { EntityType.Target, Resources.flag } }; 
 
         private Node _node;
 

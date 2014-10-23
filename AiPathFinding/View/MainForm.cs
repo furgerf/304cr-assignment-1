@@ -152,7 +152,7 @@ namespace AiPathFinding.View
         private void DrawEntities(Graphics g)
         {
             foreach (var e in Entity.Entities.Where(ee => ee.IsVisible))
-                g.FillEllipse(e.Brush, MapPointToCanvasRectangle(new Point(e.Node.Location.X, e.Node.Location.Y)));
+                g.DrawIcon(e.Icon, MapPointToCanvasRectangle(new Point(e.Node.Location.X, e.Node.Location.Y)));
         }
 
         private void DrawLandscape(Graphics g)

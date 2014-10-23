@@ -15,7 +15,6 @@ namespace AiPathFinding.View
             for (var i = 0; i < (int) Algorithm.Algorithm.Count; i++)
                 comKnownAreaAlgorithm.Items.Add((Algorithm.Algorithm) i);
             comKnownAreaAlgorithm.SelectedIndex = 0;
-
         }
 
         public void RegisterMap(Map map)
