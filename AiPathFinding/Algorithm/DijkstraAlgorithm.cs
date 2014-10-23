@@ -52,6 +52,22 @@ namespace AiPathFinding.Algorithm
                 // create new step
                 var newStep = new AlgorithmStep(g =>
                 {
+                    // draw current path
+                    var node = currentNode;
+                    while (node != from)
+                    {
+                        var minNode = node.Edges.First(n => n != null).GetOtherNode(node);
+                        foreach (var e in node.Edges.Where(n => n != null).Where(e => _nodeDataMap[e.GetOtherNode(node)].Item2 < _nodeDataMap[minNode].Item2))
+                            minNode = e.GetOtherNode(node);
+
+                        var p1 = MainForm.MapPointToCanvasRectangle(node.Location);
+                        var p2 = MainForm.MapPointToCanvasRectangle(minNode.Location);
+                        g.DrawLine(new Pen(Color.Yellow, 3), new Point(p1.X + p1.Width/2, p1.Y + p1.Height/2), new Point(p2.X + p2.Width/2, p2.Y + p2.Height/2));
+
+                        node = minNode;
+                    }
+
+                    // draw cost of nodes
                     foreach (var d in data)
                         g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
                 });
