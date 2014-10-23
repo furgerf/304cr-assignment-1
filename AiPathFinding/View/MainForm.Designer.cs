@@ -49,7 +49,7 @@
             this.algorithmSettings1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.algorithmSettings1.Location = new System.Drawing.Point(12, 235);
             this.algorithmSettings1.Name = "algorithmSettings1";
-            this.algorithmSettings1.Size = new System.Drawing.Size(150, 150);
+            this.algorithmSettings1.Size = new System.Drawing.Size(208, 150);
             this.algorithmSettings1.TabIndex = 2;
             // 
             // mapSettings

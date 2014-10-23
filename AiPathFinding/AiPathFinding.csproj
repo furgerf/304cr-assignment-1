@@ -44,6 +44,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\Algorithm.cs" />
+    <Compile Include="Algorithm\AStarAlgorithm.cs" />
+    <Compile Include="Algorithm\DijkstraAlgorithm.cs" />
+    <Compile Include="Algorithm\IAlgorithm.cs" />
     <Compile Include="Model\Entity.cs" />
     <Compile Include="Model\EntityType.cs" />
     <Compile Include="View\AlgorithmSettings.cs">

@@ -76,6 +76,8 @@ namespace AiPathFinding.View
             _canvas.Click += OnClick;
             mapSettings.butLoadMap.Click += (s, e) => LoadMap();
             mapSettings.butSaveMap.Click += (s, e) => SaveMap();
+
+            algorithmSettings1.RegisterMap(Map);
             
             // prepare GUI (depending on whether map was loaded
             if (File.Exists(AutosaveMapName))
