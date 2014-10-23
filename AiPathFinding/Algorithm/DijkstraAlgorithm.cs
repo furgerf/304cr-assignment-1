@@ -73,6 +73,8 @@ namespace AiPathFinding.Algorithm
                 });
                 Steps.Add(newStep);
             }
+
+            // TODO: Add step for when the algorithm is complete
         }
 
         private void ProcessNode(Node node)
