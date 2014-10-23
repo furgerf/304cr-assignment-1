@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using AiPathFinding.Model;
@@ -9,6 +10,8 @@ namespace AiPathFinding.View
     public partial class MainForm : Form
     {
         #region Fields
+
+        private const string AutosaveMapName = "autosave.map";
 
         protected override CreateParams CreateParams
         {
@@ -56,7 +59,7 @@ namespace AiPathFinding.View
             // instantiate objects
             _landscapeBrushes = new[] { _streetBrush, _plainsBrush, _forestBrush, _hillBrush, _mountainBrush };
 
-            Map = new Map(Graph.EmptyGraph(mapSettings.MapWidth, mapSettings.MapHeight));
+            Map = File.Exists(AutosaveMapName) ? Map.FromMapFile(AutosaveMapName) : new Map(Graph.EmptyGraph(mapSettings.MapWidth, mapSettings.MapHeight));
             Controller = new Controller.Controller(Map, this, mapSettings);
             
             // register events
@@ -73,9 +76,12 @@ namespace AiPathFinding.View
             _canvas.Click += OnClick;
             mapSettings.butLoadMap.Click += (s, e) => LoadMap();
             mapSettings.butSaveMap.Click += (s, e) => SaveMap();
-
-            // prepare GUI
-            SetCanvasSize();
+            
+            // prepare GUI (depending on whether map was loaded
+            if (File.Exists(AutosaveMapName))
+                OnMapLoaded(); 
+            else
+                SetCanvasSize();
         }
 
         #endregion
@@ -228,6 +234,11 @@ namespace AiPathFinding.View
             if (IsPointOnGrid(me.Location)) return;
 
             CellClicked(CanvasPointToMapPoint(me.Location), me.Button);
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Map.SaveMap(AutosaveMapName);
         }
 
         #endregion

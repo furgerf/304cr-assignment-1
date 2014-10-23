@@ -67,8 +67,10 @@
             this.status.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.status.Location = new System.Drawing.Point(12, 391);
             this.status.Name = "status";
+            this.status.PlayerPosition = null;
             this.status.Size = new System.Drawing.Size(208, 181);
             this.status.TabIndex = 3;
+            this.status.TargetPosition = null;
             // 
             // MainForm
             // 
@@ -81,6 +83,7 @@
             this.Controls.Add(this._canvas);
             this.Name = "MainForm";
             this.Text = "MainForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.ResumeLayout(false);
 
         }

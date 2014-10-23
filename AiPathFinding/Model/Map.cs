@@ -63,7 +63,16 @@ namespace AiPathFinding.Model
         {
             Graph = graph;
 
-            Entity.NodeChanged += (o, n, e) => EntityNodeChanged(o, n, e);
+            Entity.NodeChanged += (o, n, e) => { if (EntityNodeChanged != null) EntityNodeChanged(o, n, e); };
+        }
+
+        public static Map FromMapFile(string path)
+        {
+            var map = new Map(null);
+
+            map.LoadMap(path);
+
+            return map;
         }
 
         #endregion
