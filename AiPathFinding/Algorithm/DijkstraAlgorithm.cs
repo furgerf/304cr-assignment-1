@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using AiPathFinding.Model;
+using AiPathFinding.View;
 
 namespace AiPathFinding.Algorithm
 {
@@ -32,10 +34,33 @@ namespace AiPathFinding.Algorithm
         {
             PrepareData(from);
 
-            ProcessNode(from);
-
             while (_nodeDataMap[to].Item2 == int.MaxValue && _unvisitedNodes.Count > 0)
-                ProcessNode(_unvisitedNodes[0]);
+            {
+                if (_nodeDataMap[to].Item2 != int.MaxValue &&
+                    _unvisitedNodes.Any(n => _nodeDataMap[n].Item2 > _nodeDataMap[to].Item2))
+                    break;
+
+                var currentNode = _unvisitedNodes[0];
+                ProcessNode(currentNode);
+
+                var data = new List<Tuple<string, Point, Brush, Font>>();
+
+                foreach (var n in _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue))
+                    data.Add(new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location, n == currentNode ? Brushes.Orange : Brushes.Turquoise, new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14, _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold)));
+
+                var newStep = new AlgorithmStep(g =>
+                {
+                    foreach (var d in data)
+                        g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+                });
+
+                LastStep.NextStep = newStep;
+                newStep.PreviousStep = LastStep;
+                LastStep = newStep;
+            }
+
+            FirstStep = FirstStep.NextStep;
+            CurrentStep = FirstStep;
         }
 
         private void ProcessNode(Node node)
@@ -46,11 +71,26 @@ namespace AiPathFinding.Algorithm
                 // get other node
                 var otherNode = e.GetOtherNode(node);
 
-                if (_nodeDataMap[otherNode].Item2 == int.MaxValue)
-                    _unvisitedNodes.Add(otherNode);
+                var insert = _nodeDataMap[otherNode].Item2 == int.MaxValue;
 
                 if (_nodeDataMap[otherNode].Item2 > _nodeDataMap[node].Item2 + otherNode.Cost)
                     _nodeDataMap[otherNode] = new Tuple<bool, int>(false, _nodeDataMap[node].Item2 + otherNode.Cost);
+
+                if (insert)
+                {
+                    if (_unvisitedNodes.Count == 0)
+                        _unvisitedNodes.Add(otherNode);
+                    for (var i = 0; i < _unvisitedNodes.Count; i++)
+                        if (_nodeDataMap[_unvisitedNodes[i]].Item2 >= _nodeDataMap[otherNode].Item2)
+                        {
+                            _unvisitedNodes.Insert(i, otherNode);
+                            insert = false;
+                            break;
+                        }
+
+                    if (insert)
+                        _unvisitedNodes.Add(otherNode);
+                }
             }
 
             // mark current node as visited and move it to the other list
@@ -62,7 +102,7 @@ namespace AiPathFinding.Algorithm
         private void PrepareData(Node startNode)
         {
             // add all nodes to the unvisited-node-list and tag nodes as unvisited with max cost
-            foreach (var nn in _graph.Nodes.Where(n => n != null))
+            foreach (var nn in Graph.Nodes.Where(n => n != null))
             {
                 //_unvisitedNodes.AddRange(nn);
                 foreach (var n in nn.Where(n => n != null))
@@ -70,6 +110,9 @@ namespace AiPathFinding.Algorithm
             }
 
             _unvisitedNodes.Add(startNode);
+
+            FirstStep = new AlgorithmStep(g => { });
+            LastStep = FirstStep;
         }
 
         #endregion

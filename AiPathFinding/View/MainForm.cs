@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using AiPathFinding.Algorithm;
 using AiPathFinding.Model;
 
 namespace AiPathFinding.View
@@ -12,6 +13,8 @@ namespace AiPathFinding.View
         #region Fields
 
         private const string AutosaveMapName = "autosave.map";
+
+        private Action<Graphics> DrawAlgorithmStep { get; set; }
 
         protected override CreateParams CreateParams
         {
@@ -39,6 +42,8 @@ namespace AiPathFinding.View
         // important stuff
         public readonly Map Map;
         public readonly Controller.Controller Controller;
+        private static MainForm _instance;
+
 
         #endregion
 
@@ -55,6 +60,8 @@ namespace AiPathFinding.View
         public MainForm()
         {
             InitializeComponent();
+
+            _instance = this;
 
             // instantiate objects
             _landscapeBrushes = new[] { _streetBrush, _plainsBrush, _forestBrush, _hillBrush, _mountainBrush };
@@ -80,6 +87,7 @@ namespace AiPathFinding.View
             status.TargetPosition = Entity.Target.Node.Location;
 
             algorithmSettings1.RegisterMap(Map);
+            algorithmSettings1.AlgorithmStepChanged += OnAlgorithmStepChanged;
             
             // prepare GUI (depending on whether map was loaded
             if (File.Exists(AutosaveMapName))
@@ -126,9 +134,9 @@ namespace AiPathFinding.View
             _canvas.Size = new Size(mapSettings.CellSize * mapSettings.MapWidth + 3, mapSettings.CellSize * mapSettings.MapHeight + 3);
         }
 
-        private Rectangle MapPointToCanvasRectangle(Point point)
+        public static Rectangle MapPointToCanvasRectangle(Point point)
         {
-            return new Rectangle(new Point(point.X * mapSettings.CellSize + 1, point.Y * mapSettings.CellSize + 1), new Size(mapSettings.CellSize - 1, mapSettings.CellSize - 1));
+            return new Rectangle(new Point(point.X * _instance.mapSettings.CellSize + 1, point.Y * _instance.mapSettings.CellSize + 1), new Size(_instance.mapSettings.CellSize - 1, _instance.mapSettings.CellSize - 1));
         }
 
         private Point CanvasPointToMapPoint(Point point)
@@ -148,6 +156,9 @@ namespace AiPathFinding.View
                 DrawGrid(g);
                 DrawLandscape(g);
                 DrawEntities(g);
+
+                if (DrawAlgorithmStep != null)
+                    DrawAlgorithmStep(g);
             }
         }
 
@@ -196,6 +207,13 @@ namespace AiPathFinding.View
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            _canvas.Invalidate();
+        }
+
+        private void OnAlgorithmStepChanged(AlgorithmStep step)
+        {
+            DrawAlgorithmStep = step.DrawStep;
 
             _canvas.Invalidate();
         }

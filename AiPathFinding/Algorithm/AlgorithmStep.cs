@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 
 namespace AiPathFinding.Algorithm
 {
@@ -12,13 +9,17 @@ namespace AiPathFinding.Algorithm
 
         public AlgorithmStep NextStep { get; set; }
 
+        public AlgorithmStep PreviousStep { get; set; }
+
+        public Action<Graphics> DrawStep { get; private set; }
+
         #endregion
 
         #region Constructor
 
-        public AlgorithmStep()
+        public AlgorithmStep(Action<Graphics> drawStep)
         {
-
+            DrawStep = drawStep;
         }
 
         #endregion
