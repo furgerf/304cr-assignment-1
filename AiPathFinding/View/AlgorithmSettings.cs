@@ -61,10 +61,8 @@ namespace AiPathFinding.View
 
             progressSteps.Maximum = _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
             labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count;
-            SetStepButtonsEnabled();
 
-            if (AlgorithmStepChanged != null)
-                AlgorithmStepChanged(_abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps[StepIndex]);
+            butLast_Click(null, null);
         }
 
         private void butFirst_Click(object sender, EventArgs e)

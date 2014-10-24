@@ -41,40 +41,143 @@ namespace AiPathFinding.Algorithm
                 var currentNode = _unvisitedNodes[0];
                 ProcessNode(currentNode);
 
-                // prepare data for drawing
-                var data = new List<Tuple<string, Point, Brush, Font>>();
-                foreach (var n in _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue))
-                    data.Add(new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location,
-                        n == currentNode ? Brushes.DarkRed : Brushes.Turquoise,
-                        new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14,
-                            _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold)));
-
-                // create new step
-                var newStep = new AlgorithmStep(g =>
-                {
-                    // draw current path
-                    var node = currentNode;
-                    while (node != from)
-                    {
-                        var minNode = node.Edges.First(n => n != null).GetOtherNode(node);
-                        foreach (var e in node.Edges.Where(n => n != null).Where(e => _nodeDataMap[e.GetOtherNode(node)].Item2 < _nodeDataMap[minNode].Item2))
-                            minNode = e.GetOtherNode(node);
-
-                        var p1 = MainForm.MapPointToCanvasRectangle(node.Location);
-                        var p2 = MainForm.MapPointToCanvasRectangle(minNode.Location);
-                        g.DrawLine(new Pen(Color.Yellow, 3), new Point(p1.X + p1.Width/2, p1.Y + p1.Height/2), new Point(p2.X + p2.Width/2, p2.Y + p2.Height/2));
-
-                        node = minNode;
-                    }
-
-                    // draw cost of nodes
-                    foreach (var d in data)
-                        g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
-                });
-                Steps.Add(newStep);
+                Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
-            // TODO: Add step for when the algorithm is complete
+            // add step for when the path was found
+            Steps.Add(GetAlgorithmStep(from, to));
+
+            // add step with all possdible paths
+            Steps.Add(GetAlternativesStep(from, to));
+        }
+
+        private AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
+        {
+            // prepare data for printing cost
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14, _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold))).ToList();
+
+            // prepare data for printing path
+            var pathData = new List<Tuple<Point, Point>>();
+            var node = currentNode;
+            while (node != from)
+            {
+                // find neighbor where you would "come from"
+                var minNode = node.Edges.First(n => n != null).GetOtherNode(node);
+                foreach (
+                    var e in
+                        node.Edges.Where(n => n != null)
+                            .Where(e => _nodeDataMap[e.GetOtherNode(node)].Item2 < _nodeDataMap[minNode].Item2))
+                    minNode = e.GetOtherNode(node);
+
+                // add to list
+                var p1 = MainForm.MapPointToCanvasRectangle(node.Location);
+                var p2 = MainForm.MapPointToCanvasRectangle(minNode.Location);
+                pathData.Add(new Tuple<Point, Point>(new Point(p1.X + p1.Width/2, p1.Y + p1.Height/2),
+                    new Point(p2.X + p2.Width/2, p2.Y + p2.Height/2)));
+
+                node = minNode;
+            }
+
+            // create new step
+            var newStep = new AlgorithmStep(g =>
+            {
+                // draw path
+                foreach (var d in pathData)
+                    g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
+
+                // draw cost of nodes
+                foreach (var d in costData)
+                    g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+            });
+
+            return newStep;
+        }
+
+        private AlgorithmStep GetAlternativesStep(Node from, Node to)
+        {
+            // prepare data for drawing
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location, Brushes.Turquoise, new Font("Microsoft Sans Serif", 10, FontStyle.Regular))).ToList();
+
+            // prepare data for path
+            var pathData = new List<Tuple<Point, Point, Pen>>();
+            var openPaths = new List<List<Node>> {new List<Node> {to}};
+            var closedPathds = new List<List<Node>>();
+            do
+            {
+                for (var i = 0; i < openPaths.Count; i++)
+                {
+                    // find min cost
+                    var min = openPaths[i].Last().Edges.Where(n => n != null).Select(e => _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item2).Concat(new[] {int.MaxValue}).Min();
+
+                    // find all neighbor (edges) with min cost
+                    var cheapestEdges =
+                        openPaths[i].Last()
+                            .Edges.Where(
+                                e => e != null && _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item2 == min)
+                            .ToArray();
+
+                    // if only one exists, continue the current path
+                    if (cheapestEdges.Length == 1)
+                        openPaths[i].Add(cheapestEdges[0].GetOtherNode(openPaths[i].Last()));
+                    else
+                    {
+                        // copy current path to end of openpaths and add the different nodes
+                        for (var j = 1; j < cheapestEdges.Length; j++)
+                        {
+                            var newList = new Node[openPaths[i].Count];
+                            openPaths[i].CopyTo(newList);
+
+                            if (cheapestEdges[j].GetOtherNode(openPaths[i].Last()) == from)
+                            {
+                                closedPathds.Add(newList.ToList());
+                                closedPathds.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[i].Last()));
+                            }
+                            else
+                            {
+                                openPaths.Add(newList.ToList());
+                                openPaths.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[i].Last()));
+                            }
+                        }
+                        openPaths[i].Add(cheapestEdges[0].GetOtherNode(openPaths[i].Last()));
+                    }
+
+                    // move completed (main) path to other list if it reaches the starting point
+                    if (openPaths[i].Last() != from) continue;
+                    closedPathds.Add(openPaths[i]);
+                    openPaths.RemoveAt(i);
+                    i--;
+                }
+
+                // add path to list data
+                var maxPath = closedPathds.Select(p => p.Count).Concat(new[] {int.MinValue}).Max();
+                foreach (var path in closedPathds)
+                    for (var i = 1; i < path.Count; i++)
+                    {
+                        var p1 = MainForm.MapPointToCanvasRectangle(path[i - 1].Location);
+                        var p2 = MainForm.MapPointToCanvasRectangle(path[i].Location);
+                        var offset = 2+4*closedPathds.IndexOf(path);
+                        var color = Color.FromArgb(255, (int) (255f*path.Count/maxPath),
+                            (int) (255f*(1 - path.Count/maxPath)), 0);
+                        pathData.Add(
+                            new Tuple<Point, Point, Pen>(
+                                new Point(p1.X + offset, p1.Y + offset),
+                                new Point(p2.X + offset, p2.Y + offset), new Pen(color, 1)));
+                    }
+            } while (openPaths.Count > 0);
+
+            // create new step
+            var newStep = new AlgorithmStep(g =>
+            {
+                // draw paths
+                foreach (var d in pathData)
+                    g.DrawLine(d.Item3, d.Item1, d.Item2);
+
+                // draw cost of nodes
+                foreach (var d in costData)
+                    g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+            });
+
+            return newStep;
         }
 
         private void ProcessNode(Node node)
