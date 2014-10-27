@@ -65,14 +65,15 @@ namespace AiPathFinding.Model
             // create array
             var nodes = new Node[data[1].Count(x => x == ';') + 1][];
 
+
             // fill nodes
             for (var i = 0; i < nodes.Length; i++)
             {
                 nodes[i] = new Node[data.Length - 1];
                 for (var j = 0; j < nodes[i].Length; j++)
                 {
-                    //var c = data[i + 1][2*j];
-                    nodes[i][j] = new Node(new Point(i, j), true, CharToNodeType[data[j + 1][i * 2]]);
+                    var cellData = data[j + 1].Split(';')[i];
+                    nodes[i][j] = new Node(new Point(i, j), !cellData.Contains('*'), CharToNodeType[cellData[0]]);
                 }
             }
 
@@ -106,7 +107,11 @@ namespace AiPathFinding.Model
             {
                 for (var j = 0; j < Nodes.Length && Nodes[j] != null; j++)
                 {
+                    // can store any information about node here
+                    // but first char MUST be the terrain type
                     sb.Append(NodeTypeToChar[Nodes[j][i].Type]);
+                    if (!Nodes[j][i].KnownToPlayer)
+                        sb.Append('*');
 
                     if (j < Nodes.Length - 1 && Nodes[j + 1] != null)
                         sb.Append(';');

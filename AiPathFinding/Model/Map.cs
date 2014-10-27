@@ -120,7 +120,7 @@ namespace AiPathFinding.Model
 
         public bool HasFog(Point location)
         {
-            return Graph.Nodes[location.X][location.Y].KnownToPlayer;
+            return !Graph.Nodes[location.X][location.Y].KnownToPlayer;
         }
 
         public void SetMapSize(int width, int height)
