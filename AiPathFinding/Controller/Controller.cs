@@ -68,6 +68,7 @@ namespace AiPathFinding.Controller
                 _mapCellContextMenu.MenuItems.Add(new MenuItem("Set &" + (EntityType)i1 + " entity here",
                     (s, e) =>
                     {
+                        if (_selectedPoints == null) return;
                         if (_selectedPoints[0] != _selectedPoints[1])
                             throw new Exception();
                         Map.SetEntityLocation(Entity.Entities[i1], _selectedPoints[0]);

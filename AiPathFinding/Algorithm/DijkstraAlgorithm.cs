@@ -166,7 +166,7 @@ namespace AiPathFinding.Algorithm
                     var p1 = MainForm.MapPointToCanvasRectangle(path[i - 1].Location);
                     var p2 = MainForm.MapPointToCanvasRectangle(path[i].Location);
                     var offset = 2 + 4 * closedPaths.IndexOf(path);
-                    var perc = (double)(path.Count - minPath) / (maxPath - minPath);
+                    var perc = maxPath == minPath ? 1 : (double)(path.Count - minPath) / (maxPath - minPath);
                     var color = Color.FromArgb(255, (int)(perc * 255), (int)((1 - perc) * 255), 0);
                     pathData.Add(
                         new Tuple<Point, Point, Pen>(
