@@ -30,6 +30,7 @@ namespace AiPathFinding.View
 
         // pens
         private readonly Pen _gridPen = new Pen(Color.LightGray, 1);
+        private readonly Pen _fogPen = new Pen(Color.Black, 1);
         
         // brushes
         private readonly Brush _streetBrush = Brushes.Gray;
@@ -78,6 +79,7 @@ namespace AiPathFinding.View
             Map.CellTypeChanged += OnCellTypeChanged;
             Map.MapSizeChanged += OnMapSizeChanged;
             Map.EntityNodeChanged += OnEntityNodeChanged;
+            Map.FogChanged += OnFogChanged;
             Map.MapLoaded += OnMapLoaded;
             // track user input
             _canvas.Click += OnClick;
@@ -156,10 +158,25 @@ namespace AiPathFinding.View
                 DrawGrid(g);
                 DrawLandscape(g);
                 DrawEntities(g);
+                DrawFog(g);
 
                 if (DrawAlgorithmStep != null)
                     DrawAlgorithmStep(g);
             }
+        }
+
+        private void DrawFog(Graphics g)
+        {
+            for (var i = 0; i < mapSettings.MapWidth; i++)
+                for (var j = 0; j < mapSettings.MapHeight; j++)
+                    if (Map.HasFog(new Point(i, j)))
+                    {
+                        var rect = MapPointToCanvasRectangle(new Point(i, j));
+                        for (var k = rect.Left; k < rect.Right; k += 4)
+                            g.DrawLine(_fogPen, k, rect.Top, k, rect.Bottom - 1);
+                        for (var k = rect.Top; k < rect.Bottom; k += 4)
+                            g.DrawLine(_fogPen, rect.Left, k, rect.Right - 1, k);
+                    }  
         }
 
         private void DrawEntities(Graphics g)
@@ -187,6 +204,11 @@ namespace AiPathFinding.View
         #endregion
 
         #region Event Handling
+
+        private void OnFogChanged(Point location, bool hasFog)
+        {
+            _canvas.Invalidate();
+        }
 
         private void OnEntityNodeChanged(Node oldnode, Node newnode, Entity entity)
         {

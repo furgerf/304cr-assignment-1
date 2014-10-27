@@ -30,10 +30,14 @@ namespace AiPathFinding.Controller
                 _mapCellContextMenu.MenuItems.Add(new MenuItem("Change terrain to &" + (NodeType)i, (s, e) => Map.SetNodeType(_lastRightClickLocation, (NodeType) i1)));
             }
             _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
+
+            _mapCellContextMenu.MenuItems.Add(new MenuItem("Toggle &fog", (s, e) => Map.ToggleFog(_lastRightClickLocation)));
+
+            _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
             for (var i = 0; i < (int) EntityType.Count; i++)
             {
                 var i1 = i;
-                _mapCellContextMenu.MenuItems.Add(new MenuItem("Set Entity &" + (EntityType)i1 + " here",
+                _mapCellContextMenu.MenuItems.Add(new MenuItem("Set &" + (EntityType)i1 + " entity here",
                     (s, e) => Map.SetEntityLocation(Entity.Entities[i1], _lastRightClickLocation)));
             }
 

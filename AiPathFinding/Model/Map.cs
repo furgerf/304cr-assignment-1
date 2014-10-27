@@ -55,6 +55,10 @@ namespace AiPathFinding.Model
 
         public event OnMapLoaded MapLoaded;
 
+        public delegate void OnFogChanged(Point location, bool hasFog);
+
+        public event OnFogChanged FogChanged;
+
         #endregion
 
         #region Constructor
@@ -105,6 +109,18 @@ namespace AiPathFinding.Model
             Graph.Nodes[location.X][location.Y].Type = type;
             if (CellTypeChanged != null)
                 CellTypeChanged(location, oldType, type);
+        }
+
+        public void ToggleFog(Point location)
+        {
+            Graph.Nodes[location.X][location.Y].KnownToPlayer = !Graph.Nodes[location.X][location.Y].KnownToPlayer;
+            if (FogChanged != null)
+                FogChanged(location, Graph.Nodes[location.X][location.Y].KnownToPlayer);
+        }
+
+        public bool HasFog(Point location)
+        {
+            return Graph.Nodes[location.X][location.Y].KnownToPlayer;
         }
 
         public void SetMapSize(int width, int height)
