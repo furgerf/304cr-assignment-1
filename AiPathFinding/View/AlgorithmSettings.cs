@@ -55,7 +55,7 @@ namespace AiPathFinding.View
             // add ALL algorithms to primary algorithm combobox
             for (var i = 0; i < (int) AlgorithmNames.Count; i++)
                 comPrimaryAlgorithm.Items.Add((AlgorithmNames) i);
-            comPrimaryAlgorithm.SelectedIndex = 0;
+            comPrimaryAlgorithm.SelectedIndex = (int) AlgorithmNames.AStar;
 
             // add only algorithms to secondary algo combo that work without visibility
             for (var i = 0; i < (int)AlgorithmNames.Count; i++)
