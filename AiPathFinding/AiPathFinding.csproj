@@ -123,6 +123,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\flag.ico" />
+    <None Include="Resources\street.jpg" />
+    <None Include="Resources\forest.jpg" />
+    <None Include="Resources\hill.jpg" />
+    <None Include="Resources\mountain.jpg" />
+    <None Include="Resources\plains.jpg" />
     <Content Include="Resources\runner.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

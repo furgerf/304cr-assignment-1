@@ -31,17 +31,19 @@ namespace AiPathFinding.View
 
         // pens
         private readonly Pen _gridPen = new Pen(Color.LightGray, 1);
-        private readonly Pen _fogPen = new Pen(Color.Black, 1);
         private readonly Pen _selectionPen = new Pen(Color.HotPink, 3);
         private readonly Pen _fineSelectionPen = new Pen(Color.LightPink, 1);
         
         // brushes
-        private readonly Brush _streetBrush = Brushes.Gray;
-        private readonly Brush _plainsBrush = Brushes.SandyBrown;
-        private readonly Brush _forestBrush = Brushes.Green;
-        private readonly Brush _hillBrush = Brushes.SaddleBrown;
-        private readonly Brush _mountainBrush = Brushes.Black;
-        private readonly Brush[] _landscapeBrushes;
+        private readonly Brush _fogBrush = new SolidBrush(Color.FromArgb(180, 0, 0, 0));
+
+        // images
+        private readonly Image _streetImage = Resources.street;
+        private readonly Image _plainsImage = Resources.plains;
+        private readonly Image _forestImage = Resources.forest;
+        private readonly Image _hillImage = Resources.hill;
+        private readonly Image _mountainImage = Resources.mountain;
+        private readonly Image[] _landscapeImages;
 
         // important stuff
         public readonly Map Map;
@@ -72,7 +74,7 @@ namespace AiPathFinding.View
             _instance = this;
 
             // instantiate objects
-            _landscapeBrushes = new[] { _streetBrush, _plainsBrush, _forestBrush, _hillBrush, _mountainBrush };
+            _landscapeImages = new[] { _streetImage, _plainsImage, _forestImage, _hillImage, _mountainImage };
 
             Map = File.Exists(AutosaveMapName) ? Map.FromMapFile(AutosaveMapName) : new Map(Graph.EmptyGraph(mapSettings.MapWidth, mapSettings.MapHeight));
             Controller = new Controller.Controller(Map, this, mapSettings);
@@ -213,13 +215,7 @@ namespace AiPathFinding.View
             for (var i = 0; i < mapSettings.MapWidth; i++)
                 for (var j = 0; j < mapSettings.MapHeight; j++)
                     if (Map.HasFog(new Point(i, j)))
-                    {
-                        var rect = MapPointToCanvasRectangle(new Point(i, j));
-                        for (var k = rect.Left; k < rect.Right; k += 4)
-                            g.DrawLine(_fogPen, k, rect.Top, k, rect.Bottom - 1);
-                        for (var k = rect.Top; k < rect.Bottom; k += 4)
-                            g.DrawLine(_fogPen, rect.Left, k, rect.Right - 1, k);
-                    }  
+                        g.FillRectangle(_fogBrush, MapPointToCanvasRectangle(new Point(i, j)));
         }
 
         private void DrawEntities(Graphics g)
@@ -232,7 +228,7 @@ namespace AiPathFinding.View
         {
             for (var i = 0; i < mapSettings.MapWidth; i++)
                 for (var j = 0; j < mapSettings.MapHeight; j++)
-                    g.FillRectangle(_landscapeBrushes[(int)Map.GetTerrain(new Point(i, j))], MapPointToCanvasRectangle(new Point(i, j)));
+                    g.DrawImage(_landscapeImages[(int)Map.GetTerrain(new Point(i, j))], MapPointToCanvasRectangle(new Point(i, j)));
         }
 
         private void DrawGrid(Graphics g)
