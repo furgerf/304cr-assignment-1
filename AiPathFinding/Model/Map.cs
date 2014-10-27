@@ -111,11 +111,16 @@ namespace AiPathFinding.Model
                 CellTerrainChanged(location, oldType, terrain);
         }
 
-        public void ToggleFog(Point location)
+        public void SetFog(Point location, bool hasFog)
         {
-            Graph.Nodes[location.X][location.Y].KnownToPlayer = !Graph.Nodes[location.X][location.Y].KnownToPlayer;
+            Graph.Nodes[location.X][location.Y].KnownToPlayer = !hasFog;
             if (FogChanged != null)
                 FogChanged(location, Graph.Nodes[location.X][location.Y].KnownToPlayer);
+        }
+
+        public bool GetFog(Point location)
+        {
+            return !Graph.Nodes[location.X][location.Y].KnownToPlayer;
         }
 
         public bool HasFog(Point location)

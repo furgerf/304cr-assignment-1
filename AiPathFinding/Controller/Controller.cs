@@ -14,6 +14,8 @@ namespace AiPathFinding.Controller
 
         public Map Map { get; private set; }
 
+        private Point[] _selectedPoints;
+
         #endregion
 
         #region Constructor
@@ -39,8 +41,20 @@ namespace AiPathFinding.Controller
             _mapCellContextMenu.MenuItems.Add(new MenuItem("Toggle &fog", (s, e) =>
             {
                 for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
-                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
-                            Map.ToggleFog(new Point(k, l));
+                    for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                        Map.SetFog(new Point(k, l), !Map.GetFog(new Point(k, l)));
+            }));
+            _mapCellContextMenu.MenuItems.Add(new MenuItem("Clear &fog", (s, e) =>
+            {
+                for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                    for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                        Map.SetFog(new Point(k, l), false);
+            }));
+            _mapCellContextMenu.MenuItems.Add(new MenuItem("Set &fog", (s, e) =>
+            {
+                for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                    for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                        Map.SetFog(new Point(k, l), true);
             }));
 
             _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
@@ -50,7 +64,9 @@ namespace AiPathFinding.Controller
                 _mapCellContextMenu.MenuItems.Add(new MenuItem("Set &" + (EntityType)i1 + " entity here",
                     (s, e) =>
                     {
-                        //Map.SetEntityLocation(Entity.Entities[i1], _lastRightClickLocation)
+                        if (_selectedPoints[0] != _selectedPoints[1])
+                            throw new Exception();
+                        Map.SetEntityLocation(Entity.Entities[i1], _selectedPoints[0]);
                     }){ Name = "Entity" + i });
             }
 
@@ -65,8 +81,6 @@ namespace AiPathFinding.Controller
         #endregion
 
         #region Event Handling
-
-        private Point[] _selectedPoints;
 
         public void OnSelectedPointsChanged(Point[] points)
         {
