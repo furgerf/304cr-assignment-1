@@ -11,17 +11,17 @@ namespace AiPathFinding.Model
         {
             get
             {
-                switch (Type)
+                switch (Terrain)
                 {
-                    case NodeType.Street:
+                    case Terrain.Street:
                         return 1;
-                    case NodeType.Plains:
+                    case Terrain.Plains:
                         return 2;
-                    case NodeType.Forest:
+                    case Terrain.Forest:
                         return 3;
-                    case NodeType.Hill:
+                    case Terrain.Hill:
                         return 5;
-                    case NodeType.Mountain:
+                    case Terrain.Mountain:
                         return int.MaxValue;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -29,7 +29,7 @@ namespace AiPathFinding.Model
             }
         }
 
-        public NodeType Type { get; set; }
+        public Terrain Terrain { get; set; }
 
         public Point Location { get; private set; }
 
@@ -43,11 +43,11 @@ namespace AiPathFinding.Model
 
         #region Constructor
 
-        public Node(Point location, bool knownToAi, NodeType type)
+        public Node(Point location, bool knownToAi, Terrain terrain)
         {
             Location = location;
             KnownToPlayer = knownToAi;
-            Type = type;
+            Terrain = terrain;
         }
 
         #endregion

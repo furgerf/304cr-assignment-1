@@ -39,9 +39,9 @@ namespace AiPathFinding.Model
 
         #region Events
 
-        public delegate void OnCellTypeChanged(Point locatoin, NodeType oldType, NodeType newType);
+        public delegate void OnCellTerrainChanged(Point location, Terrain oldTerrain, Terrain newTerrain);
 
-        public event OnCellTypeChanged CellTypeChanged;
+        public event OnCellTerrainChanged CellTerrainChanged;
 
         public delegate void OnMapSizeChanged(int oldWidth, int oldHeight, int newWidth, int newHeight);
 
@@ -97,18 +97,18 @@ namespace AiPathFinding.Model
                 EntityNodeChanged(oldNode, player.Node, player);
         }
 
-        public NodeType GetNodeType(Point location)
+        public Terrain GetTerrain(Point location)
         {
-            return Graph.Nodes[location.X][location.Y].Type;
+            return Graph.Nodes[location.X][location.Y].Terrain;
         }
 
-        public void SetNodeType(Point location, NodeType type)
+        public void SetTerrain(Point location, Terrain terrain)
         {
             // set node type and trigger event
-            var oldType = Graph.Nodes[location.X][location.Y].Type;
-            Graph.Nodes[location.X][location.Y].Type = type;
-            if (CellTypeChanged != null)
-                CellTypeChanged(location, oldType, type);
+            var oldType = Graph.Nodes[location.X][location.Y].Terrain;
+            Graph.Nodes[location.X][location.Y].Terrain = terrain;
+            if (CellTerrainChanged != null)
+                CellTerrainChanged(location, oldType, terrain);
         }
 
         public void ToggleFog(Point location)
@@ -165,7 +165,7 @@ namespace AiPathFinding.Model
                 {
                     Graph.Nodes[i] = new Node[Graph.Nodes[0].Length];
                     for (var j = 0; j < height; j++)
-                        Graph.Nodes[i][j] = new Node(new Point(i, j), true, NodeType.Street);
+                        Graph.Nodes[i][j] = new Node(new Point(i, j), true, Terrain.Street);
                 }
 
                 // add new edges
@@ -212,7 +212,7 @@ namespace AiPathFinding.Model
                 // add nodes
                 for (var i = 0; i < width; i++)
                     for (var j = oldHeight; j < height; j++)
-                        Graph.Nodes[i][j] = new Node(new Point(i, j), true, NodeType.Street);
+                        Graph.Nodes[i][j] = new Node(new Point(i, j), true, Terrain.Street);
 
                 // add new edges
                 for (var i = 0; i < width; i++)

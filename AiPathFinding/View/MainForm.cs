@@ -76,7 +76,7 @@ namespace AiPathFinding.View
             // track changes in the settings
             mapSettings.CellSizeChanged += OnCellSizeChanged;
             // track changes in the model
-            Map.CellTypeChanged += OnCellTypeChanged;
+            Map.CellTerrainChanged += OnCellTerrainChanged;
             Map.MapSizeChanged += OnMapSizeChanged;
             Map.EntityNodeChanged += OnEntityNodeChanged;
             Map.FogChanged += OnFogChanged;
@@ -189,7 +189,7 @@ namespace AiPathFinding.View
         {
             for (var i = 0; i < mapSettings.MapWidth; i++)
                 for (var j = 0; j < mapSettings.MapHeight; j++)
-                    g.FillRectangle(_landscapeBrushes[(int)Map.GetNodeType(new Point(i, j))], MapPointToCanvasRectangle(new Point(i, j)));
+                    g.FillRectangle(_landscapeBrushes[(int)Map.GetTerrain(new Point(i, j))], MapPointToCanvasRectangle(new Point(i, j)));
         }
 
         private void DrawGrid(Graphics g)
@@ -247,7 +247,7 @@ namespace AiPathFinding.View
             _canvas.Invalidate();
         }
 
-        private void OnCellTypeChanged(Point location, NodeType oldType, NodeType newType)
+        private void OnCellTerrainChanged(Point location, Terrain oldType, Terrain newType)
         {
             _canvas.Invalidate();
         }

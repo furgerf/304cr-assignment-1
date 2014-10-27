@@ -1,6 +1,6 @@
 ﻿namespace AiPathFinding.Model
 {
-    public enum NodeType
+    public enum Terrain
     {
         Street, Plains, Forest, Hill, Mountain, Count
     }

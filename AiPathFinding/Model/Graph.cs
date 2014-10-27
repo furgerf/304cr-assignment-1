@@ -12,9 +12,9 @@ namespace AiPathFinding.Model
 
         public Node[][] Nodes { get; set; }
 
-        private static readonly Dictionary<NodeType, char> NodeTypeToChar = new Dictionary<NodeType, char> { { NodeType.Street, 'S' }, { NodeType.Plains, 'P' }, { NodeType.Forest, 'F' }, { NodeType.Hill, 'H' }, { NodeType.Mountain, 'M' } }; 
+        private static readonly Dictionary<Terrain, char> TerrainToChar = new Dictionary<Terrain, char> { { Terrain.Street, 'S' }, { Terrain.Plains, 'P' }, { Terrain.Forest, 'F' }, { Terrain.Hill, 'H' }, { Terrain.Mountain, 'M' } }; 
 
-        private static readonly Dictionary<char, NodeType> CharToNodeType = new Dictionary<char, NodeType>(); 
+        private static readonly Dictionary<char, Terrain> CharToTerrain = new Dictionary<char, Terrain>(); 
 
         #endregion
 
@@ -22,7 +22,7 @@ namespace AiPathFinding.Model
 
         static Graph()
         {
-            CharToNodeType = NodeTypeToChar.GroupBy(p => p.Value).ToDictionary(g => g.Key, g => g.Select(pp => pp.Key).ToList()[0]);
+            CharToTerrain = TerrainToChar.GroupBy(p => p.Value).ToDictionary(g => g.Key, g => g.Select(pp => pp.Key).ToList()[0]);
         }
 
         private Graph(Node[][] nodes)
@@ -44,7 +44,7 @@ namespace AiPathFinding.Model
             {
                 nodes[i] = new Node[height];
                 for (var j = 0; j < height; j++)
-                    nodes[i][j] = new Node(new Point(i, j), true, NodeType.Street);
+                    nodes[i][j] = new Node(new Point(i, j), true, Terrain.Street);
             }
 
             // add edges
@@ -73,7 +73,7 @@ namespace AiPathFinding.Model
                 for (var j = 0; j < nodes[i].Length; j++)
                 {
                     var cellData = data[j + 1].Split(';')[i];
-                    nodes[i][j] = new Node(new Point(i, j), !cellData.Contains('*'), CharToNodeType[cellData[0]]);
+                    nodes[i][j] = new Node(new Point(i, j), !cellData.Contains('*'), CharToTerrain[cellData[0]]);
                 }
             }
 
@@ -109,7 +109,7 @@ namespace AiPathFinding.Model
                 {
                     // can store any information about node here
                     // but first char MUST be the terrain type
-                    sb.Append(NodeTypeToChar[Nodes[j][i].Type]);
+                    sb.Append(TerrainToChar[Nodes[j][i].Terrain]);
                     if (!Nodes[j][i].KnownToPlayer)
                         sb.Append('*');
 

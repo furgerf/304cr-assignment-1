@@ -24,10 +24,10 @@ namespace AiPathFinding.Controller
             Map = map;
 
             // create context menu
-            for (var i = 0; i < (int) NodeType.Count; i++)
+            for (var i = 0; i < (int) Terrain.Count; i++)
             {
                 var i1 = i;
-                _mapCellContextMenu.MenuItems.Add(new MenuItem("Change terrain to &" + (NodeType)i, (s, e) => Map.SetNodeType(_lastRightClickLocation, (NodeType) i1)));
+                _mapCellContextMenu.MenuItems.Add(new MenuItem("Change terrain to &" + (Terrain)i, (s, e) => Map.SetTerrain(_lastRightClickLocation, (Terrain) i1)));
             }
             _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
 
@@ -58,7 +58,7 @@ namespace AiPathFinding.Controller
         {
             // left button: change terrain type
             if (button == MouseButtons.Left)
-                Map.SetNodeType(location, (NodeType) (((int) Map.GetNodeType(location) + 1)%(int) NodeType.Count));
+                Map.SetTerrain(location, (Terrain) (((int) Map.GetTerrain(location) + 1)%(int) Terrain.Count));
 
             // right button: open context menu
             _lastRightClickLocation = location;
