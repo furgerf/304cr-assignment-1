@@ -50,10 +50,13 @@ namespace AiPathFinding.View
 
         #region Methods
 
-        public void SetMapSize(int width, int height)
+        public void SetMapSize(int width, int height, int cellSize = 0)
         {
             numMapWidth.Value = width;
             numMapHeight.Value = height;
+
+            if (cellSize != 0)
+                numCellSize.Value = cellSize;
         }
 
         #endregion

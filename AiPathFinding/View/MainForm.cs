@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using AiPathFinding.Algorithm;
 using AiPathFinding.Model;
+using AiPathFinding.Properties;
 
 namespace AiPathFinding.View
 {
@@ -261,7 +262,7 @@ namespace AiPathFinding.View
 
         private void OnMapLoaded()
         {
-            mapSettings.SetMapSize(Map.Width, Map.Height);
+            mapSettings.SetMapSize(Map.Width, Map.Height, (int)Settings.Default["CellSize"]);
             SetCanvasSize();
 
             _canvas.Invalidate();
@@ -288,7 +289,12 @@ namespace AiPathFinding.View
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // save map
             Map.SaveMap(AutosaveMapName);
+
+            // save settings
+            Settings.Default["CellSize"] = mapSettings.CellSize;
+            Settings.Default.Save();
         }
 
         #endregion
