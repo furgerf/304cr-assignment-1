@@ -30,6 +30,14 @@ namespace AiPathFinding.Algorithm
 
         #region Main Methods
 
+        protected override void ResetAlgorithm()
+        {
+            _visitedNodes.Clear();
+            _unvisitedNodes.Clear();
+            _nodeDataMap.Clear();
+        }
+
+
         override public void FindPath(Node from, Node to)
         {
             PrepareData(from);
@@ -81,13 +89,13 @@ namespace AiPathFinding.Algorithm
             // create new step
             var newStep = new AlgorithmStep(g =>
             {
-                // draw path
-                foreach (var d in pathData)
-                    g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
-
                 // draw cost of nodes
                 foreach (var d in costData)
                     g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+
+                // draw path
+                foreach (var d in pathData)
+                    g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
             });
 
             return newStep;
@@ -101,7 +109,7 @@ namespace AiPathFinding.Algorithm
             // prepare data for path
             var pathData = new List<Tuple<Point, Point, Pen>>();
             var openPaths = new List<List<Node>> {new List<Node> {to}};
-            var closedPathds = new List<List<Node>>();
+            var closedPaths = new List<List<Node>>();
             do
             {
                 for (var i = 0; i < openPaths.Count; i++)
@@ -129,8 +137,8 @@ namespace AiPathFinding.Algorithm
 
                             if (cheapestEdges[j].GetOtherNode(openPaths[i].Last()) == from)
                             {
-                                closedPathds.Add(newList.ToList());
-                                closedPathds.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[i].Last()));
+                                closedPaths.Add(newList.ToList());
+                                closedPaths.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[i].Last()));
                             }
                             else
                             {
@@ -143,38 +151,39 @@ namespace AiPathFinding.Algorithm
 
                     // move completed (main) path to other list if it reaches the starting point
                     if (openPaths[i].Last() != from) continue;
-                    closedPathds.Add(openPaths[i]);
+                    closedPaths.Add(openPaths[i]);
                     openPaths.RemoveAt(i);
                     i--;
                 }
-
-                // add path to list data
-                var maxPath = closedPathds.Select(p => p.Count).Concat(new[] {int.MinValue}).Max();
-                foreach (var path in closedPathds)
-                    for (var i = 1; i < path.Count; i++)
-                    {
-                        var p1 = MainForm.MapPointToCanvasRectangle(path[i - 1].Location);
-                        var p2 = MainForm.MapPointToCanvasRectangle(path[i].Location);
-                        var offset = 2+4*closedPathds.IndexOf(path);
-                        var color = Color.FromArgb(255, (int) (255f*path.Count/maxPath),
-                            (int) (255f*(1 - path.Count/maxPath)), 0);
-                        pathData.Add(
-                            new Tuple<Point, Point, Pen>(
-                                new Point(p1.X + offset, p1.Y + offset),
-                                new Point(p2.X + offset, p2.Y + offset), new Pen(color, 1)));
-                    }
             } while (openPaths.Count > 0);
+
+            // add path to list data
+            var minPath = closedPaths.Select(p => p.Count).Concat(new[] { int.MaxValue }).Min();
+            var maxPath = closedPaths.Select(p => p.Count).Concat(new[] { int.MinValue }).Max();
+            foreach (var path in closedPaths)
+                for (var i = 1; i < path.Count; i++)
+                {
+                    var p1 = MainForm.MapPointToCanvasRectangle(path[i - 1].Location);
+                    var p2 = MainForm.MapPointToCanvasRectangle(path[i].Location);
+                    var offset = 2 + 4 * closedPaths.IndexOf(path);
+                    var perc = (double)(path.Count - minPath) / (maxPath - minPath);
+                    var color = Color.FromArgb(255, (int)(perc * 255), (int)((1 - perc) * 255), 0);
+                    pathData.Add(
+                        new Tuple<Point, Point, Pen>(
+                            new Point(p1.X + offset, p1.Y + offset),
+                            new Point(p2.X + offset, p2.Y + offset), new Pen(color, 2)));
+                }
 
             // create new step
             var newStep = new AlgorithmStep(g =>
             {
-                // draw paths
-                foreach (var d in pathData)
-                    g.DrawLine(d.Item3, d.Item1, d.Item2);
-
                 // draw cost of nodes
                 foreach (var d in costData)
                     g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+
+                // draw paths
+                foreach (var d in pathData)
+                    g.DrawLine(d.Item3, d.Item1, d.Item2);
             });
 
             return newStep;
@@ -231,12 +240,6 @@ namespace AiPathFinding.Algorithm
 
             _unvisitedNodes.Add(startNode);
         }
-
-        #endregion
-
-        #region Event Handling
-
-
 
         #endregion
     }

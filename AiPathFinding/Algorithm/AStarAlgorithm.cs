@@ -33,6 +33,11 @@ namespace AiPathFinding.Algorithm
             throw new NotImplementedException();
         }
 
+        protected override void ResetAlgorithm()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region Event Handling

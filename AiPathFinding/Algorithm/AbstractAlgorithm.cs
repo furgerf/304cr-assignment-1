@@ -5,7 +5,6 @@ namespace AiPathFinding.Algorithm
 {
     public abstract class AbstractAlgorithm
     {
-        
         #region Events
 
         #endregion
@@ -21,5 +20,13 @@ namespace AiPathFinding.Algorithm
 
         public abstract void FindPath(Node from, Node to);
 
+        public void Reset()
+        {
+            Steps.Clear();
+
+            ResetAlgorithm();
+        }
+
+        protected abstract void ResetAlgorithm();
     }
 }
