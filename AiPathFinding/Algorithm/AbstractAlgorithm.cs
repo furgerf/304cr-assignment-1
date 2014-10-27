@@ -5,13 +5,15 @@ namespace AiPathFinding.Algorithm
 {
     public abstract class AbstractAlgorithm
     {
-        #region Events
+        #region Fields
 
-        #endregion
+        public static readonly AlgorithmNames[] AlgorithmsRequiringVisibility = {AlgorithmNames.AStar, AlgorithmNames.BestFirstSearch};
 
         public readonly List<AlgorithmStep> Steps = new List<AlgorithmStep>();
 
         protected readonly Graph Graph;
+
+        #endregion
 
         protected AbstractAlgorithm(Graph graph)
         {

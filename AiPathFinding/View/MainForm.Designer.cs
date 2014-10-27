@@ -47,9 +47,9 @@
             // 
             this.algorithmSettings1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.algorithmSettings1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.algorithmSettings1.Location = new System.Drawing.Point(12, 235);
+            this.algorithmSettings1.Location = new System.Drawing.Point(12, 180);
             this.algorithmSettings1.Name = "algorithmSettings1";
-            this.algorithmSettings1.Size = new System.Drawing.Size(208, 184);
+            this.algorithmSettings1.Size = new System.Drawing.Size(208, 239);
             this.algorithmSettings1.TabIndex = 2;
             // 
             // mapSettings
@@ -58,7 +58,7 @@
             this.mapSettings.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.mapSettings.Location = new System.Drawing.Point(12, 12);
             this.mapSettings.Name = "mapSettings";
-            this.mapSettings.Size = new System.Drawing.Size(208, 217);
+            this.mapSettings.Size = new System.Drawing.Size(208, 162);
             this.mapSettings.TabIndex = 1;
             // 
             // status

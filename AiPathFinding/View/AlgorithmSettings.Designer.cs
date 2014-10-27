@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.grpKnownAreaAlgorithm = new System.Windows.Forms.GroupBox();
-            this.comKnownAreaAlgorithm = new System.Windows.Forms.ComboBox();
+            this.grpPrimaryAlgorithm = new System.Windows.Forms.GroupBox();
+            this.comPrimaryAlgorithm = new System.Windows.Forms.ComboBox();
             this.butStart = new System.Windows.Forms.Button();
             this.grpPlayback = new System.Windows.Forms.GroupBox();
             this.progressSteps = new System.Windows.Forms.ProgressBar();
@@ -39,36 +39,40 @@
             this.butPrevious = new System.Windows.Forms.Button();
             this.butFirst = new System.Windows.Forms.Button();
             this.butClear = new System.Windows.Forms.Button();
-            this.grpKnownAreaAlgorithm.SuspendLayout();
+            this.grpSecondaryAlgorithm = new System.Windows.Forms.GroupBox();
+            this.comSecondaryAlgorithm = new System.Windows.Forms.ComboBox();
+            this.butRestart = new System.Windows.Forms.Button();
+            this.grpPrimaryAlgorithm.SuspendLayout();
             this.grpPlayback.SuspendLayout();
+            this.grpSecondaryAlgorithm.SuspendLayout();
             this.SuspendLayout();
             // 
-            // grpKnownAreaAlgorithm
+            // grpPrimaryAlgorithm
             // 
-            this.grpKnownAreaAlgorithm.Controls.Add(this.comKnownAreaAlgorithm);
-            this.grpKnownAreaAlgorithm.Location = new System.Drawing.Point(3, 3);
-            this.grpKnownAreaAlgorithm.Name = "grpKnownAreaAlgorithm";
-            this.grpKnownAreaAlgorithm.Size = new System.Drawing.Size(200, 46);
-            this.grpKnownAreaAlgorithm.TabIndex = 0;
-            this.grpKnownAreaAlgorithm.TabStop = false;
-            this.grpKnownAreaAlgorithm.Text = "Choose algorithm for known area";
+            this.grpPrimaryAlgorithm.Controls.Add(this.comPrimaryAlgorithm);
+            this.grpPrimaryAlgorithm.Location = new System.Drawing.Point(3, 3);
+            this.grpPrimaryAlgorithm.Name = "grpPrimaryAlgorithm";
+            this.grpPrimaryAlgorithm.Size = new System.Drawing.Size(200, 46);
+            this.grpPrimaryAlgorithm.TabIndex = 0;
+            this.grpPrimaryAlgorithm.TabStop = false;
+            this.grpPrimaryAlgorithm.Text = "Choose primary algorithm";
             // 
-            // comKnownAreaAlgorithm
+            // comPrimaryAlgorithm
             // 
-            this.comKnownAreaAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comKnownAreaAlgorithm.FormattingEnabled = true;
-            this.comKnownAreaAlgorithm.Location = new System.Drawing.Point(6, 19);
-            this.comKnownAreaAlgorithm.Name = "comKnownAreaAlgorithm";
-            this.comKnownAreaAlgorithm.Size = new System.Drawing.Size(188, 21);
-            this.comKnownAreaAlgorithm.TabIndex = 0;
+            this.comPrimaryAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comPrimaryAlgorithm.FormattingEnabled = true;
+            this.comPrimaryAlgorithm.Location = new System.Drawing.Point(6, 19);
+            this.comPrimaryAlgorithm.Name = "comPrimaryAlgorithm";
+            this.comPrimaryAlgorithm.Size = new System.Drawing.Size(188, 21);
+            this.comPrimaryAlgorithm.TabIndex = 0;
             // 
             // butStart
             // 
-            this.butStart.Location = new System.Drawing.Point(9, 55);
+            this.butStart.Location = new System.Drawing.Point(3, 193);
             this.butStart.Name = "butStart";
-            this.butStart.Size = new System.Drawing.Size(75, 23);
+            this.butStart.Size = new System.Drawing.Size(62, 23);
             this.butStart.TabIndex = 1;
-            this.butStart.Text = "Start!";
+            this.butStart.Text = "Start";
             this.butStart.UseVisualStyleBackColor = true;
             this.butStart.Click += new System.EventHandler(this.butStart_Click);
             // 
@@ -81,9 +85,9 @@
             this.grpPlayback.Controls.Add(this.butPrevious);
             this.grpPlayback.Controls.Add(this.butFirst);
             this.grpPlayback.Enabled = false;
-            this.grpPlayback.Location = new System.Drawing.Point(3, 84);
+            this.grpPlayback.Location = new System.Drawing.Point(3, 107);
             this.grpPlayback.Name = "grpPlayback";
-            this.grpPlayback.Size = new System.Drawing.Size(200, 100);
+            this.grpPlayback.Size = new System.Drawing.Size(200, 80);
             this.grpPlayback.TabIndex = 2;
             this.grpPlayback.TabStop = false;
             this.grpPlayback.Text = "Algorithm Playback";
@@ -147,13 +151,43 @@
             // butClear
             // 
             this.butClear.Enabled = false;
-            this.butClear.Location = new System.Drawing.Point(128, 55);
+            this.butClear.Location = new System.Drawing.Point(139, 193);
             this.butClear.Name = "butClear";
-            this.butClear.Size = new System.Drawing.Size(75, 23);
+            this.butClear.Size = new System.Drawing.Size(62, 23);
             this.butClear.TabIndex = 3;
             this.butClear.Text = "Clear";
             this.butClear.UseVisualStyleBackColor = true;
             this.butClear.Click += new System.EventHandler(this.butClear_Click);
+            // 
+            // grpSecondaryAlgorithm
+            // 
+            this.grpSecondaryAlgorithm.Controls.Add(this.comSecondaryAlgorithm);
+            this.grpSecondaryAlgorithm.Location = new System.Drawing.Point(3, 55);
+            this.grpSecondaryAlgorithm.Name = "grpSecondaryAlgorithm";
+            this.grpSecondaryAlgorithm.Size = new System.Drawing.Size(200, 46);
+            this.grpSecondaryAlgorithm.TabIndex = 4;
+            this.grpSecondaryAlgorithm.TabStop = false;
+            this.grpSecondaryAlgorithm.Text = "Choose secondary algorithm";
+            // 
+            // comSecondaryAlgorithm
+            // 
+            this.comSecondaryAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comSecondaryAlgorithm.FormattingEnabled = true;
+            this.comSecondaryAlgorithm.Location = new System.Drawing.Point(6, 19);
+            this.comSecondaryAlgorithm.Name = "comSecondaryAlgorithm";
+            this.comSecondaryAlgorithm.Size = new System.Drawing.Size(188, 21);
+            this.comSecondaryAlgorithm.TabIndex = 0;
+            // 
+            // butRestart
+            // 
+            this.butRestart.Enabled = false;
+            this.butRestart.Location = new System.Drawing.Point(71, 193);
+            this.butRestart.Name = "butRestart";
+            this.butRestart.Size = new System.Drawing.Size(62, 23);
+            this.butRestart.TabIndex = 5;
+            this.butRestart.Text = "Restart";
+            this.butRestart.UseVisualStyleBackColor = true;
+            this.butRestart.Click += new System.EventHandler(this.butRestart_Click);
             // 
             // AlgorithmSettings
             // 
@@ -161,23 +195,26 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.butRestart);
+            this.Controls.Add(this.grpSecondaryAlgorithm);
             this.Controls.Add(this.butClear);
             this.Controls.Add(this.grpPlayback);
             this.Controls.Add(this.butStart);
-            this.Controls.Add(this.grpKnownAreaAlgorithm);
+            this.Controls.Add(this.grpPrimaryAlgorithm);
             this.Name = "AlgorithmSettings";
-            this.Size = new System.Drawing.Size(206, 200);
-            this.grpKnownAreaAlgorithm.ResumeLayout(false);
+            this.Size = new System.Drawing.Size(206, 221);
+            this.grpPrimaryAlgorithm.ResumeLayout(false);
             this.grpPlayback.ResumeLayout(false);
             this.grpPlayback.PerformLayout();
+            this.grpSecondaryAlgorithm.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.GroupBox grpKnownAreaAlgorithm;
-        private System.Windows.Forms.ComboBox comKnownAreaAlgorithm;
+        private System.Windows.Forms.GroupBox grpPrimaryAlgorithm;
+        private System.Windows.Forms.ComboBox comPrimaryAlgorithm;
         private System.Windows.Forms.Button butStart;
         private System.Windows.Forms.GroupBox grpPlayback;
         private System.Windows.Forms.Button butFirst;
@@ -187,5 +224,8 @@
         private System.Windows.Forms.ProgressBar progressSteps;
         private System.Windows.Forms.Label labStep;
         private System.Windows.Forms.Button butClear;
+        private System.Windows.Forms.GroupBox grpSecondaryAlgorithm;
+        private System.Windows.Forms.ComboBox comSecondaryAlgorithm;
+        private System.Windows.Forms.Button butRestart;
     }
 }
