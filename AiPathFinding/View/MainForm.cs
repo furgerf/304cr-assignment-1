@@ -342,7 +342,10 @@ namespace AiPathFinding.View
             if (me.Button != MouseButtons.Left)
                 return;
 
-            var pts = GetPointRange(me.Location);
+            var pt = new Point(me.Location.X > _canvas.Width - 4 ? _canvas.Width - 4 : me.Location.X,
+                me.Location.Y > _canvas.Height - 4 ? _canvas.Height - 4 : me.Location.Y);
+
+            var pts = GetPointRange(pt);
             _selectionRange[0] = CanvasPointToMapPoint(pts[0]);
             _selectionRange[1] = CanvasPointToMapPoint(pts[1]);
 
@@ -360,6 +363,10 @@ namespace AiPathFinding.View
 
             // only update if necessary
             if (_mouseDownLocation == null)
+                return;
+
+            // ignore if we're off grid
+            if (me.Location.X > _canvas.Width - 2 || me.Location.Y > _canvas.Height - 2)
                 return;
 
             var pts  = GetPointRange(me.Location);
