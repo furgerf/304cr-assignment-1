@@ -31,6 +31,7 @@ namespace AiPathFinding.Controller
                 var i1 = i;
                 _mapCellContextMenu.MenuItems.Add(new MenuItem("Change terrain to &" + (Terrain)i, (s, e) =>
                 {
+                    if (_selectedPoints == null) return;
                     for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
                         for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
                             Map.SetTerrain(new Point(k, l), (Terrain) i1);
@@ -40,18 +41,21 @@ namespace AiPathFinding.Controller
 
             _mapCellContextMenu.MenuItems.Add(new MenuItem("Toggle &fog", (s, e) =>
             {
+                if (_selectedPoints == null) return;
                 for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
                     for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
                         Map.SetFog(new Point(k, l), !Map.GetFog(new Point(k, l)));
             }));
             _mapCellContextMenu.MenuItems.Add(new MenuItem("Clear &fog", (s, e) =>
             {
+                if (_selectedPoints == null) return;
                 for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
                     for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
                         Map.SetFog(new Point(k, l), false);
             }));
             _mapCellContextMenu.MenuItems.Add(new MenuItem("Set &fog", (s, e) =>
             {
+                if (_selectedPoints == null) return;
                 for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
                     for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
                         Map.SetFog(new Point(k, l), true);

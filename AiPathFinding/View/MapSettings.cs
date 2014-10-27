@@ -41,9 +41,9 @@ namespace AiPathFinding.View
         {
             InitializeComponent();
 
-            numMapWidth.ValueChanged += (s, e) => MapSizeChanged(MapWidth, MapHeight);
-            numMapHeight.ValueChanged += (s, e) => MapSizeChanged(MapWidth, MapHeight);
-            numCellSize.ValueChanged += (s, e) => CellSizeChanged(CellSize);
+            numMapWidth.ValueChanged += (s, e) => { if (MapSizeChanged != null) MapSizeChanged(MapWidth, MapHeight); };
+            numMapHeight.ValueChanged += (s, e) => { if (MapSizeChanged != null) MapSizeChanged(MapWidth, MapHeight); };
+            numCellSize.ValueChanged += (s, e) => { if (MapSizeChanged != null) CellSizeChanged(CellSize); };
         }
 
         #endregion
