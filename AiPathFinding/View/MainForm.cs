@@ -278,7 +278,7 @@ namespace AiPathFinding.View
 
         private void OnAlgorithmStepChanged(AlgorithmStep step)
         {
-            DrawAlgorithmStep = step.DrawStep;
+            DrawAlgorithmStep = step == null ? null : step.DrawStep;
 
             _canvas.Invalidate();
         }

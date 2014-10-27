@@ -53,16 +53,31 @@ namespace AiPathFinding.View
 
         private void butStart_Click(object sender, EventArgs e)
         {
-            _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].FindPath(Entity.Player.Node, Entity.Target.Node);
-
             grpPlayback.Enabled = true;
             butStart.Enabled = false;
+            butClear.Enabled = true;
             grpKnownAreaAlgorithm.Enabled = false;
+
+            _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].FindPath(Entity.Player.Node, Entity.Target.Node);
 
             progressSteps.Maximum = _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
             labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count;
-
             butLast_Click(null, null);
+        }
+
+        private void butClear_Click(object sender, EventArgs e)
+        {
+            _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Reset();
+
+            grpPlayback.Enabled = false;
+            butStart.Enabled = true;
+            butClear.Enabled = false;
+            grpKnownAreaAlgorithm.Enabled = true;
+            labStep.Text = "(No steps to show)";
+            progressSteps.Value = 0;
+
+            if (AlgorithmStepChanged != null)
+                AlgorithmStepChanged(null);
         }
 
         private void butFirst_Click(object sender, EventArgs e)
@@ -112,6 +127,5 @@ namespace AiPathFinding.View
             butNext.Enabled = StepIndex != _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
             butLast.Enabled = StepIndex != _abstractAlgorithms[comKnownAreaAlgorithm.SelectedIndex].Steps.Count - 1;
         }
-
     }
 }

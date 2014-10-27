@@ -32,12 +32,13 @@
             this.comKnownAreaAlgorithm = new System.Windows.Forms.ComboBox();
             this.butStart = new System.Windows.Forms.Button();
             this.grpPlayback = new System.Windows.Forms.GroupBox();
+            this.progressSteps = new System.Windows.Forms.ProgressBar();
+            this.labStep = new System.Windows.Forms.Label();
             this.butLast = new System.Windows.Forms.Button();
             this.butNext = new System.Windows.Forms.Button();
             this.butPrevious = new System.Windows.Forms.Button();
             this.butFirst = new System.Windows.Forms.Button();
-            this.labStep = new System.Windows.Forms.Label();
-            this.progressSteps = new System.Windows.Forms.ProgressBar();
+            this.butClear = new System.Windows.Forms.Button();
             this.grpKnownAreaAlgorithm.SuspendLayout();
             this.grpPlayback.SuspendLayout();
             this.SuspendLayout();
@@ -63,7 +64,7 @@
             // 
             // butStart
             // 
-            this.butStart.Location = new System.Drawing.Point(53, 55);
+            this.butStart.Location = new System.Drawing.Point(9, 55);
             this.butStart.Name = "butStart";
             this.butStart.Size = new System.Drawing.Size(75, 23);
             this.butStart.TabIndex = 1;
@@ -86,6 +87,22 @@
             this.grpPlayback.TabIndex = 2;
             this.grpPlayback.TabStop = false;
             this.grpPlayback.Text = "Algorithm Playback";
+            // 
+            // progressSteps
+            // 
+            this.progressSteps.Location = new System.Drawing.Point(6, 32);
+            this.progressSteps.Name = "progressSteps";
+            this.progressSteps.Size = new System.Drawing.Size(188, 12);
+            this.progressSteps.TabIndex = 5;
+            // 
+            // labStep
+            // 
+            this.labStep.AutoSize = true;
+            this.labStep.Location = new System.Drawing.Point(6, 16);
+            this.labStep.Name = "labStep";
+            this.labStep.Size = new System.Drawing.Size(95, 13);
+            this.labStep.TabIndex = 4;
+            this.labStep.Text = "(No steps to show)";
             // 
             // butLast
             // 
@@ -127,21 +144,16 @@
             this.butFirst.UseVisualStyleBackColor = true;
             this.butFirst.Click += new System.EventHandler(this.butFirst_Click);
             // 
-            // labStep
+            // butClear
             // 
-            this.labStep.AutoSize = true;
-            this.labStep.Location = new System.Drawing.Point(6, 16);
-            this.labStep.Name = "labStep";
-            this.labStep.Size = new System.Drawing.Size(95, 13);
-            this.labStep.TabIndex = 4;
-            this.labStep.Text = "(No steps to show)";
-            // 
-            // progressSteps
-            // 
-            this.progressSteps.Location = new System.Drawing.Point(6, 32);
-            this.progressSteps.Name = "progressSteps";
-            this.progressSteps.Size = new System.Drawing.Size(188, 12);
-            this.progressSteps.TabIndex = 5;
+            this.butClear.Enabled = false;
+            this.butClear.Location = new System.Drawing.Point(128, 55);
+            this.butClear.Name = "butClear";
+            this.butClear.Size = new System.Drawing.Size(75, 23);
+            this.butClear.TabIndex = 3;
+            this.butClear.Text = "Clear";
+            this.butClear.UseVisualStyleBackColor = true;
+            this.butClear.Click += new System.EventHandler(this.butClear_Click);
             // 
             // AlgorithmSettings
             // 
@@ -149,6 +161,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.butClear);
             this.Controls.Add(this.grpPlayback);
             this.Controls.Add(this.butStart);
             this.Controls.Add(this.grpKnownAreaAlgorithm);
@@ -173,5 +186,6 @@
         private System.Windows.Forms.Button butPrevious;
         private System.Windows.Forms.ProgressBar progressSteps;
         private System.Windows.Forms.Label labStep;
+        private System.Windows.Forms.Button butClear;
     }
 }
