@@ -32,6 +32,8 @@ namespace AiPathFinding.View
         // pens
         private readonly Pen _gridPen = new Pen(Color.LightGray, 1);
         private readonly Pen _fogPen = new Pen(Color.Black, 1);
+        private readonly Pen _selectionPen = new Pen(Color.HotPink, 3);
+        private readonly Pen _fineSelectionPen = new Pen(Color.LightPink, 1);
         
         // brushes
         private readonly Brush _streetBrush = Brushes.Gray;
@@ -46,14 +48,18 @@ namespace AiPathFinding.View
         public readonly Controller.Controller Controller;
         private static MainForm _instance;
 
+        // stuff for handling cell selection
+        private bool _drawSelection;
+        private readonly Point[] _selectionRange = new Point[2];
+        private Point? _mouseDownLocation;
 
         #endregion
 
         #region Events
 
-        public delegate void OnCellClicked(Point location, MouseButtons button);
+        public delegate void OnSelectedPointsChanged(Point[] points);
 
-        public event OnCellClicked CellClicked;
+        public event OnSelectedPointsChanged SelectedPointsChanged;
 
         #endregion
 
@@ -83,7 +89,10 @@ namespace AiPathFinding.View
             Map.FogChanged += OnFogChanged;
             Map.MapLoaded += OnMapLoaded;
             // track user input
-            _canvas.Click += OnClick;
+            _canvas.MouseDown += CanvasOnMouseDown;
+            _canvas.MouseUp += CanvasOnMouseUp;
+            _canvas.MouseMove += CanvasOnMouseMove;
+
             mapSettings.butLoadMap.Click += (s, e) => LoadMap();
             mapSettings.butSaveMap.Click += (s, e) => SaveMap();
             status.PlayerPosition = Entity.Player.Node.Location;
@@ -91,7 +100,9 @@ namespace AiPathFinding.View
 
             algorithmSettings1.RegisterMap(Map);
             algorithmSettings1.AlgorithmStepChanged += OnAlgorithmStepChanged;
-            
+
+            SelectedPointsChanged += UpdatePointSelection;
+
             // prepare GUI (depending on whether map was loaded
             if (File.Exists(AutosaveMapName))
                 OnMapLoaded(); 
@@ -102,6 +113,20 @@ namespace AiPathFinding.View
         #endregion
 
         #region Methods
+
+        private Point[] GetPointRange(Point location)
+        {
+            if (_mouseDownLocation == null)
+                throw new Exception();
+
+            return new[]
+            {
+                new Point(location.X < _mouseDownLocation.Value.X ? location.X : _mouseDownLocation.Value.X,
+                    location.Y < _mouseDownLocation.Value.Y ? location.Y : _mouseDownLocation.Value.Y),
+                new Point(location.X > _mouseDownLocation.Value.X ? location.X : _mouseDownLocation.Value.X,
+                    location.Y > _mouseDownLocation.Value.Y ? location.Y : _mouseDownLocation.Value.Y)
+            };
+        }
 
         private void SaveMap()
         {
@@ -160,10 +185,27 @@ namespace AiPathFinding.View
                 DrawLandscape(g);
                 DrawEntities(g);
                 DrawFog(g);
+                DrawSelectedCells(g);
 
                 if (DrawAlgorithmStep != null)
                     DrawAlgorithmStep(g);
             }
+        }
+
+        private void DrawSelectedCells(Graphics g)
+        {
+            if (!_drawSelection)
+                return;
+
+            var rect = new Rectangle(MapPointToCanvasRectangle(_selectionRange[0]).X + 1,
+                MapPointToCanvasRectangle(_selectionRange[0]).Y + 1,
+                MapPointToCanvasRectangle(_selectionRange[1]).X -
+                MapPointToCanvasRectangle(_selectionRange[0]).X +
+                MapPointToCanvasRectangle(_selectionRange[1]).Width - 3,
+                MapPointToCanvasRectangle(_selectionRange[1]).Y -
+                MapPointToCanvasRectangle(_selectionRange[0]).Y +
+                MapPointToCanvasRectangle(_selectionRange[1]).Height - 3);
+            g.DrawRectangle(_mouseDownLocation == null ? _selectionPen : _fineSelectionPen, rect);
         }
 
         private void DrawFog(Graphics g)
@@ -275,16 +317,62 @@ namespace AiPathFinding.View
             DoubleBuffered = true;
         }
 
-        private void OnClick(object sender, EventArgs e)
+        private void CanvasOnMouseDown(object sender, MouseEventArgs me)
         {
-            var me = e as MouseEventArgs;
+            // ignore if click was on grid
+            if (IsPointOnGrid(me.Location))
+                return;
 
-            if (me == null)
-                throw new Exception("e should be me...");
+            // all we do here is designed to work with left clicks only
+            if (me.Button != MouseButtons.Left)
+                return;
 
-            if (IsPointOnGrid(me.Location)) return;
+            _drawSelection = true;
 
-            CellClicked(CanvasPointToMapPoint(me.Location), me.Button);
+            _mouseDownLocation = me.Location;
+        }
+
+        private void CanvasOnMouseUp(object sender, MouseEventArgs me)
+        {
+            // ignore if click was on grid or started on grid
+            if (IsPointOnGrid(me.Location) || _mouseDownLocation == null)
+                return;
+
+            // all we do here is designed to work with left clicks only
+            if (me.Button != MouseButtons.Left)
+                return;
+
+            var pts = GetPointRange(me.Location);
+            _selectionRange[0] = CanvasPointToMapPoint(pts[0]);
+            _selectionRange[1] = CanvasPointToMapPoint(pts[1]);
+
+            if (SelectedPointsChanged != null)
+                SelectedPointsChanged(_selectionRange);
+
+            _mouseDownLocation = null;
+        }
+
+        private void CanvasOnMouseMove(object sender, MouseEventArgs me)
+        {
+            // all we do here is designed to work with left clicks only
+            if (me.Button != MouseButtons.Left)
+                return;
+
+            // only update if necessary
+            if (_mouseDownLocation == null)
+                return;
+
+            var pts  = GetPointRange(me.Location);
+            _selectionRange[0] = CanvasPointToMapPoint(pts[0]);
+            _selectionRange[1] = CanvasPointToMapPoint(pts[1]);
+
+            if (SelectedPointsChanged != null)
+                SelectedPointsChanged(_selectionRange);
+        }
+
+        private void UpdatePointSelection(Point[] points)
+        {
+            _canvas.Invalidate();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

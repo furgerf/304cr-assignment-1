@@ -27,24 +27,38 @@ namespace AiPathFinding.Controller
             for (var i = 0; i < (int) Terrain.Count; i++)
             {
                 var i1 = i;
-                _mapCellContextMenu.MenuItems.Add(new MenuItem("Change terrain to &" + (Terrain)i, (s, e) => Map.SetTerrain(_lastRightClickLocation, (Terrain) i1)));
+                _mapCellContextMenu.MenuItems.Add(new MenuItem("Change terrain to &" + (Terrain)i, (s, e) =>
+                {
+                    for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                            Map.SetTerrain(new Point(k, l), (Terrain) i1);
+                }));
             }
             _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
 
-            _mapCellContextMenu.MenuItems.Add(new MenuItem("Toggle &fog", (s, e) => Map.ToggleFog(_lastRightClickLocation)));
+            _mapCellContextMenu.MenuItems.Add(new MenuItem("Toggle &fog", (s, e) =>
+            {
+                for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                            Map.ToggleFog(new Point(k, l));
+            }));
 
             _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
             for (var i = 0; i < (int) EntityType.Count; i++)
             {
                 var i1 = i;
                 _mapCellContextMenu.MenuItems.Add(new MenuItem("Set &" + (EntityType)i1 + " entity here",
-                    (s, e) => Map.SetEntityLocation(Entity.Entities[i1], _lastRightClickLocation)));
+                    (s, e) =>
+                    {
+                        //Map.SetEntityLocation(Entity.Entities[i1], _lastRightClickLocation)
+                    }){ Name = "Entity" + i });
             }
 
             form.ContextMenu = _mapCellContextMenu;
 
             // register events
-            form.CellClicked += OnCellClick;
+            //form.CellClicked += OnCellClick;
+            form.SelectedPointsChanged += OnSelectedPointsChanged;
             settings.MapSizeChanged += OnMapSizeChanged;
         }
 
@@ -52,16 +66,17 @@ namespace AiPathFinding.Controller
 
         #region Event Handling
 
-        private Point _lastRightClickLocation;
+        private Point[] _selectedPoints;
 
-        public void OnCellClick(Point location, MouseButtons button)
+        public void OnSelectedPointsChanged(Point[] points)
         {
-            // left button: change terrain type
-            if (button == MouseButtons.Left)
-                Map.SetTerrain(location, (Terrain) (((int) Map.GetTerrain(location) + 1)%(int) Terrain.Count));
+            if (points.Length != 2)
+                throw new ArgumentException();
 
-            // right button: open context menu
-            _lastRightClickLocation = location;
+            _selectedPoints = points;
+
+            for (var i = 0; i < (int) EntityType.Count; i++)
+                _mapCellContextMenu.MenuItems["Entity"+i].Enabled = points[0] == points[1];
         }
 
         public void OnMapSizeChanged(int width, int height)
