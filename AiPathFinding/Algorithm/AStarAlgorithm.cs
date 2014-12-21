@@ -39,19 +39,17 @@ namespace AiPathFinding.Algorithm
             {
                 // apply the algorithm to do the actual pathfinding
                 var currentNode = _openNodes[0];
-                var f = _nodeDataMap[currentNode].Item1 + _nodeDataMap[currentNode].Item2;
-                ProcessNode(currentNode, to);
+                //var f = _nodeDataMap[currentNode].Item1 + _nodeDataMap[currentNode].Item2;
+                ProcessNode(currentNode);
 
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
-            //// add step for when the path was found
-            //Steps.Add(GetAlgorithmStep(from, to));
+            // add step for when the path was found
+            Steps.Add(GetAlgorithmStep(from, to));
 
-            //// add step with all possdible paths
+            // add step with all possdible paths
             //Steps.Add(GetAlternativesStep(from, to));
-
-            ProcessNode(from, to);
         }
 
         protected override void ResetAlgorithm()
@@ -101,7 +99,7 @@ namespace AiPathFinding.Algorithm
             return newStep;
         }
 
-        private void ProcessNode(Node node, Node target)
+        private void ProcessNode(Node node)
         {
             // move node to closed list
             _openNodes.Remove(node);
@@ -111,9 +109,6 @@ namespace AiPathFinding.Algorithm
             {
                 // get current node
                 var n = e.GetOtherNode(node);
-
-                if (n == target)
-                    break;
 
                 // update h value of current node if smaller
                 var g = _nodeDataMap[node].Item1 + n.Cost;
