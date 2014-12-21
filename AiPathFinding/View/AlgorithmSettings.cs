@@ -17,9 +17,6 @@ namespace AiPathFinding.View
             get { return _stepIndex; }
             set
             {
-                if (StepIndex == value)
-                    return;
-
                 _stepIndex = value;
 
                 if (StepIndex >= 0)
@@ -102,7 +99,9 @@ namespace AiPathFinding.View
 
         private void butRestart_Click(object sender, EventArgs e)
         {
-            butClear_Click();
+            // reset algorithm
+            _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Reset();
+
             butStart_Click();
         }
 
@@ -119,11 +118,10 @@ namespace AiPathFinding.View
             // starts calculation
             _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].FindPath(Entity.Player.Node, Entity.Target.Node);
 
-            // set control values
+            // set progress bar stuff
+            // set value to 0 to avoid outofrangeexception
+            progressSteps.Value = 0;
             progressSteps.Maximum = _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count == 0 ? 0 : _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
-            labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count;
-            labExplored.Text = "Explored " + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explored + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explorable + " tiles (" + Math.Round(100 * _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]
-                                   .ExplorationPercentage, 2) + "%)";
 
             // auto-load last step
             butLast_Click();
@@ -141,6 +139,7 @@ namespace AiPathFinding.View
             butClear.Enabled = false;
             grpPrimaryAlgorithm.Enabled = true;
             grpSecondaryAlgorithm.Enabled = Array.IndexOf(AbstractAlgorithm.AlgorithmsRequiringVisibility, (AlgorithmNames) comPrimaryAlgorithm.SelectedIndex) > -1;
+
             labStep.Text = "(No steps to show)";
             labExplored.Text = "(No exploration yet)";
             progressSteps.Value = 0;

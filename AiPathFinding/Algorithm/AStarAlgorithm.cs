@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using AiPathFinding.Model;
 using AiPathFinding.View;
 
@@ -82,7 +81,9 @@ namespace AiPathFinding.Algorithm
 
         protected override void ResetAlgorithm()
         {
-            throw new NotImplementedException();
+            _openNodes.Clear();
+            _closedNodes.Clear();
+            _nodeDataMap.Clear();
         }
 
         private AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
