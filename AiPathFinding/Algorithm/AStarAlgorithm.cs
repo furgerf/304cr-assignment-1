@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using AiPathFinding.Model;
 using AiPathFinding.View;
 
@@ -60,29 +61,42 @@ namespace AiPathFinding.Algorithm
         private AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
         {
             // prepare data for printing cost
-            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString()) + "\nh=" + _nodeDataMap[n].Item2.ToString() + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString()), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, FontStyle.Regular))).ToList();
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString()) + "\nh=" + _nodeDataMap[n].Item2.ToString() + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString()), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
 
-            //// prepare data for printing path
-            //var pathData = new List<Tuple<Point, Point>>();
-            //var node = currentNode;
-            //while (node != from)
-            //{
-            //    // find neighbor where you would "come from"
-            //    var minNode = node.Edges.First(n => n != null).GetOtherNode(node);
-            //    foreach (
-            //        var e in
-            //            node.Edges.Where(n => n != null)
-            //                .Where(e => _nodeDataMap[e.GetOtherNode(node)].Item2 < _nodeDataMap[minNode].Item2))
-            //        minNode = e.GetOtherNode(node);
+            // prepare data for printing path
+            var pathData = new List<Tuple<Point, Point>>();
+            var node = currentNode;
+            while (node != from)
+            {
+                // find neighbor where you would "come from"
+                var edges = node.Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(node)].Item1 != int.MaxValue).ToList();
+                edges.Sort(
+                    (a, b) =>
+                    {
+                        var ag = _nodeDataMap[a.GetOtherNode(node)].Item1;
+                        var ah = _nodeDataMap[a.GetOtherNode(node)].Item2;
+                        var af = ag + ah;
+                        var bg = _nodeDataMap[b.GetOtherNode(node)].Item1;
+                        var bh = _nodeDataMap[b.GetOtherNode(node)].Item2;
+                        var bf = bg + bh;
 
-            //    // add to list
-            //    var p1 = MainForm.MapPointToCanvasRectangle(node.Location);
-            //    var p2 = MainForm.MapPointToCanvasRectangle(minNode.Location);
-            //    pathData.Add(new Tuple<Point, Point>(new Point(p1.X + p1.Width / 2, p1.Y + p1.Height / 2),
-            //        new Point(p2.X + p2.Width / 2, p2.Y + p2.Height / 2)));
+                        if (af < bf)
+                            return -1;
+                        if (bf < af)
+                            return 1;
+                        if (ag == bg)
+                            return 0;
+                        return ag < bg ? -1 : 1;
+                    });
+                var minNode = edges.First().GetOtherNode(node);
+                // add to list
+                var p1 = MainForm.MapPointToCanvasRectangle(node.Location);
+                var p2 = MainForm.MapPointToCanvasRectangle(minNode.Location);
+                pathData.Add(new Tuple<Point, Point>(new Point(p1.X + p1.Width/2, p1.Y + p1.Height/2),
+                    new Point(p2.X + p2.Width/2, p2.Y + p2.Height/2)));
 
-            //    node = minNode;
-            //}
+                node = minNode;
+            }
 
             // create new step
             var newStep = new AlgorithmStep(g =>
@@ -91,9 +105,9 @@ namespace AiPathFinding.Algorithm
                 foreach (var d in costData)
                     g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
 
-                //// draw path
-                //foreach (var d in pathData)
-                //    g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
+                // draw path
+                foreach (var d in pathData)
+                    g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
             });
 
             return newStep;
