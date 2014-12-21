@@ -72,9 +72,6 @@ namespace AiPathFinding.Algorithm
                 }
             }
 
-            // add step for when the path was found
-            //Steps.Add(GetAlgorithmStep(from, to));
-
             // add step with all possdible paths
             Steps.Add(GetAlternativesStep(from, to));
         }
@@ -154,37 +151,19 @@ namespace AiPathFinding.Algorithm
             {
                 for (var i = 0; i < openPaths.Count; i++)
                 {
-                    // find min cost
-                    //var min =
-                    //    openPaths[i].Last()
-                    //        .Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 != int.MaxValue)
-                    //        .Select(e => _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 + _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item2)
-                    //        .Concat(new[] {int.MaxValue})
-                    //        .Min();
-
-                    var min = int.MaxValue;
-                    foreach (var e in openPaths[i].Last().Edges)
-                    {
-                        if (e != null)
-                        {
-                            var otherNode = e.GetOtherNode(openPaths[i].Last());
-                            if (_nodeDataMap[otherNode].Item1 != int.MaxValue)
-                            {
-                                    if (!openPaths[i].Contains(e.GetOtherNode(openPaths[i].Last())))
-                                        min = _nodeDataMap[otherNode].Item1 + _nodeDataMap[otherNode].Item2;
-                                }
-                        }
-                    }
+                    var min = (from e in openPaths[i].Last().Edges where e != null select e.GetOtherNode(openPaths[i].Last()) into otherNode where _nodeDataMap[otherNode].Item1 != int.MaxValue select _nodeDataMap[otherNode].Item1).Concat(new[] {int.MaxValue}).Min();
 
                     // find all neighbor (edges) with min cost
                     var cheapestEdges =
                         openPaths[i].Last()
                             .Edges.Where(
-                                e => e != null && _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 != int.MaxValue &&_nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 + _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item2 == min && !openPaths[i].Contains(e.GetOtherNode(openPaths[i].Last())))
+                                e =>
+                                    e != null && _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 != int.MaxValue &&
+                                    _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 == min)
                             .ToArray();
 
                     if (cheapestEdges.Length == 0)
-                        continue;
+                        throw new Exception("Shouldn't hit a dead end!!");
 
                     // if only one exists, continue the current path
                     if (cheapestEdges.Length == 1)
