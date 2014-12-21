@@ -22,7 +22,9 @@ namespace AiPathFinding.View
 
                 _stepIndex = value;
 
-                progressSteps.Value = StepIndex;
+                if (StepIndex >= 0)
+                    progressSteps.Value = StepIndex;
+                
                 labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count;
             }
         }
@@ -116,7 +118,7 @@ namespace AiPathFinding.View
             _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].FindPath(Entity.Player.Node, Entity.Target.Node);
 
             // set control values
-            progressSteps.Maximum = _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
+            progressSteps.Maximum = _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count == 0 ? 0 : _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
             labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count;
 
             // auto-load last step
@@ -149,7 +151,7 @@ namespace AiPathFinding.View
 
             SetStepButtonsEnabled();
 
-            if (AlgorithmStepChanged != null)
+            if (AlgorithmStepChanged != null && _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
                 AlgorithmStepChanged(_abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
@@ -159,7 +161,7 @@ namespace AiPathFinding.View
 
             SetStepButtonsEnabled();
 
-            if (AlgorithmStepChanged != null)
+            if (AlgorithmStepChanged != null && _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
                 AlgorithmStepChanged(_abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
@@ -169,7 +171,7 @@ namespace AiPathFinding.View
 
             SetStepButtonsEnabled();
 
-            if (AlgorithmStepChanged != null)
+            if (AlgorithmStepChanged != null && _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
                 AlgorithmStepChanged(_abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
@@ -179,7 +181,7 @@ namespace AiPathFinding.View
 
             SetStepButtonsEnabled();
 
-            if (AlgorithmStepChanged != null)
+            if (AlgorithmStepChanged != null && _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
                 AlgorithmStepChanged(_abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
