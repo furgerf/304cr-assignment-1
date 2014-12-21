@@ -52,8 +52,32 @@ namespace AiPathFinding.Algorithm
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
-            // add step for when the path was found
-            Steps.Add(GetAlgorithmStep(from, to));
+            // look for other paths with same cost
+            while (_unvisitedNodes.Count > 0)
+            {
+                // remove all costlier nodes from the unvisited list
+                var stillOpen =
+                    _unvisitedNodes.Where(n => n != to && _nodeDataMap[n].Item2 < _nodeDataMap[to].Item2).ToArray();
+                _unvisitedNodes.Clear();
+                _unvisitedNodes.AddRange(stillOpen);
+
+                // check all remaining nodes
+                for (var i = 0; i < _unvisitedNodes.Count; i++)
+                {
+                    if (_unvisitedNodes[i] == to)
+                        // no need to check the target node
+                        _unvisitedNodes.RemoveAt(i);
+                    else if (_nodeDataMap[_unvisitedNodes[i]].Item2 < _nodeDataMap[to].Item2)
+                    {
+                        // check node
+                        var currentNode = _unvisitedNodes[i];
+
+                        ProcessNode(currentNode);
+
+                        Steps.Add(GetAlgorithmStep(from, currentNode));
+                    }
+                }
+            }
 
             // add step with all possdible paths
             Steps.Add(GetAlternativesStep(from, to));
@@ -96,7 +120,7 @@ namespace AiPathFinding.Algorithm
                 // draw path
                 foreach (var d in pathData)
                     g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
-            });
+            }, _visitedNodes.Count, Graph.PassibleNodeCount);
 
             return newStep;
         }
@@ -184,7 +208,7 @@ namespace AiPathFinding.Algorithm
                 // draw paths
                 foreach (var d in pathData)
                     g.DrawLine(d.Item3, d.Item1, d.Item2);
-            });
+            }, _visitedNodes.Count, Graph.PassibleNodeCount);
 
             return newStep;
         }

@@ -42,6 +42,7 @@
             this.grpSecondaryAlgorithm = new System.Windows.Forms.GroupBox();
             this.comSecondaryAlgorithm = new System.Windows.Forms.ComboBox();
             this.butRestart = new System.Windows.Forms.Button();
+            this.labExplored = new System.Windows.Forms.Label();
             this.grpPrimaryAlgorithm.SuspendLayout();
             this.grpPlayback.SuspendLayout();
             this.grpSecondaryAlgorithm.SuspendLayout();
@@ -68,7 +69,7 @@
             // 
             // butStart
             // 
-            this.butStart.Location = new System.Drawing.Point(3, 193);
+            this.butStart.Location = new System.Drawing.Point(3, 207);
             this.butStart.Name = "butStart";
             this.butStart.Size = new System.Drawing.Size(62, 23);
             this.butStart.TabIndex = 1;
@@ -78,6 +79,7 @@
             // 
             // grpPlayback
             // 
+            this.grpPlayback.Controls.Add(this.labExplored);
             this.grpPlayback.Controls.Add(this.progressSteps);
             this.grpPlayback.Controls.Add(this.labStep);
             this.grpPlayback.Controls.Add(this.butLast);
@@ -87,7 +89,7 @@
             this.grpPlayback.Enabled = false;
             this.grpPlayback.Location = new System.Drawing.Point(3, 107);
             this.grpPlayback.Name = "grpPlayback";
-            this.grpPlayback.Size = new System.Drawing.Size(200, 80);
+            this.grpPlayback.Size = new System.Drawing.Size(200, 94);
             this.grpPlayback.TabIndex = 2;
             this.grpPlayback.TabStop = false;
             this.grpPlayback.Text = "Algorithm Playback";
@@ -151,7 +153,7 @@
             // butClear
             // 
             this.butClear.Enabled = false;
-            this.butClear.Location = new System.Drawing.Point(139, 193);
+            this.butClear.Location = new System.Drawing.Point(139, 207);
             this.butClear.Name = "butClear";
             this.butClear.Size = new System.Drawing.Size(62, 23);
             this.butClear.TabIndex = 3;
@@ -181,13 +183,22 @@
             // butRestart
             // 
             this.butRestart.Enabled = false;
-            this.butRestart.Location = new System.Drawing.Point(71, 193);
+            this.butRestart.Location = new System.Drawing.Point(71, 207);
             this.butRestart.Name = "butRestart";
             this.butRestart.Size = new System.Drawing.Size(62, 23);
             this.butRestart.TabIndex = 5;
             this.butRestart.Text = "Restart";
             this.butRestart.UseVisualStyleBackColor = true;
             this.butRestart.Click += new System.EventHandler(this.butRestart_Click);
+            // 
+            // labExplored
+            // 
+            this.labExplored.AutoSize = true;
+            this.labExplored.Location = new System.Drawing.Point(6, 76);
+            this.labExplored.Name = "labExplored";
+            this.labExplored.Size = new System.Drawing.Size(98, 13);
+            this.labExplored.TabIndex = 6;
+            this.labExplored.Text = "(No exploration yet)";
             // 
             // AlgorithmSettings
             // 
@@ -202,7 +213,7 @@
             this.Controls.Add(this.butStart);
             this.Controls.Add(this.grpPrimaryAlgorithm);
             this.Name = "AlgorithmSettings";
-            this.Size = new System.Drawing.Size(206, 221);
+            this.Size = new System.Drawing.Size(206, 236);
             this.grpPrimaryAlgorithm.ResumeLayout(false);
             this.grpPlayback.ResumeLayout(false);
             this.grpPlayback.PerformLayout();
@@ -227,5 +238,6 @@
         private System.Windows.Forms.GroupBox grpSecondaryAlgorithm;
         private System.Windows.Forms.ComboBox comSecondaryAlgorithm;
         private System.Windows.Forms.Button butRestart;
+        private System.Windows.Forms.Label labExplored;
     }
 }

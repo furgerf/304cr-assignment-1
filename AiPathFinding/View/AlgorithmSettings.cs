@@ -24,8 +24,10 @@ namespace AiPathFinding.View
 
                 if (StepIndex >= 0)
                     progressSteps.Value = StepIndex;
-                
+
                 labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count;
+                labExplored.Text = "Explored " + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explored + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explorable + " tiles (" + Math.Round(100 * _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]
+                                       .ExplorationPercentage, 2) + "%)";
             }
         }
 
@@ -120,6 +122,8 @@ namespace AiPathFinding.View
             // set control values
             progressSteps.Maximum = _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count == 0 ? 0 : _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
             labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count;
+            labExplored.Text = "Explored " + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explored + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explorable + " tiles (" + Math.Round(100 * _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]
+                                   .ExplorationPercentage, 2) + "%)";
 
             // auto-load last step
             butLast_Click();
@@ -138,6 +142,7 @@ namespace AiPathFinding.View
             grpPrimaryAlgorithm.Enabled = true;
             grpSecondaryAlgorithm.Enabled = Array.IndexOf(AbstractAlgorithm.AlgorithmsRequiringVisibility, (AlgorithmNames) comPrimaryAlgorithm.SelectedIndex) > -1;
             labStep.Text = "(No steps to show)";
+            labExplored.Text = "(No exploration yet)";
             progressSteps.Value = 0;
 
             // clear the algorithmstep from the map

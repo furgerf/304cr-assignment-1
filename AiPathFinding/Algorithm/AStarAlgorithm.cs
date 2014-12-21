@@ -33,7 +33,7 @@ namespace AiPathFinding.Algorithm
 
         override public void FindPath(Node from, Node to)
         {
-            PrepareData(from, to);// TODO: find out why algorithm doesnt stop in time :/
+            PrepareData(from, to);
 
             // loop while we have options an at least one of the options and we have not yet found a way
             while (_openNodes.Count > 0 && _nodeDataMap[to].Item1 == int.MaxValue)
@@ -46,11 +46,38 @@ namespace AiPathFinding.Algorithm
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
+            // check for other paths with the same cost
+            while (_openNodes.Count > 0)
+            {
+                // remove all costlier nodes from the list
+                var stillOpen =
+                    _openNodes.Where(n => n != to && _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2 == _nodeDataMap[to].Item1).ToArray();
+                _openNodes.Clear();
+                _openNodes.AddRange(stillOpen);
+
+                // check all remaining nodes
+                for (var i = 0; i < _openNodes.Count; i++)
+                {
+                    if (_openNodes[i] == to)
+                        // no need to check target node
+                        _openNodes.RemoveAt(i);
+                    else if (_nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 == _nodeDataMap[to].Item1)
+                    {
+                        // check node
+                        var currentNode = _openNodes[i];
+
+                        ProcessNode(currentNode);
+
+                        Steps.Add(GetAlgorithmStep(from, currentNode));
+                    }
+                }
+            }
+
             // add step for when the path was found
-            Steps.Add(GetAlgorithmStep(from, to));
+            //Steps.Add(GetAlgorithmStep(from, to));
 
             // add step with all possdible paths
-            //Steps.Add(GetAlternativesStep(from, to));
+            Steps.Add(GetAlternativesStep(from, to));
         }
 
         protected override void ResetAlgorithm()
@@ -69,7 +96,7 @@ namespace AiPathFinding.Algorithm
             while (node != from)
             {
                 // find neighbor where you would "come from"
-                var edges = node.Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(node)].Item1 != int.MaxValue).ToList();
+                var edges = node.Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(node)].Item1 != int.MaxValue && !_openNodes.Contains(e.GetOtherNode(node))).ToList();
                 edges.Sort(
                     (a, b) =>
                     {
@@ -108,7 +135,117 @@ namespace AiPathFinding.Algorithm
                 // draw path
                 foreach (var d in pathData)
                     g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
-            });
+            }, _closedNodes.Count, Graph.PassibleNodeCount);
+
+            return newStep;
+        }
+
+        private AlgorithmStep GetAlternativesStep(Node from, Node to)
+        {
+            // prepare data for drawing
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString()) + "\nh=" + _nodeDataMap[n].Item2.ToString() + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString()), n.Location, n == to ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
+
+            // prepare data for path
+            var pathData = new List<Tuple<Point, Point, Pen>>();
+            var openPaths = new List<List<Node>> {new List<Node> {to}};
+            var closedPaths = new List<List<Node>>();
+            do
+            {
+                for (var i = 0; i < openPaths.Count; i++)
+                {
+                    // find min cost
+                    //var min =
+                    //    openPaths[i].Last()
+                    //        .Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 != int.MaxValue)
+                    //        .Select(e => _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 + _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item2)
+                    //        .Concat(new[] {int.MaxValue})
+                    //        .Min();
+
+                    var min = int.MaxValue;
+                    foreach (var e in openPaths[i].Last().Edges)
+                    {
+                        if (e != null)
+                        {
+                            var otherNode = e.GetOtherNode(openPaths[i].Last());
+                            if (_nodeDataMap[otherNode].Item1 != int.MaxValue)
+                            {
+                                    if (!openPaths[i].Contains(e.GetOtherNode(openPaths[i].Last())))
+                                        min = _nodeDataMap[otherNode].Item1 + _nodeDataMap[otherNode].Item2;
+                                }
+                        }
+                    }
+
+                    // find all neighbor (edges) with min cost
+                    var cheapestEdges =
+                        openPaths[i].Last()
+                            .Edges.Where(
+                                e => e != null && _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 != int.MaxValue &&_nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 + _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item2 == min && !openPaths[i].Contains(e.GetOtherNode(openPaths[i].Last())))
+                            .ToArray();
+
+                    if (cheapestEdges.Length == 0)
+                        continue;
+
+                    // if only one exists, continue the current path
+                    if (cheapestEdges.Length == 1)
+                        openPaths[i].Add(cheapestEdges[0].GetOtherNode(openPaths[i].Last()));
+                    else
+                    {
+                        // copy current path to end of openpaths and add the different nodes
+                        for (var j = 1; j < cheapestEdges.Length; j++)
+                        {
+                            var newList = new Node[openPaths[i].Count];
+                            openPaths[i].CopyTo(newList);
+
+                            if (cheapestEdges[j].GetOtherNode(openPaths[i].Last()) == from)
+                            {
+                                closedPaths.Add(newList.ToList());
+                                closedPaths.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[i].Last()));
+                            }
+                            else
+                            {
+                                openPaths.Add(newList.ToList());
+                                openPaths.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[i].Last()));
+                            }
+                        }
+                        openPaths[i].Add(cheapestEdges[0].GetOtherNode(openPaths[i].Last()));
+                    }
+
+                    // move completed (main) path to other list if it reaches the starting point
+                    if (openPaths[i].Last() != from) continue;
+                    closedPaths.Add(openPaths[i]);
+                    openPaths.RemoveAt(i);
+                    i--;
+                }
+            } while (openPaths.Count > 0);
+
+            // add path to list data
+            var minPath = closedPaths.Select(p => p.Count).Concat(new[] {int.MaxValue}).Min();
+            var maxPath = closedPaths.Select(p => p.Count).Concat(new[] {int.MinValue}).Max();
+            foreach (var path in closedPaths)
+                for (var i = 1; i < path.Count; i++)
+                {
+                    var p1 = MainForm.MapPointToCanvasRectangle(path[i - 1].Location);
+                    var p2 = MainForm.MapPointToCanvasRectangle(path[i].Location);
+                    var offset = 2 + 4*closedPaths.IndexOf(path);
+                    var perc = maxPath == minPath ? 1 : (double) (path.Count - minPath)/(maxPath - minPath);
+                    var color = Color.FromArgb(255, (int) (perc*255), (int) ((1 - perc)*255), 0);
+                    pathData.Add(
+                        new Tuple<Point, Point, Pen>(
+                            new Point(p1.X + offset, p1.Y + offset),
+                            new Point(p2.X + offset, p2.Y + offset), new Pen(color, 2)));
+                }
+
+            // create new step
+            var newStep = new AlgorithmStep(g =>
+            {
+                // draw cost of nodes
+                foreach (var d in costData)
+                    g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+
+                // draw paths
+                foreach (var d in pathData)
+                    g.DrawLine(d.Item3, d.Item1, d.Item2);
+            }, _closedNodes.Count, Graph.PassibleNodeCount);
 
             return newStep;
         }

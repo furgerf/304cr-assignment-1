@@ -9,12 +9,20 @@ namespace AiPathFinding.Algorithm
 
         public Action<Graphics> DrawStep { get; private set; }
 
+        public int Explored { get; private set; }
+
+        public int Explorable { get; private set; }
+
+        public double ExplorationPercentage { get { return Explorable == 0 ? 0 : (double)Explored/Explorable; } }
+
         #endregion
 
         #region Constructor
 
-        public AlgorithmStep(Action<Graphics> drawStep)
+        public AlgorithmStep(Action<Graphics> drawStep, int explored, int explorable)
         {
+            Explorable = explorable;
+            Explored = explored;
             DrawStep = drawStep;
         }
 
@@ -22,7 +30,7 @@ namespace AiPathFinding.Algorithm
 
         #region Main Methods
 
-
+        
 
         #endregion
 

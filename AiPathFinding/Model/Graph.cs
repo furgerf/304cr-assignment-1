@@ -12,6 +12,19 @@ namespace AiPathFinding.Model
 
         public Node[][] Nodes { get; set; }
 
+        public int PassibleNodeCount
+        {
+            get
+            {
+                var nodes = new List<Node>();
+
+                foreach (var n in Nodes)
+                    nodes.AddRange(n);
+                    
+                return nodes.Count(n => n.Cost != int.MaxValue);
+            }
+        }
+
         private static readonly Dictionary<Terrain, char> TerrainToChar = new Dictionary<Terrain, char> { { Terrain.Street, 'S' }, { Terrain.Plains, 'P' }, { Terrain.Forest, 'F' }, { Terrain.Hill, 'H' }, { Terrain.Mountain, 'M' } }; 
 
         private static readonly Dictionary<char, Terrain> CharToTerrain = new Dictionary<char, Terrain>(); 
