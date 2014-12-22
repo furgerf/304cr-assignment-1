@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using AiPathFinding.Model;
 
@@ -9,6 +10,8 @@ namespace AiPathFinding.View
     {
         private Point? _playerPosition;
         private Point? _targetPosition;
+
+        private readonly TextBox[] _terrainBoxes;
 
         #region Fields
 
@@ -49,6 +52,8 @@ namespace AiPathFinding.View
 
             if ((int) EntityType.Count != 2)
                 throw new ArgumentException();
+
+            _terrainBoxes = new[] {txtStreet, txtPlains, txtForest, txtHill, txtMountain};
         }
 
         #endregion
@@ -72,9 +77,29 @@ namespace AiPathFinding.View
             txtManhattenDistance.Text = dist.ToString();
         }
 
-        #endregion
+        public void UpdateMapStatistics(Map map, Terrain[] terrains = null, bool allTerrain = false, bool fog = false)
+        {
+            var cellCount = map.Width*map.Height;
 
-        #region Event Handling
+            // terrain
+            if (allTerrain)
+                terrains = new[] {Terrain.Street, Terrain.Plains, Terrain.Forest, Terrain.Hill, Terrain.Mountain};
+
+            if (terrains != null)
+                foreach (var t in terrains)
+                {
+                    var count = map.GetGraph().Nodes.Sum(n => n == null ? 0 : n.Count(nn => nn != null && nn.Terrain == t));
+                    _terrainBoxes[(int) t].Text = count + "/" + cellCount + " (" +
+                                                  Math.Round((double) 100*count/cellCount, 1) + "%)";
+                }
+
+            // fog
+            if (!fog)
+                return;
+
+            var foggy = map.GetGraph().Nodes.Sum(n => n.Count(nn => !nn.KnownToPlayer));
+            txtFog.Text = foggy + "/" + cellCount + " (" + Math.Round((double) 100*foggy/cellCount, 1) + "%)";
+        }
 
         #endregion
     }

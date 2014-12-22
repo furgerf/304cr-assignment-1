@@ -50,9 +50,12 @@ namespace AiPathFinding.View
             // register to event to make sure secondary algorithm can only be selected if necessary
             comPrimaryAlgorithm.SelectedIndexChanged +=
                 (s, e) =>
+                {
                     grpSecondaryAlgorithm.Enabled =
                         Array.IndexOf(AbstractAlgorithm.AlgorithmsRequiringVisibility,
-                            (AlgorithmNames)comPrimaryAlgorithm.SelectedIndex) > -1;
+                            (AlgorithmNames) comPrimaryAlgorithm.SelectedIndex) > -1;
+                    grpFogSelection.Enabled = grpSecondaryAlgorithm.Enabled;
+                };
 
             // add ALL algorithms to primary algorithm combobox
             for (var i = 0; i < (int) AlgorithmNames.Count; i++)

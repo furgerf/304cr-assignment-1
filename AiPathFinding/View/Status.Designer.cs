@@ -37,7 +37,21 @@
             this.label2 = new System.Windows.Forms.Label();
             this.txtPlayerPosition = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.grpMap = new System.Windows.Forms.GroupBox();
+            this.txtStreet = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtPlains = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txtForest = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.txtHill = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.txtMountain = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txtFog = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.grpEntities.SuspendLayout();
+            this.grpMap.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpEntities
@@ -129,17 +143,149 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Player Position";
             // 
+            // grpMap
+            // 
+            this.grpMap.Controls.Add(this.txtFog);
+            this.grpMap.Controls.Add(this.label10);
+            this.grpMap.Controls.Add(this.txtMountain);
+            this.grpMap.Controls.Add(this.label9);
+            this.grpMap.Controls.Add(this.txtHill);
+            this.grpMap.Controls.Add(this.label8);
+            this.grpMap.Controls.Add(this.txtForest);
+            this.grpMap.Controls.Add(this.label7);
+            this.grpMap.Controls.Add(this.txtPlains);
+            this.grpMap.Controls.Add(this.label6);
+            this.grpMap.Controls.Add(this.txtStreet);
+            this.grpMap.Controls.Add(this.label5);
+            this.grpMap.Location = new System.Drawing.Point(3, 132);
+            this.grpMap.Name = "grpMap";
+            this.grpMap.Size = new System.Drawing.Size(200, 175);
+            this.grpMap.TabIndex = 1;
+            this.grpMap.TabStop = false;
+            this.grpMap.Text = "Map";
+            // 
+            // txtStreet
+            // 
+            this.txtStreet.Enabled = false;
+            this.txtStreet.Location = new System.Drawing.Point(115, 19);
+            this.txtStreet.Name = "txtStreet";
+            this.txtStreet.Size = new System.Drawing.Size(79, 20);
+            this.txtStreet.TabIndex = 3;
+            this.txtStreet.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 22);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(35, 13);
+            this.label5.TabIndex = 2;
+            this.label5.Text = "Street";
+            // 
+            // txtPlains
+            // 
+            this.txtPlains.Enabled = false;
+            this.txtPlains.Location = new System.Drawing.Point(115, 45);
+            this.txtPlains.Name = "txtPlains";
+            this.txtPlains.Size = new System.Drawing.Size(79, 20);
+            this.txtPlains.TabIndex = 5;
+            this.txtPlains.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 48);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(35, 13);
+            this.label6.TabIndex = 4;
+            this.label6.Text = "Plains";
+            // 
+            // txtForest
+            // 
+            this.txtForest.Enabled = false;
+            this.txtForest.Location = new System.Drawing.Point(115, 71);
+            this.txtForest.Name = "txtForest";
+            this.txtForest.Size = new System.Drawing.Size(79, 20);
+            this.txtForest.TabIndex = 7;
+            this.txtForest.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 74);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(36, 13);
+            this.label7.TabIndex = 6;
+            this.label7.Text = "Forest";
+            // 
+            // txtHill
+            // 
+            this.txtHill.Enabled = false;
+            this.txtHill.Location = new System.Drawing.Point(115, 97);
+            this.txtHill.Name = "txtHill";
+            this.txtHill.Size = new System.Drawing.Size(79, 20);
+            this.txtHill.TabIndex = 9;
+            this.txtHill.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 100);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(21, 13);
+            this.label8.TabIndex = 8;
+            this.label8.Text = "Hill";
+            // 
+            // txtMountain
+            // 
+            this.txtMountain.Enabled = false;
+            this.txtMountain.Location = new System.Drawing.Point(115, 123);
+            this.txtMountain.Name = "txtMountain";
+            this.txtMountain.Size = new System.Drawing.Size(79, 20);
+            this.txtMountain.TabIndex = 11;
+            this.txtMountain.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 126);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(51, 13);
+            this.label9.TabIndex = 10;
+            this.label9.Text = "Mountain";
+            // 
+            // txtFog
+            // 
+            this.txtFog.Enabled = false;
+            this.txtFog.Location = new System.Drawing.Point(115, 149);
+            this.txtFog.Name = "txtFog";
+            this.txtFog.Size = new System.Drawing.Size(79, 20);
+            this.txtFog.TabIndex = 13;
+            this.txtFog.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(6, 152);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(25, 13);
+            this.label10.TabIndex = 12;
+            this.label10.Text = "Fog";
+            // 
             // Status
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.grpMap);
             this.Controls.Add(this.grpEntities);
             this.Name = "Status";
-            this.Size = new System.Drawing.Size(206, 129);
+            this.Size = new System.Drawing.Size(206, 310);
             this.grpEntities.ResumeLayout(false);
             this.grpEntities.PerformLayout();
+            this.grpMap.ResumeLayout(false);
+            this.grpMap.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -155,5 +301,18 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.GroupBox grpMap;
+        private System.Windows.Forms.TextBox txtStreet;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox txtFog;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox txtMountain;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox txtHill;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox txtForest;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox txtPlains;
+        private System.Windows.Forms.Label label6;
     }
 }

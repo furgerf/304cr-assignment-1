@@ -50,7 +50,7 @@
             this.status.Location = new System.Drawing.Point(12, 682);
             this.status.Name = "status";
             this.status.PlayerPosition = null;
-            this.status.Size = new System.Drawing.Size(208, 130);
+            this.status.Size = new System.Drawing.Size(208, 313);
             this.status.TabIndex = 3;
             this.status.TargetPosition = null;
             // 
@@ -76,7 +76,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1039, 824);
+            this.ClientSize = new System.Drawing.Size(1039, 1006);
             this.Controls.Add(this.status);
             this.Controls.Add(this.algorithmSettings);
             this.Controls.Add(this.mapSettings);

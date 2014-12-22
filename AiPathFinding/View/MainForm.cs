@@ -73,6 +73,8 @@ namespace AiPathFinding.View
 
             _instance = this;
 
+            WindowState = FormWindowState.Maximized;
+
             // instantiate objects
             _landscapeImages = new[] { _streetImage, _plainsImage, _forestImage, _hillImage, _mountainImage };
 
@@ -86,10 +88,14 @@ namespace AiPathFinding.View
             mapSettings.CellSizeChanged += OnCellSizeChanged;
             // track changes in the model
             Map.CellTerrainChanged += OnCellTerrainChanged;
+            Map.CellTerrainChanged += (l, o, n) => status.UpdateMapStatistics(Map, new[] {o, n});
             Map.MapSizeChanged += OnMapSizeChanged;
+            Map.MapSizeChanged += (a, b, c, d) => status.UpdateMapStatistics(Map, null, true);
             Map.EntityNodeChanged += OnEntityNodeChanged;
             Map.FogChanged += OnFogChanged;
+            Map.FogChanged += (a, b) => status.UpdateMapStatistics(Map, null, false, true);
             Map.MapLoaded += OnMapLoaded;
+            Map.MapLoaded += () => status.UpdateMapStatistics(Map, null, true, true);
             // track user input
             _canvas.MouseDown += CanvasOnMouseDown;
             _canvas.MouseUp += CanvasOnMouseUp;
@@ -111,6 +117,9 @@ namespace AiPathFinding.View
                 OnMapLoaded(); 
             else
                 SetCanvasSize();
+
+            // update status
+            status.UpdateMapStatistics(Map, null, true, true);
         }
 
         #endregion
