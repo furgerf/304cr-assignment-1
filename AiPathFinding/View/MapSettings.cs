@@ -21,6 +21,36 @@ namespace AiPathFinding.View
             get { return (int) numCellSize.Value; }
         }
 
+        public int StreetWeight
+        {
+            get { return (int)numStreet.Value; }
+        }
+
+        public int PlainsWeight
+        {
+            get { return (int)numPlains.Value; }
+        }
+
+        public int ForestWeight
+        {
+            get { return (int)numForest.Value; }
+        }
+
+        public int HillWeight
+        {
+            get { return (int)numHill.Value; }
+        }
+
+        public int MountainWeight
+        {
+            get { return (int)numMountain.Value; }
+        }
+
+        public double FogPercentage
+        {
+            get { return (double)numFog.Value; }
+        }
+
         #endregion
 
         #region Events

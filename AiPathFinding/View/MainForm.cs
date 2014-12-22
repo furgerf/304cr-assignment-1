@@ -73,11 +73,6 @@ namespace AiPathFinding.View
 
             _instance = this;
 
-            // arranging user controls
-            algorithmSettings.Location = new Point(mapSettings.Location.X, mapSettings.Location.Y + mapSettings.Height + 6);
-            status.Location = new Point(algorithmSettings.Location.X, algorithmSettings.Location.Y + algorithmSettings.Height + 6);
-            Size = new Size(Width, status.Location.Y + status.Height + 26 + 12);
-
             // instantiate objects
             _landscapeImages = new[] { _streetImage, _plainsImage, _forestImage, _hillImage, _mountainImage };
 
@@ -102,6 +97,7 @@ namespace AiPathFinding.View
 
             mapSettings.butLoadMap.Click += (s, e) => LoadMap();
             mapSettings.butSaveMap.Click += (s, e) => SaveMap();
+            mapSettings.butGenerate.Click += (s, e) => RegenerateMap();
             status.PlayerPosition = Entity.Player.Node.Location;
             status.TargetPosition = Entity.Target.Node.Location;
 
@@ -162,6 +158,11 @@ namespace AiPathFinding.View
 
             if (dlg.ShowDialog() == DialogResult.OK)
                 Map.LoadMap(dlg.FileName);
+        }
+
+        private void RegenerateMap()
+        {
+            Map.RegenerateMap(mapSettings.MapWidth, mapSettings.MapHeight, mapSettings.StreetWeight, mapSettings.PlainsWeight, mapSettings.ForestWeight, mapSettings.HillWeight, mapSettings.MountainWeight, mapSettings.FogPercentage);
         }
 
         private void SetCanvasSize()

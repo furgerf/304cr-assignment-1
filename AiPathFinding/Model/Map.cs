@@ -276,6 +276,25 @@ namespace AiPathFinding.Model
                 Entity.Entities[(int) Enum.Parse(typeof (EntityType), e[0])].Node = Graph.GetNode(p);
             }
 
+            // trigger event
+            if (MapLoaded != null)
+                MapLoaded();
+        }
+
+        public void RegenerateMap(int width, int height, int street, int plains, int forest, int hill, int mountain, double fog)
+        {
+            // create graph
+            double sum = street + plains + forest + hill + mountain;
+            var weights = new double[] {street, plains, forest, hill, mountain};
+            for (var i = 1; i < weights.Length; i++)
+                weights[i] += weights[i - 1];
+            for (var i = 0; i < weights.Length; i++)
+                weights[i] /= sum;
+            Graph = Graph.Random(width, height, weights, fog);
+
+            // ignore entities
+
+            // trigger event
             if (MapLoaded != null)
                 MapLoaded();
         }

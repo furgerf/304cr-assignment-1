@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -78,7 +79,6 @@ namespace AiPathFinding.Model
             // create array
             var nodes = new Node[data[1].Count(x => x == ';') + 1][];
 
-
             // fill nodes
             for (var i = 0; i < nodes.Length; i++)
             {
@@ -97,6 +97,34 @@ namespace AiPathFinding.Model
                     if (i < nodes.Length - 1)
                         Edge.AddEdge(nodes[i][j], Direction.East, nodes[i + 1][j], Direction.West);
                     if (j < nodes[i].Length - 1)
+                        Edge.AddEdge(nodes[i][j], Direction.South, nodes[i][j + 1], Direction.North);
+                }
+
+            return new Graph(nodes);
+        }
+
+        public static Graph Random(int width, int height, double[] weights, double fog)
+        {
+            var rnd = new Random();
+
+            // create array
+            var nodes = new Node[width][];
+
+            // fill nodes
+            for (var i = 0; i < width; i++)
+            {
+                nodes[i] = new Node[height];
+                for (var j = 0; j < height; j++)
+                    nodes[i][j] = new Node(new Point(i, j), rnd.NextDouble() > fog, (Terrain) Array.IndexOf(weights, weights.First(w => w > rnd.NextDouble())));
+            }
+
+            // add edges
+            for (var i = 0; i < width; i++)
+                for (var j = 0; j < height; j++)
+                {
+                    if (i < width - 1)
+                        Edge.AddEdge(nodes[i][j], Direction.East, nodes[i + 1][j], Direction.West);
+                    if (j < height - 1)
                         Edge.AddEdge(nodes[i][j], Direction.South, nodes[i][j + 1], Direction.North);
                 }
 

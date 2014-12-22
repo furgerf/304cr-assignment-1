@@ -47,7 +47,7 @@
             // 
             this.status.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.status.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.status.Location = new System.Drawing.Point(12, 474);
+            this.status.Location = new System.Drawing.Point(12, 682);
             this.status.Name = "status";
             this.status.PlayerPosition = null;
             this.status.Size = new System.Drawing.Size(208, 130);
@@ -58,7 +58,7 @@
             // 
             this.algorithmSettings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.algorithmSettings.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.algorithmSettings.Location = new System.Drawing.Point(12, 180);
+            this.algorithmSettings.Location = new System.Drawing.Point(12, 388);
             this.algorithmSettings.Name = "algorithmSettings";
             this.algorithmSettings.Size = new System.Drawing.Size(208, 288);
             this.algorithmSettings.TabIndex = 2;
@@ -69,14 +69,14 @@
             this.mapSettings.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.mapSettings.Location = new System.Drawing.Point(12, 12);
             this.mapSettings.Name = "mapSettings";
-            this.mapSettings.Size = new System.Drawing.Size(208, 162);
+            this.mapSettings.Size = new System.Drawing.Size(208, 370);
             this.mapSettings.TabIndex = 1;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1039, 618);
+            this.ClientSize = new System.Drawing.Size(1039, 824);
             this.Controls.Add(this.status);
             this.Controls.Add(this.algorithmSettings);
             this.Controls.Add(this.mapSettings);
