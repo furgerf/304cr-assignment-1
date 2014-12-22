@@ -176,7 +176,7 @@
             this.Controls.Add(this.grpSaveLoad);
             this.Controls.Add(this.grpMapSize);
             this.Name = "MapSettings";
-            this.Size = new System.Drawing.Size(206, 363);
+            this.Size = new System.Drawing.Size(206, 158);
             this.grpMapSize.ResumeLayout(false);
             this.grpMapSize.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numCellSize)).EndInit();

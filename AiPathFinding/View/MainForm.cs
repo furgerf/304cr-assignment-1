@@ -73,6 +73,11 @@ namespace AiPathFinding.View
 
             _instance = this;
 
+            // arranging user controls
+            algorithmSettings.Location = new Point(mapSettings.Location.X, mapSettings.Location.Y + mapSettings.Height + 6);
+            status.Location = new Point(algorithmSettings.Location.X, algorithmSettings.Location.Y + algorithmSettings.Height + 6);
+            Size = new Size(Width, status.Location.Y + status.Height + 26 + 12);
+
             // instantiate objects
             _landscapeImages = new[] { _streetImage, _plainsImage, _forestImage, _hillImage, _mountainImage };
 
@@ -100,8 +105,8 @@ namespace AiPathFinding.View
             status.PlayerPosition = Entity.Player.Node.Location;
             status.TargetPosition = Entity.Target.Node.Location;
 
-            algorithmSettings1.RegisterMap(Map);
-            algorithmSettings1.AlgorithmStepChanged += OnAlgorithmStepChanged;
+            algorithmSettings.RegisterMap(Map);
+            algorithmSettings.AlgorithmStepChanged += OnAlgorithmStepChanged;
 
             SelectedPointsChanged += UpdatePointSelection;
 

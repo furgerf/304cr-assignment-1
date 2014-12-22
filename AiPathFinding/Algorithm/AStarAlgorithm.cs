@@ -15,6 +15,8 @@ namespace AiPathFinding.Algorithm
 
         private readonly List<Node> _closedNodes = new List<Node>();
 
+        private readonly List<Tuple<Node, int>> _foggyNodes = new List<Tuple<Node, int>>(); 
+
         private readonly Dictionary<Node, Tuple<int, int>> _nodeDataMap = new Dictionary<Node, Tuple<int, int>>(); 
 
         #endregion
@@ -34,46 +36,65 @@ namespace AiPathFinding.Algorithm
         {
             PrepareData(from, to);
 
+            Node currentNode = null;
+
             // loop while we have options an at least one of the options and we have not yet found a way
             while (_openNodes.Count > 0 && _nodeDataMap[to].Item1 == int.MaxValue)
             {
                 // apply the algorithm to do the actual pathfinding
-                var currentNode = _openNodes[0];
+                currentNode = _openNodes[0];
                 //var f = _nodeDataMap[currentNode].Item1 + _nodeDataMap[currentNode].Item2;
                 ProcessNode(currentNode);
 
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
-            // check for other paths with the same cost
-            while (_openNodes.Count > 0)
+            if (currentNode != null && currentNode.Edges.Any(e => e.GetOtherNode(currentNode) == to))
             {
-                // remove all costlier nodes from the list
-                var stillOpen =
-                    _openNodes.Where(n => n != to && _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2 == _nodeDataMap[to].Item1).ToArray();
-                _openNodes.Clear();
-                _openNodes.AddRange(stillOpen);
+                // path found! don't bother checking fog
 
-                // check all remaining nodes
-                for (var i = 0; i < _openNodes.Count; i++)
+                // check for other paths with the same cost
+                while (_openNodes.Count > 0)
                 {
-                    if (_openNodes[i] == to)
-                        // no need to check target node
-                        _openNodes.RemoveAt(i);
-                    else if (_nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 == _nodeDataMap[to].Item1)
+                    // remove all costlier nodes from the list
+                    var stillOpen =
+                        _openNodes.Where(n => n != to && _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2 == _nodeDataMap[to].Item1).ToArray();
+                    _openNodes.Clear();
+                    _openNodes.AddRange(stillOpen);
+
+                    // check all remaining nodes
+                    for (var i = 0; i < _openNodes.Count; i++)
                     {
-                        // check node
-                        var currentNode = _openNodes[i];
+                        if (_openNodes[i] == to)
+                            // no need to check target node
+                            _openNodes.RemoveAt(i);
+                        else if (_nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 == _nodeDataMap[to].Item1)
+                        {
+                            // check node
+                            currentNode = _openNodes[i];
 
-                        ProcessNode(currentNode);
+                            ProcessNode(currentNode);
 
-                        Steps.Add(GetAlgorithmStep(from, currentNode));
+                            Steps.Add(GetAlgorithmStep(from, currentNode));
+                        }
                     }
                 }
-            }
 
-            // add step with all possdible paths
-            Steps.Add(GetAlternativesStep(from, to));
+                // add step with all possdible paths
+                Steps.Add(GetAlternativesStep(from, to));
+            }
+            else
+            {
+                // no path found. check fog
+                // find foggy tile that is closest to target
+                _foggyNodes.Sort((a, b) =>
+                {
+                    var aCost = a.Item2 + _nodeDataMap[a.Item1].Item2;
+                    var bCost = b.Item2 + _nodeDataMap[b.Item1].Item2;
+                    if (aCost == bCost) return 0;
+                    return aCost < bCost ? -1 : 1;
+                });
+            }
         }
 
         protected override void ResetAlgorithm()
@@ -81,6 +102,7 @@ namespace AiPathFinding.Algorithm
             _openNodes.Clear();
             _closedNodes.Clear();
             _nodeDataMap.Clear();
+            _foggyNodes.Clear();
         }
 
         private AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
@@ -236,7 +258,12 @@ namespace AiPathFinding.Algorithm
             _openNodes.Remove(node);
             _closedNodes.Add(node);
 
-            foreach (var e in node.Edges.Where(e => e != null && e.GetOtherNode(node).Cost != int.MaxValue && !_closedNodes.Contains(e.GetOtherNode(node))))
+            // add foggy neighbors
+            foreach (var e in node.Edges.Where(e => e != null && e.GetOtherNode(node).Cost != int.MaxValue && !_foggyNodes.Contains(new Tuple<Node, int>(e.GetOtherNode(node), _nodeDataMap[node].Item1)) && !e.GetOtherNode(node).KnownToPlayer))
+                _foggyNodes.Add(new Tuple<Node, int>(e.GetOtherNode(node), _nodeDataMap[node].Item1));
+
+            // process passible, unvisited neighbors
+            foreach (var e in node.Edges.Where(e => e != null && e.GetOtherNode(node).Cost != int.MaxValue && !_closedNodes.Contains(e.GetOtherNode(node)) && e.GetOtherNode(node).KnownToPlayer))
             {
                 // get current node
                 var n = e.GetOtherNode(node);

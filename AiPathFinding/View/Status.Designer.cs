@@ -137,7 +137,7 @@
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.grpEntities);
             this.Name = "Status";
-            this.Size = new System.Drawing.Size(206, 242);
+            this.Size = new System.Drawing.Size(206, 129);
             this.grpEntities.ResumeLayout(false);
             this.grpEntities.PerformLayout();
             this.ResumeLayout(false);

@@ -32,6 +32,7 @@
             this.comPrimaryAlgorithm = new System.Windows.Forms.ComboBox();
             this.butStart = new System.Windows.Forms.Button();
             this.grpPlayback = new System.Windows.Forms.GroupBox();
+            this.labExplored = new System.Windows.Forms.Label();
             this.progressSteps = new System.Windows.Forms.ProgressBar();
             this.labStep = new System.Windows.Forms.Label();
             this.butLast = new System.Windows.Forms.Button();
@@ -42,10 +43,12 @@
             this.grpSecondaryAlgorithm = new System.Windows.Forms.GroupBox();
             this.comSecondaryAlgorithm = new System.Windows.Forms.ComboBox();
             this.butRestart = new System.Windows.Forms.Button();
-            this.labExplored = new System.Windows.Forms.Label();
+            this.grpFogSelection = new System.Windows.Forms.GroupBox();
+            this.comFogMethod = new System.Windows.Forms.ComboBox();
             this.grpPrimaryAlgorithm.SuspendLayout();
             this.grpPlayback.SuspendLayout();
             this.grpSecondaryAlgorithm.SuspendLayout();
+            this.grpFogSelection.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpPrimaryAlgorithm
@@ -56,7 +59,7 @@
             this.grpPrimaryAlgorithm.Size = new System.Drawing.Size(200, 46);
             this.grpPrimaryAlgorithm.TabIndex = 0;
             this.grpPrimaryAlgorithm.TabStop = false;
-            this.grpPrimaryAlgorithm.Text = "Choose primary algorithm";
+            this.grpPrimaryAlgorithm.Text = "Select primary algorithm";
             // 
             // comPrimaryAlgorithm
             // 
@@ -69,7 +72,7 @@
             // 
             // butStart
             // 
-            this.butStart.Location = new System.Drawing.Point(3, 207);
+            this.butStart.Location = new System.Drawing.Point(3, 259);
             this.butStart.Name = "butStart";
             this.butStart.Size = new System.Drawing.Size(62, 23);
             this.butStart.TabIndex = 1;
@@ -87,12 +90,21 @@
             this.grpPlayback.Controls.Add(this.butPrevious);
             this.grpPlayback.Controls.Add(this.butFirst);
             this.grpPlayback.Enabled = false;
-            this.grpPlayback.Location = new System.Drawing.Point(3, 107);
+            this.grpPlayback.Location = new System.Drawing.Point(3, 159);
             this.grpPlayback.Name = "grpPlayback";
             this.grpPlayback.Size = new System.Drawing.Size(200, 94);
             this.grpPlayback.TabIndex = 2;
             this.grpPlayback.TabStop = false;
             this.grpPlayback.Text = "Algorithm Playback";
+            // 
+            // labExplored
+            // 
+            this.labExplored.AutoSize = true;
+            this.labExplored.Location = new System.Drawing.Point(6, 76);
+            this.labExplored.Name = "labExplored";
+            this.labExplored.Size = new System.Drawing.Size(98, 13);
+            this.labExplored.TabIndex = 6;
+            this.labExplored.Text = "(No exploration yet)";
             // 
             // progressSteps
             // 
@@ -153,7 +165,7 @@
             // butClear
             // 
             this.butClear.Enabled = false;
-            this.butClear.Location = new System.Drawing.Point(139, 207);
+            this.butClear.Location = new System.Drawing.Point(139, 259);
             this.butClear.Name = "butClear";
             this.butClear.Size = new System.Drawing.Size(62, 23);
             this.butClear.TabIndex = 3;
@@ -169,7 +181,7 @@
             this.grpSecondaryAlgorithm.Size = new System.Drawing.Size(200, 46);
             this.grpSecondaryAlgorithm.TabIndex = 4;
             this.grpSecondaryAlgorithm.TabStop = false;
-            this.grpSecondaryAlgorithm.Text = "Choose secondary algorithm";
+            this.grpSecondaryAlgorithm.Text = "Select secondary algorithm";
             // 
             // comSecondaryAlgorithm
             // 
@@ -183,7 +195,7 @@
             // butRestart
             // 
             this.butRestart.Enabled = false;
-            this.butRestart.Location = new System.Drawing.Point(71, 207);
+            this.butRestart.Location = new System.Drawing.Point(71, 259);
             this.butRestart.Name = "butRestart";
             this.butRestart.Size = new System.Drawing.Size(62, 23);
             this.butRestart.TabIndex = 5;
@@ -191,14 +203,24 @@
             this.butRestart.UseVisualStyleBackColor = true;
             this.butRestart.Click += new System.EventHandler(this.butRestart_Click);
             // 
-            // labExplored
+            // grpFogSelection
             // 
-            this.labExplored.AutoSize = true;
-            this.labExplored.Location = new System.Drawing.Point(6, 76);
-            this.labExplored.Name = "labExplored";
-            this.labExplored.Size = new System.Drawing.Size(98, 13);
-            this.labExplored.TabIndex = 6;
-            this.labExplored.Text = "(No exploration yet)";
+            this.grpFogSelection.Controls.Add(this.comFogMethod);
+            this.grpFogSelection.Location = new System.Drawing.Point(3, 107);
+            this.grpFogSelection.Name = "grpFogSelection";
+            this.grpFogSelection.Size = new System.Drawing.Size(200, 46);
+            this.grpFogSelection.TabIndex = 6;
+            this.grpFogSelection.TabStop = false;
+            this.grpFogSelection.Text = "Select method to pick fog";
+            // 
+            // comFogMethod
+            // 
+            this.comFogMethod.FormattingEnabled = true;
+            this.comFogMethod.Location = new System.Drawing.Point(6, 19);
+            this.comFogMethod.Name = "comFogMethod";
+            this.comFogMethod.Size = new System.Drawing.Size(188, 21);
+            this.comFogMethod.TabIndex = 0;
+            this.comFogMethod.Text = " ";
             // 
             // AlgorithmSettings
             // 
@@ -206,6 +228,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.grpFogSelection);
             this.Controls.Add(this.butRestart);
             this.Controls.Add(this.grpSecondaryAlgorithm);
             this.Controls.Add(this.butClear);
@@ -213,11 +236,12 @@
             this.Controls.Add(this.butStart);
             this.Controls.Add(this.grpPrimaryAlgorithm);
             this.Name = "AlgorithmSettings";
-            this.Size = new System.Drawing.Size(206, 236);
+            this.Size = new System.Drawing.Size(206, 287);
             this.grpPrimaryAlgorithm.ResumeLayout(false);
             this.grpPlayback.ResumeLayout(false);
             this.grpPlayback.PerformLayout();
             this.grpSecondaryAlgorithm.ResumeLayout(false);
+            this.grpFogSelection.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -239,5 +263,7 @@
         private System.Windows.Forms.ComboBox comSecondaryAlgorithm;
         private System.Windows.Forms.Button butRestart;
         private System.Windows.Forms.Label labExplored;
+        private System.Windows.Forms.GroupBox grpFogSelection;
+        private System.Windows.Forms.ComboBox comFogMethod;
     }
 }

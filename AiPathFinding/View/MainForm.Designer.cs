@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this._canvas = new System.Windows.Forms.Panel();
-            this.algorithmSettings1 = new AiPathFinding.View.AlgorithmSettings();
-            this.mapSettings = new AiPathFinding.View.MapSettings();
             this.status = new AiPathFinding.View.Status();
+            this.algorithmSettings = new AiPathFinding.View.AlgorithmSettings();
+            this.mapSettings = new AiPathFinding.View.MapSettings();
             this.SuspendLayout();
             // 
             // _canvas
@@ -43,14 +43,25 @@
             this._canvas.Size = new System.Drawing.Size(200, 100);
             this._canvas.TabIndex = 0;
             // 
-            // algorithmSettings1
+            // status
             // 
-            this.algorithmSettings1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.algorithmSettings1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.algorithmSettings1.Location = new System.Drawing.Point(12, 180);
-            this.algorithmSettings1.Name = "algorithmSettings1";
-            this.algorithmSettings1.Size = new System.Drawing.Size(208, 239);
-            this.algorithmSettings1.TabIndex = 2;
+            this.status.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.status.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.status.Location = new System.Drawing.Point(12, 474);
+            this.status.Name = "status";
+            this.status.PlayerPosition = null;
+            this.status.Size = new System.Drawing.Size(208, 130);
+            this.status.TabIndex = 3;
+            this.status.TargetPosition = null;
+            // 
+            // algorithmSettings
+            // 
+            this.algorithmSettings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.algorithmSettings.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.algorithmSettings.Location = new System.Drawing.Point(12, 180);
+            this.algorithmSettings.Name = "algorithmSettings";
+            this.algorithmSettings.Size = new System.Drawing.Size(208, 288);
+            this.algorithmSettings.TabIndex = 2;
             // 
             // mapSettings
             // 
@@ -61,24 +72,13 @@
             this.mapSettings.Size = new System.Drawing.Size(208, 162);
             this.mapSettings.TabIndex = 1;
             // 
-            // status
-            // 
-            this.status.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.status.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.status.Location = new System.Drawing.Point(12, 425);
-            this.status.Name = "status";
-            this.status.PlayerPosition = null;
-            this.status.Size = new System.Drawing.Size(208, 147);
-            this.status.TabIndex = 3;
-            this.status.TargetPosition = null;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1039, 584);
+            this.ClientSize = new System.Drawing.Size(1039, 618);
             this.Controls.Add(this.status);
-            this.Controls.Add(this.algorithmSettings1);
+            this.Controls.Add(this.algorithmSettings);
             this.Controls.Add(this.mapSettings);
             this.Controls.Add(this._canvas);
             this.Name = "MainForm";
@@ -92,7 +92,7 @@
 
         private System.Windows.Forms.Panel _canvas;
         private MapSettings mapSettings;
-        private AlgorithmSettings algorithmSettings1;
+        private AlgorithmSettings algorithmSettings;
         private Status status;
 
 
