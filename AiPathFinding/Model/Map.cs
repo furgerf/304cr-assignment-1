@@ -7,16 +7,26 @@ using AiPathFinding.Common;
 
 namespace AiPathFinding.Model
 {
-    public class Map
+    /// <summary>
+    /// Map of the model.
+    /// </summary>
+    public sealed class Map
     {
         #region Fields
 
-        private Graph Graph { get; set; }
+        /// <summary>
+        /// Graph representation of the map which is used by the algorithms.
+        /// </summary>
+        public Graph Graph { get; private set; }
 
+        /// <summary>
+        /// Width of the map.
+        /// </summary>
         public int Width
         {
             get
             {
+                // get nodes length and remove empty columns
                 var width = Graph.Nodes.Length;
                 while (Graph.Nodes[width - 1] == null)
                     width--;
@@ -24,10 +34,14 @@ namespace AiPathFinding.Model
             }
         }
 
+        /// <summary>
+        /// Height of the map.
+        /// </summary>
         public int Height
         {
             get
             {
+                // get nodes length and remove empty rows
                 var height = Graph.Nodes[0].Length;
                 while (Graph.Nodes[0][height - 1] == null)
                     height--;
@@ -39,37 +53,61 @@ namespace AiPathFinding.Model
 
         #region Events
 
+        /// <summary>
+        /// Triggered when a cell's terrain changes.
+        /// </summary>
+        /// <param name="location">Cell location</param>
+        /// <param name="oldTerrain">Old terrain</param>
+        /// <param name="newTerrain">New terrain</param>
         public delegate void OnCellTerrainChanged(Point location, Terrain oldTerrain, Terrain newTerrain);
 
         public event OnCellTerrainChanged CellTerrainChanged;
 
+        /// <summary>
+        /// Triggered when the map's size changes.
+        /// </summary>
+        /// <param name="oldWidth">Old width</param>
+        /// <param name="oldHeight">Old height</param>
+        /// <param name="newWidth">New width</param>
+        /// <param name="newHeight">New height</param>
         public delegate void OnMapSizeChanged(int oldWidth, int oldHeight, int newWidth, int newHeight);
 
         public event OnMapSizeChanged MapSizeChanged;
 
-        public delegate void OnEntityNodeChanged(Node oldNode, Node newNode, Entity entity);
-
-        public event OnEntityNodeChanged EntityNodeChanged;
-
+        /// <summary>
+        /// Triggered when the map is loaded.
+        /// </summary>
         public delegate void OnMapLoaded();
 
         public event OnMapLoaded MapLoaded;
 
+        /// <summary>
+        /// Triggered when a cell's fog changes.
+        /// </summary>
+        /// <param name="location">Location of the cell</param>
+        /// <param name="hasFog">True if the cell now is foggy</param>
         public delegate void OnFogChanged(Point location, bool hasFog);
 
         public event OnFogChanged FogChanged;
 
         #endregion
 
-        #region Constructor
+        #region Constructor and Static Creation
 
+        /// <summary>
+        /// Creates a new map with a given graph.
+        /// </summary>
+        /// <param name="graph">Graph of the model</param>
         public Map(Graph graph)
         {
             Graph = graph;
-
-            Entity.NodeChanged += (o, n, e) => { if (EntityNodeChanged != null) EntityNodeChanged(o, n, e); };
         }
 
+        /// <summary>
+        /// Creates a new map from a text file.
+        /// </summary>
+        /// <param name="path">Path to the file</param>
+        /// <returns>New map</returns>
         public static Map FromMapFile(string path)
         {
             var map = new Map(null);
@@ -83,25 +121,31 @@ namespace AiPathFinding.Model
 
         #region Methods
 
-        public Graph GetGraph()
-        {
-            return Graph;
-        }
-
+        /// <summary>
+        /// Updates the location of an entity.
+        /// </summary>
+        /// <param name="player">Entity to move</param>
+        /// <param name="location">New location of the entity</param>
         public void SetEntityLocation(Entity player, Point location)
         {
-            // set location and trigger event
-            var oldNode = player.Node;
             player.Node = Graph.GetNode(location);
-            if (EntityNodeChanged != null)
-                EntityNodeChanged(oldNode, player.Node, player);
         }
 
+        /// <summary>
+        /// Gets the terrain of a specific cell.
+        /// </summary>
+        /// <param name="location">Location of the cell</param>
+        /// <returns>Terrain of the cell</returns>
         public Terrain GetTerrain(Point location)
         {
-            return Graph.Nodes[location.X][location.Y].Terrain;
+            return Graph.GetNode(location).Terrain;
         }
 
+        /// <summary>
+        /// Sets the terrain of a specific cell.
+        /// </summary>
+        /// <param name="location">Location of the cell</param>
+        /// <param name="terrain">New terrain of the cell</param>
         public void SetTerrain(Point location, Terrain terrain)
         {
             // set node type and trigger event
@@ -111,23 +155,34 @@ namespace AiPathFinding.Model
                 CellTerrainChanged(location, oldType, terrain);
         }
 
+        /// <summary>
+        /// Changes the fog on a specific cell.
+        /// </summary>
+        /// <param name="location">Node where the fog should be changed</param>
+        /// <param name="hasFog">True if fog should be set, false if it should be cleared</param>
         public void SetFog(Point location, bool hasFog)
         {
+            // set fog and trigger event
             Graph.Nodes[location.X][location.Y].KnownToPlayer = !hasFog;
             if (FogChanged != null)
                 FogChanged(location, Graph.Nodes[location.X][location.Y].KnownToPlayer);
         }
 
-        public bool GetFog(Point location)
-        {
-            return !Graph.Nodes[location.X][location.Y].KnownToPlayer;
-        }
-
+        /// <summary>
+        /// Gets the fog on a specific cell.
+        /// </summary>
+        /// <param name="location">Location of the cell</param>
+        /// <returns>True if the cell is foggy</returns>
         public bool HasFog(Point location)
         {
             return !Graph.Nodes[location.X][location.Y].KnownToPlayer;
         }
 
+        /// <summary>
+        /// Changes the size of the map. If width/height of the map is greater than before, the map is filled with empty cells (streets).
+        /// </summary>
+        /// <param name="width">New width of the map</param>
+        /// <param name="height">New height of the map</param>
         public void SetMapSize(int width, int height)
         {
             // get current width/height
@@ -240,8 +295,13 @@ namespace AiPathFinding.Model
                 MapSizeChanged(oldWidth, oldHeight, width, height);
         }
 
+        /// <summary>
+        /// Saves the map to a file.
+        /// </summary>
+        /// <param name="path">Path to the file</param>
         public void SaveMap(string path)
         {
+            // gather data: entities
             var data = "";
             for (var i = 0; i < (int) EntityType.Count; i++)
             {
@@ -252,11 +312,17 @@ namespace AiPathFinding.Model
             if (data != "")
                 data = data.Substring(1);
             
+            // add graph to data
             data += "\n" + Graph;
 
+            // write data
             File.WriteAllText(path, data);
         }
 
+        /// <summary>
+        /// Loads a map from a text file.
+        /// </summary>
+        /// <param name="path">Path to the file</param>
         public void LoadMap(string path)
         {
             var data = File.ReadAllLines(path);
@@ -284,6 +350,17 @@ namespace AiPathFinding.Model
                 MapLoaded();
         }
 
+        /// <summary>
+        /// Creates a new random graph.
+        /// </summary>
+        /// <param name="width">Width of the map</param>
+        /// <param name="height">Height of the map</param>
+        /// <param name="street">Weight of street cells</param>
+        /// <param name="plains">Weight of plains cells</param>
+        /// <param name="forest">Weight of forest cells</param>
+        /// <param name="hill">Weight of hill cells</param>
+        /// <param name="mountain">Weight of mountain cells</param>
+        /// <param name="fog">Percentage of foggy cells</param>
         public void RegenerateMap(int width, int height, int street, int plains, int forest, int hill, int mountain, double fog)
         {
             // create graph

@@ -7,38 +7,54 @@ using AiPathFinding.Common;
 
 namespace AiPathFinding.Model
 {
-    public class Graph
+    /// <summary>
+    /// Class that implements the graph of the map model.
+    /// </summary>
+    public sealed class Graph
     {
         #region Fields
 
+        /// <summary>
+        /// Nodes of the graph. Arranged in a matrix since the graph forms a matrix...
+        /// </summary>
         public Node[][] Nodes { get; set; }
 
+        /// <summary>
+        /// Counts all nodes that can be visited by the player.
+        /// </summary>
         public int PassibleNodeCount
         {
-            get
-            {
-                var nodes = new List<Node>();
-
-                foreach (var n in Nodes)
-                    nodes.AddRange(n);
-                    
-                return nodes.Count(n => n.Cost != int.MaxValue);
-            }
+            get { return Nodes.Sum(n => n.Count(nn => nn.Cost != int.MaxValue)); }
         }
 
+        /// <summary>
+        /// Maps the string (character) representation of terrain to the enum type.
+        /// </summary>
         private static readonly Dictionary<Terrain, char> TerrainToChar = new Dictionary<Terrain, char> { { Terrain.Street, 'S' }, { Terrain.Plains, 'P' }, { Terrain.Forest, 'F' }, { Terrain.Hill, 'H' }, { Terrain.Mountain, 'M' } }; 
 
+        /// <summary>
+        /// Reverses the above mapping.
+        /// </summary>
         private static readonly Dictionary<char, Terrain> CharToTerrain = new Dictionary<char, Terrain>(); 
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Static constructor.
+        /// </summary>
         static Graph()
         {
+            // creates the reverse mapping
+            // this ensures that both dictionaries complement eachother properly
             CharToTerrain = TerrainToChar.GroupBy(p => p.Value).ToDictionary(g => g.Key, g => g.Select(pp => pp.Key).ToList()[0]);
         }
 
+        /// <summary>
+        /// Instance constructor.
+        /// </summary>
+        /// <param name="nodes">Creates a new graph with given nodes</param>
         private Graph(Node[][] nodes)
         {
             Nodes = nodes;
@@ -46,8 +62,14 @@ namespace AiPathFinding.Model
 
         #endregion
 
-        #region Creation Methods
+        #region Static Graph Creation Methods
 
+        /// <summary>
+        /// Creates an empty graph.
+        /// </summary>
+        /// <param name="width">Width of the map</param>
+        /// <param name="height">Height of the map</param>
+        /// <returns>New map</returns>
         public static Graph EmptyGraph(int width, int height)
         {
             // create array
@@ -74,6 +96,11 @@ namespace AiPathFinding.Model
             return new Graph(nodes);
         }
 
+        /// <summary>
+        /// Creates a map from data that has been stored in a text file.
+        /// </summary>
+        /// <param name="data">String representation of the data, lines of the array representing lines in the file</param>
+        /// <returns>New map</returns>
         public static Graph FromMap(string[] data)
         {
             // create array
@@ -103,6 +130,14 @@ namespace AiPathFinding.Model
             return new Graph(nodes);
         }
 
+        /// <summary>
+        /// Creates new random map.
+        /// </summary>
+        /// <param name="width">Width of the map</param>
+        /// <param name="height">Height of the map</param>
+        /// <param name="weights">Weights for the different terrains, summed up</param>
+        /// <param name="fog">Percentage of fog</param>
+        /// <returns>New map</returns>
         public static Graph Random(int width, int height, double[] weights, double fog)
         {
             var rnd = new Random();
@@ -118,8 +153,16 @@ namespace AiPathFinding.Model
                 {
                     // for some reason, it looks like the terrain rnd needs to be stored...
                     var r = rnd.NextDouble();
-                    nodes[i][j] = new Node(new Point(i, j), rnd.NextDouble() > fog,
-                        (Terrain) 5 - weights.Count(w => r < w));
+                    var t = (Terrain) 5 - weights.Count(w => r < w);
+
+                    foreach (var e in Entity.Entities)
+                        while (t == Terrain.Mountain && e.Node.Location == new Point(i, j))
+                        {
+                            r = rnd.NextDouble();
+                            t = (Terrain)5 - weights.Count(w => r < w);
+                        }
+
+                    nodes[i][j] = new Node(new Point(i, j), rnd.NextDouble() > fog, t);
                 }
             }
 
@@ -140,11 +183,20 @@ namespace AiPathFinding.Model
 
         #region Methods
 
+        /// <summary>
+        /// Simplified access to a specific node with the node's location point.
+        /// </summary>
+        /// <param name="p">Location of the node</param>
+        /// <returns>Node</returns>
         public Node GetNode(Point p)
         {
             return Nodes[p.X][p.Y];
         }
 
+        /// <summary>
+        /// Text representation of a graph; Encodes terrain according to static map; fog as *; cells separated by semicolon (CSV).
+        /// </summary>
+        /// <returns>Map-string</returns>
         public override string ToString()
         {
             var sb = new StringBuilder();

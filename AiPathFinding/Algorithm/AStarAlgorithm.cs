@@ -1,32 +1,39 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using AiPathFinding.Model;
 using AiPathFinding.View;
 
 namespace AiPathFinding.Algorithm
 {
-    public class AStarAbstractAlgorithm : AbstractAlgorithm
+    /// <summary>
+    /// Implementation of the A*-Algorithm.
+    /// </summary>
+    public sealed class AStarAlgorithm : AbstractAlgorithm
     {
         #region Fields
 
+        /// <summary>
+        /// List of currently open nodes.
+        /// </summary>
         private readonly List<Node> _openNodes = new List<Node>();
 
+        /// <summary>
+        /// List of already closed nodes.
+        /// </summary>
         private readonly List<Node> _closedNodes = new List<Node>();
 
+        /// <summary>
+        /// List of nodes that are foggy but could be explored later.
+        /// </summary>
         private readonly List<Tuple<Node, int>> _foggyNodes = new List<Tuple<Node, int>>(); 
 
+        /// <summary>
+        /// Assigns a value for "g" and "h" to each node.
+        /// </summary>
         private readonly Dictionary<Node, Tuple<int, int>> _nodeDataMap = new Dictionary<Node, Tuple<int, int>>(); 
-
-        #endregion
-
-        #region Constructor
-
-        public AStarAbstractAlgorithm(Graph graph)
-            : base(graph)
-        {
-        }
 
         #endregion
 
@@ -34,21 +41,27 @@ namespace AiPathFinding.Algorithm
 
         override public void FindPath(Node from, Node to)
         {
-            PrepareData(from, to);
+            Console.WriteLine("AStar is attempting to find a path from " + from + " to " + to + ".");
 
+            // PREPARE DATA
+            // add all nodes to the data map
+            foreach (var n in Graph.Nodes.Where(n => n != null).SelectMany(nn => nn.Where(n => n != null)))
+                _nodeDataMap.Add(n, new Tuple<int, int>(n == @from ? 0 : int.MaxValue, GetHeuristic(n, to)));
+            // start the pathfinding from the start node
+            _openNodes.Add(from);
+
+            // ALGORITHM
             Node currentNode = null;
-
             // loop while we have options an at least one of the options and we have not yet found a way
             while (_openNodes.Count > 0 && _nodeDataMap[to].Item1 == int.MaxValue)
             {
-                // apply the algorithm to do the actual pathfinding
+                // look for a path from the first open node
                 currentNode = _openNodes[0];
-                //var f = _nodeDataMap[currentNode].Item1 + _nodeDataMap[currentNode].Item2;
                 ProcessNode(currentNode);
-
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
+            // pathfinding has terminated
             if (currentNode != null && currentNode.Edges.Any(e => e != null && e.GetOtherNode(currentNode) == to))
             {
                 // path found! don't bother checking fog
@@ -72,9 +85,7 @@ namespace AiPathFinding.Algorithm
                         {
                             // check node
                             currentNode = _openNodes[i];
-
                             ProcessNode(currentNode);
-
                             Steps.Add(GetAlgorithmStep(from, currentNode));
                         }
                     }
@@ -97,7 +108,7 @@ namespace AiPathFinding.Algorithm
             }
         }
 
-        protected override void ResetAlgorithm()
+        public override void ResetAlgorithm()
         {
             _openNodes.Clear();
             _closedNodes.Clear();
@@ -105,10 +116,16 @@ namespace AiPathFinding.Algorithm
             _foggyNodes.Clear();
         }
 
+        /// <summary>
+        /// Gets a step in the algorithm, mostly to draw progress on map.
+        /// </summary>
+        /// <param name="from">Node to start from</param>
+        /// <param name="currentNode">Node to which the path is being tried</param>
+        /// <returns>Step of the algorithm</returns>
         private AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
         {
             // prepare data for printing cost
-            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString()) + "\nh=" + _nodeDataMap[n].Item2.ToString() + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString()), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
 
             // prepare data for printing path
             var pathData = new List<Tuple<Point, Point>>();
@@ -117,6 +134,7 @@ namespace AiPathFinding.Algorithm
             {
                 // find neighbor where you would "come from"
                 var edges = node.Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(node)].Item1 != int.MaxValue && !_openNodes.Contains(e.GetOtherNode(node))).ToList();
+                // find cheapest edge
                 edges.Sort(
                     (a, b) =>
                     {
@@ -150,7 +168,7 @@ namespace AiPathFinding.Algorithm
             {
                 // draw cost of nodes
                 foreach (var d in costData)
-                    g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+                    g.DrawString(d.Item1.ToString(CultureInfo.InvariantCulture), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
 
                 // draw path
                 foreach (var d in pathData)
@@ -160,10 +178,16 @@ namespace AiPathFinding.Algorithm
             return newStep;
         }
 
+        /// <summary>
+        /// Finds all alternative paths to the target based on current information. TODO: FIX AS IT'S CURRENTLY NOT WORKING PROPERLY
+        /// </summary>
+        /// <param name="from">Start node</param>
+        /// <param name="to">Target node</param>
+        /// <returns>AlgorithmStep with all alternative paths</returns>
         private AlgorithmStep GetAlternativesStep(Node from, Node to)
         {
             // prepare data for drawing
-            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString()) + "\nh=" + _nodeDataMap[n].Item2.ToString() + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString()), n.Location, n == to ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == to ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
 
             // prepare data for path
             var pathData = new List<Tuple<Point, Point, Pen>>();
@@ -242,7 +266,7 @@ namespace AiPathFinding.Algorithm
             {
                 // draw cost of nodes
                 foreach (var d in costData)
-                    g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+                    g.DrawString(d.Item1.ToString(CultureInfo.InvariantCulture), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
 
                 // draw paths
                 foreach (var d in pathData)
@@ -252,6 +276,10 @@ namespace AiPathFinding.Algorithm
             return newStep;
         }
 
+        /// <summary>
+        /// Processes one particular node and does algorithm stuff on it.
+        /// </summary>
+        /// <param name="node">Node that is processed</param>
         private void ProcessNode(Node node)
         {
             // move node to closed list
@@ -309,18 +337,12 @@ namespace AiPathFinding.Algorithm
             }
         }
 
-        private void PrepareData(Node startNode, Node targetNode)
-        {
-            // add all nodes to the unvisited-node-list and tag nodes as unvisited with max cost
-            foreach (var nn in Graph.Nodes.Where(n => n != null))
-            {
-                foreach (var n in nn.Where(n => n != null))
-                    _nodeDataMap.Add(n, new Tuple<int, int>(n == startNode ? 0 : int.MaxValue, GetHeuristic(n, targetNode)));
-            }
-
-            _openNodes.Add(startNode);
-        }
-
+        /// <summary>
+        /// Returns heuristic distance (manhatten distance) between nodes.
+        /// </summary>
+        /// <param name="node">One node</param>
+        /// <param name="target">Other node</param>
+        /// <returns>Distance</returns>
         private int GetHeuristic(Node node, Node target)
         {
             // Manhatten Distance

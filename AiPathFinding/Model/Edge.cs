@@ -1,42 +1,48 @@
 ﻿using System;
-using System.Collections.Generic;
 using AiPathFinding.Common;
 
 namespace AiPathFinding.Model
 {
-    public class Edge
+    /// <summary>
+    /// Represents the connection between two nodes.
+    /// </summary>
+    public sealed class Edge
     {
         #region Fields
 
+        /// <summary>
+        /// One of the connected nodes.
+        /// </summary>
         public Node Node1 { get; private set; }
+
+        /// <summary>
+        /// The other connected node.
+        /// </summary>
         public Node Node2 { get; private set; }
-        public int Cost { get; private set; }
-
-        public Direction Node1Direction { get; private set; }
-
-        public Direction Node2Direction { get; private set; }
-
-        // don't really need that tbh...
-        private static readonly List<Edge> _edges = new List<Edge>(); 
 
         #endregion
 
         #region Constructor
 
-        private Edge(Node node1, Direction node1Direction, Node node2, Direction node2Direction, int cost)
+        /// <summary>
+        /// Only way to instantiate edges. Ensures that all references are set properly between edge and nodes.
+        /// </summary>
+        /// <param name="node1">First node</param>
+        /// <param name="node1Direction">Direction of the edge for the first node</param>
+        /// <param name="node2">Second node</param>
+        /// <param name="node2Direction">Direction of the edge for the second node</param>
+        private Edge(Node node1, Direction node1Direction, Node node2, Direction node2Direction)
         {
-            // validate parameters
+            // validate parameters: Direction must be "complementary"
             if (((int)node1Direction + (int)node2Direction) % 2 != 0)
                 throw new ArgumentException();
 
             // assign fields
             Node1 = node1;
             Node2 = node2;
-            Node1Direction = node1Direction;
-            Node2Direction = node2Direction;
-            Cost = cost;
 
             // assign self to nodes
+            // this is what keeps edges from being GarbageCollected
             Node1.Edges[(int) node1Direction] = this;
             Node2.Edges[(int) node2Direction] = this;
         }
@@ -45,6 +51,11 @@ namespace AiPathFinding.Model
 
         #region Methods
 
+        /// <summary>
+        /// Given one node, it retrieves the other node connected to the edge.
+        /// </summary>
+        /// <param name="node">One of the connected nodes</param>
+        /// <returns>The other connected node</returns>
         public Node GetOtherNode(Node node)
         {
             if (node == Node1)
@@ -55,14 +66,16 @@ namespace AiPathFinding.Model
             throw new Exception("node isnt part of edge");
         }
 
+        /// <summary>
+        /// Adds a new edge between two nodes
+        /// </summary>
+        /// <param name="node1">First node</param>
+        /// <param name="node1Direction">Direction of the edge for the first node</param>
+        /// <param name="node2">Second node</param>
+        /// <param name="node2Direction">Direction of the edge for the second node</param>
         public static void AddEdge(Node node1, Direction node1Direction, Node node2, Direction node2Direction)
         {
-            AddEdge(node1, node1Direction, node2, node2Direction, 1);
-        }
-
-        public static void AddEdge(Node node1, Direction node1Direction, Node node2, Direction node2Direction, int cost)
-        {
-            _edges.Add(new Edge(node1, node1Direction, node2, node2Direction, cost));
+            new Edge(node1, node1Direction, node2, node2Direction);
         }
 
         #endregion

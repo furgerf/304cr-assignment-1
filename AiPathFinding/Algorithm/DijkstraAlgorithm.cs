@@ -1,36 +1,40 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using AiPathFinding.Model;
 using AiPathFinding.View;
 
 namespace AiPathFinding.Algorithm
 {
-    public class DijkstraAbstractAlgorithm : AbstractAlgorithm
+    /// <summary>
+    /// Implementation of the Dijkstra-Algorithm.
+    /// </summary>
+    public sealed class DijkstraAlgorithm : AbstractAlgorithm
     {
         #region Fields
 
+        /// <summary>
+        /// Contains all visited nodes.
+        /// </summary>
         private readonly List<Node> _visitedNodes = new List<Node>();
         
+        /// <summary>
+        /// Contains all unvisited nodes.
+        /// </summary>
         private readonly List<Node> _unvisitedNodes = new List<Node>(); 
 
+        /// <summary>
+        /// Assigns a flag that indicates whether the node was visited and a cost to a node.
+        /// </summary>
         private readonly Dictionary<Node, Tuple<bool, int>> _nodeDataMap = new Dictionary<Node, Tuple<bool, int>>();
-
-        #endregion
-
-        #region Constructor
-
-        public DijkstraAbstractAlgorithm(Graph graph)
-            : base(graph)
-        {
-        }
 
         #endregion
 
         #region Main Methods
 
-        protected override void ResetAlgorithm()
+        public override void ResetAlgorithm()
         {
             _visitedNodes.Clear();
             _unvisitedNodes.Clear();
@@ -40,7 +44,13 @@ namespace AiPathFinding.Algorithm
 
         override public void FindPath(Node from, Node to)
         {
-            PrepareData(from);
+            // PREPARE DATA
+            // add all nodes to the unvisited-node-list and tag nodes as unvisited with max cost
+            foreach (var n in Graph.Nodes.Where(n => n != null).SelectMany(nn => nn.Where(n => n != null)))
+                _nodeDataMap.Add(n, new Tuple<bool, int>(false, n == @from ? 0 : int.MaxValue));
+
+            // start with the first node
+            _unvisitedNodes.Add(from);
 
             // loop while we have options an at least one of the options and we have not yet found a way
             while (_unvisitedNodes.Count > 0 && _nodeDataMap[to].Item2 == int.MaxValue)
@@ -79,14 +89,21 @@ namespace AiPathFinding.Algorithm
                 }
             }
 
-            // add step with all possdible paths
-            Steps.Add(GetAlternativesStep(from, to));
+            if (_nodeDataMap[to].Item2 != int.MaxValue)
+                // path found, add step with all possdible paths
+                Steps.Add(GetAlternativesStep(from, to));
         }
 
+        /// <summary>
+        /// Gets a step in the algorithm, mostly to draw progress on map.
+        /// </summary>
+        /// <param name="from">Node to start from</param>
+        /// <param name="currentNode">Node to which the path is being tried</param>
+        /// <returns>Step of the algorithm</returns>
         private AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
         {
             // prepare data for printing cost
-            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14, _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold))).ToList();
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14, _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold))).ToList();
 
             // prepare data for printing path
             var pathData = new List<Tuple<Point, Point>>();
@@ -94,20 +111,21 @@ namespace AiPathFinding.Algorithm
             while (node != from)
             {
                 // find neighbor where you would "come from"
-                var minNode = node.Edges.First(n => n != null).GetOtherNode(node);
+                Node[] minNode = {node.Edges.First(n => n != null).GetOtherNode(node)};
+                var node1 = node;
                 foreach (
                     var e in
                         node.Edges.Where(n => n != null)
-                            .Where(e => _nodeDataMap[e.GetOtherNode(node)].Item2 < _nodeDataMap[minNode].Item2))
-                    minNode = e.GetOtherNode(node);
+                            .Where(e => _nodeDataMap[e.GetOtherNode(node1)].Item2 < _nodeDataMap[minNode[0]].Item2))
+                    minNode[0] = e.GetOtherNode(node);
 
                 // add to list
                 var p1 = MainForm.MapPointToCanvasRectangle(node.Location);
-                var p2 = MainForm.MapPointToCanvasRectangle(minNode.Location);
+                var p2 = MainForm.MapPointToCanvasRectangle(minNode[0].Location);
                 pathData.Add(new Tuple<Point, Point>(new Point(p1.X + p1.Width/2, p1.Y + p1.Height/2),
                     new Point(p2.X + p2.Width/2, p2.Y + p2.Height/2)));
 
-                node = minNode;
+                node = minNode[0];
             }
 
             // create new step
@@ -115,7 +133,7 @@ namespace AiPathFinding.Algorithm
             {
                 // draw cost of nodes
                 foreach (var d in costData)
-                    g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+                    g.DrawString(d.Item1.ToString(CultureInfo.InvariantCulture), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
 
                 // draw path
                 foreach (var d in pathData)
@@ -125,10 +143,16 @@ namespace AiPathFinding.Algorithm
             return newStep;
         }
 
+        /// <summary>
+        /// Finds all alternative paths to the target based on current information. TODO: FIX AS IT'S CURRENTLY NOT WORKING PROPERLY
+        /// </summary>
+        /// <param name="from">Start node</param>
+        /// <param name="to">Target node</param>
+        /// <returns>AlgorithmStep with all alternative paths</returns>
         private AlgorithmStep GetAlternativesStep(Node from, Node to)
         {
             // prepare data for drawing
-            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(), n.Location, Brushes.Turquoise, new Font("Microsoft Sans Serif", 10, FontStyle.Regular))).ToList();
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture), n.Location, Brushes.Turquoise, new Font("Microsoft Sans Serif", 10, FontStyle.Regular))).ToList();
 
             // prepare data for path
             var pathData = new List<Tuple<Point, Point, Pen>>();
@@ -203,7 +227,7 @@ namespace AiPathFinding.Algorithm
             {
                 // draw cost of nodes
                 foreach (var d in costData)
-                    g.DrawString(d.Item1.ToString(), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+                    g.DrawString(d.Item1.ToString(CultureInfo.InvariantCulture), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
 
                 // draw paths
                 foreach (var d in pathData)
@@ -213,6 +237,10 @@ namespace AiPathFinding.Algorithm
             return newStep;
         }
 
+        /// <summary>
+        /// Processes one particular node and does algorithm stuff on it.
+        /// </summary>
+        /// <param name="node">Node that is processed</param>
         private void ProcessNode(Node node)
         {
             // update distance to all neighbors (if shorter)
@@ -250,19 +278,6 @@ namespace AiPathFinding.Algorithm
             _nodeDataMap[node] = new Tuple<bool, int>(true, _nodeDataMap[node].Item2);
             _visitedNodes.Add(node);
             _unvisitedNodes.Remove(node);
-        }
-
-        private void PrepareData(Node startNode)
-        {
-            // add all nodes to the unvisited-node-list and tag nodes as unvisited with max cost
-            foreach (var nn in Graph.Nodes.Where(n => n != null))
-            {
-                //_unvisitedNodes.AddRange(nn);
-                foreach (var n in nn.Where(n => n != null))
-                    _nodeDataMap.Add(n, new Tuple<bool, int>(false, n == startNode ? 0 : int.MaxValue));
-            }
-
-            _unvisitedNodes.Add(startNode);
         }
 
         #endregion

@@ -6,21 +6,40 @@ using AiPathFinding.View;
 
 namespace AiPathFinding.Controller
 {
-    public class Controller
+    /// <summary>
+    /// Class that handles user input.
+    /// </summary>
+    public sealed class Controller
     {
         #region Fields
 
+        /// <summary>
+        /// ContextMenu that is displayed when cell on the map is right-clicked.
+        /// </summary>
         private readonly ContextMenu _mapCellContextMenu = new ContextMenu();
 
+        /// <summary>
+        /// Map instance to interact with.
+        /// </summary>
         public Map Map { get; private set; }
 
+        /// <summary>
+        /// Start- and endpoint of the range of points that have been selected by the user.
+        /// </summary>
         private Point[] _selectedPoints;
 
         #endregion
 
         #region Constructor
 
-        public Controller(Map map, MainForm form, MapSettings settings)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="map">Map model</param>
+        /// <param name="form">Form that offers some events</param>
+        /// <param name="canvas">Visible map that can be clicked</param>
+        /// <param name="settings">Settings that offer some events</param>
+        public Controller(Map map, MainForm form, Control canvas, MapSettings settings)
         {
             // assign fields
             Map = map;
@@ -38,13 +57,12 @@ namespace AiPathFinding.Controller
                 }));
             }
             _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
-
             _mapCellContextMenu.MenuItems.Add(new MenuItem("Toggle &fog", (s, e) =>
             {
                 if (_selectedPoints == null) return;
                 for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
                     for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
-                        Map.SetFog(new Point(k, l), !Map.GetFog(new Point(k, l)));
+                        Map.SetFog(new Point(k, l), !Map.HasFog(new Point(k, l)));
             }));
             _mapCellContextMenu.MenuItems.Add(new MenuItem("Clear &fog", (s, e) =>
             {
@@ -60,7 +78,6 @@ namespace AiPathFinding.Controller
                     for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
                         Map.SetFog(new Point(k, l), true);
             }));
-
             _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
             for (var i = 0; i < (int) EntityType.Count; i++)
             {
@@ -75,10 +92,9 @@ namespace AiPathFinding.Controller
                     }){ Name = "Entity" + i });
             }
 
-            form.ContextMenu = _mapCellContextMenu;
+            canvas.ContextMenu = _mapCellContextMenu;
 
             // register events
-            //form.CellClicked += OnCellClick;
             form.SelectedPointsChanged += OnSelectedPointsChanged;
             settings.MapSizeChanged += OnMapSizeChanged;
         }
@@ -87,17 +103,29 @@ namespace AiPathFinding.Controller
 
         #region Event Handling
 
+        /// <summary>
+        /// Called whenever the selected points change
+        /// </summary>
+        /// <param name="points"></param>
         public void OnSelectedPointsChanged(Point[] points)
         {
+            // ensure data is valid
             if (points.Length != 2)
                 throw new ArgumentException();
 
+            // update data
             _selectedPoints = points;
 
+            // the user can only move entities if just one point is selected
             for (var i = 0; i < (int) EntityType.Count; i++)
                 _mapCellContextMenu.MenuItems["Entity"+i].Enabled = points[0] == points[1];
         }
 
+        /// <summary>
+        /// Changed whenever the map size changed
+        /// </summary>
+        /// <param name="width">New map width</param>
+        /// <param name="height">New map height</param>
         public void OnMapSizeChanged(int width, int height)
         {
             // tell model to adjust map size

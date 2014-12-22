@@ -49,10 +49,8 @@
             this.status.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.status.Location = new System.Drawing.Point(12, 682);
             this.status.Name = "status";
-            this.status.PlayerPosition = null;
             this.status.Size = new System.Drawing.Size(208, 313);
             this.status.TabIndex = 3;
-            this.status.TargetPosition = null;
             // 
             // algorithmSettings
             // 

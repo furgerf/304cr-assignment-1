@@ -6,13 +6,21 @@ using AiPathFinding.Properties;
 
 namespace AiPathFinding.View
 {
-    public partial class AlgorithmSettings : UserControl
+    /// <summary>
+    /// Control that provides an interface to change settings related to the algorithms.
+    /// </summary>
+    public sealed partial class AlgorithmSettings : UserControl
     {
         #region Fields
 
-        private AbstractAlgorithm[] _abstractAlgorithms;
+        /// <summary>
+        /// All available algorithms
+        /// </summary>
+        private AbstractAlgorithm[] _algorithms;
 
-        // ensures that progress and label text are updated along with the step index
+        /// <summary>
+        /// Index of the currently displayed step in the array of calculated steps from the algorithm.
+        /// </summary>
         private int StepIndex
         {
             get { return _stepIndex; }
@@ -20,21 +28,30 @@ namespace AiPathFinding.View
             {
                 _stepIndex = value;
 
+                // update progress bar
                 if (StepIndex >= 0)
                     progressSteps.Value = StepIndex;
 
-                labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count;
-                labExplored.Text = "Visited " + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explored + " of " + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explorable + " passible cells (" + Math.Round(100 * _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]
+                // update text labels
+                labStep.Text = "Step " + (StepIndex + 1) + "/" + _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count;
+                labExplored.Text = "Visited " + _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explored + " of " + _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explorable + " passible cells (" + Math.Round(100 * _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]
                                        .ExplorationPercentage, 2) + "%)";
             }
         }
 
+        /// <summary>
+        /// StepIndex backing field.
+        /// </summary>
         private int _stepIndex;
 
         #endregion
 
         #region Events
 
+        /// <summary>
+        /// Triggered whenever the current algorithm step changes
+        /// </summary>
+        /// <param name="step">Current step</param>
         public delegate void OnAlgorithmStepChanged(AlgorithmStep step);
 
         public event OnAlgorithmStepChanged AlgorithmStepChanged;
@@ -43,6 +60,9 @@ namespace AiPathFinding.View
 
         #region Constructor
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public AlgorithmSettings()
         {
             InitializeComponent();
@@ -75,45 +95,69 @@ namespace AiPathFinding.View
 
         #region Methods
 
-        public void RegisterMap(Map map)
+        /// <summary>
+        /// Registers a new graph and makes sure that the algorithms use the most recent graph.
+        /// </summary>
+        /// <param name="graph">New graph</param>
+        public void RegisterGraph(Graph graph)
         {
             // clean up old data
             butClear_Click();
 
-            // required to create algorithms since they need the graph
-            _abstractAlgorithms = new AbstractAlgorithm[] { new DijkstraAbstractAlgorithm(map.GetGraph()), new AStarAbstractAlgorithm(map.GetGraph()) };
+            // instantiate algorithms if necessary
+            if (_algorithms == null)
+                _algorithms = new AbstractAlgorithm[] { new DijkstraAlgorithm(), new AStarAlgorithm() };
+
+            // tell algorithms about new graph
+            AbstractAlgorithm.Graph = graph;
 
             // also register to event so the algorithm can only be started if both entities are in play
-            map.EntityNodeChanged += (o, n, e) => SetStartButtonEnabled();
+            Entity.NodeChanged += (o, n, e) => SetStartButtonEnabled();
 
             SetStartButtonEnabled();
         }
 
+        /// <summary>
+        /// Enables the start button if all entities are set.
+        /// </summary>
         private void SetStartButtonEnabled()
         {
             butStart.Enabled = Entity.Player.Node != null && Entity.Target.Node != null;
         }
 
+        /// <summary>
+        /// Enables the step buttons if algorithm steps are available to be displayed.
+        /// </summary>
         private void SetStepButtonsEnabled()
         {
             butFirst.Enabled = StepIndex != 0;
             butPrevious.Enabled = StepIndex != 0;
-            butNext.Enabled = StepIndex != _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
-            butLast.Enabled = StepIndex != _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
+            butNext.Enabled = StepIndex != _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
+            butLast.Enabled = StepIndex != _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
         }
 
         #endregion
 
         #region Event Handling
 
-        private void butRestart_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Clears the previous data and starts a new pathfinding.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
+        private void butRestart_Click(object sender = null, EventArgs e = null)
         {
             // reset algorithm
-            _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Reset();
+            _algorithms[comPrimaryAlgorithm.SelectedIndex].ResetAlgorithm();
 
             butStart_Click();
         }
 
+        /// <summary>
+        /// Starts a new pathfinding.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
         private void butStart_Click(object sender = null, EventArgs e = null)
         {
             // set controls enabled/disabled
@@ -125,22 +169,27 @@ namespace AiPathFinding.View
             grpSecondaryAlgorithm.Enabled = false;
 
             // starts calculation
-            _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].FindPath(Entity.Player.Node, Entity.Target.Node);
+            _algorithms[comPrimaryAlgorithm.SelectedIndex].FindPath(Entity.Player.Node, Entity.Target.Node);
 
             // set progress bar stuff
             // set value to 0 to avoid outofrangeexception
             progressSteps.Value = 0;
-            progressSteps.Maximum = _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count == 0 ? 0 : _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
+            progressSteps.Maximum = _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count == 0 ? 0 : _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
 
             // auto-load last step
             butLast_Click();
         }
 
+        /// <summary>
+        /// Clears data from the last pathfinding
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
         private void butClear_Click(object sender = null, EventArgs e = null)
         {
             // reset algorithm
-            if (_abstractAlgorithms != null)
-                _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Reset();
+            if (_algorithms != null)
+                _algorithms[comPrimaryAlgorithm.SelectedIndex].ResetAlgorithm();
 
             // reset control enabled/disabled
             grpPlayback.Enabled = false;
@@ -159,59 +208,94 @@ namespace AiPathFinding.View
                 AlgorithmStepChanged(null);
         }
 
+        /// <summary>
+        /// Moves to the first algorithm step.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
         private void butFirst_Click(object sender = null, EventArgs e = null)
         {
             StepIndex = 0;
 
             SetStepButtonsEnabled();
 
-            if (AlgorithmStepChanged != null && _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
-                AlgorithmStepChanged(_abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
+            if (AlgorithmStepChanged != null && _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
+                AlgorithmStepChanged(_algorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
+        /// <summary>
+        /// Moves to the previous algorithm step.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
         private void butPrevious_Click(object sender = null, EventArgs e = null)
         {
             StepIndex--;
 
             SetStepButtonsEnabled();
 
-            if (AlgorithmStepChanged != null && _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
-                AlgorithmStepChanged(_abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
+            if (AlgorithmStepChanged != null && _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
+                AlgorithmStepChanged(_algorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
+        /// <summary>
+        /// Moves to the next algorithm step.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
         private void butNext_Click(object sender = null, EventArgs e = null)
         {
             StepIndex++;
 
             SetStepButtonsEnabled();
 
-            if (AlgorithmStepChanged != null && _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
-                AlgorithmStepChanged(_abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
+            if (AlgorithmStepChanged != null && _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
+                AlgorithmStepChanged(_algorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
+        /// <summary>
+        /// Moves to the last algorithm step.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
         private void butLast_Click(object sender = null, EventArgs e = null)
         {
-            StepIndex = _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
+            StepIndex = _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
 
             SetStepButtonsEnabled();
 
-            if (AlgorithmStepChanged != null && _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
-                AlgorithmStepChanged(_abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
+            if (AlgorithmStepChanged != null && _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
+                AlgorithmStepChanged(_algorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
         }
 
-        private void comPrimaryAlgorithm_SelectedIndexChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Saves settings.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void comPrimaryAlgorithm_SelectedIndexChanged(object sender = null, EventArgs e = null)
         {
             Settings.Default.PrimaryAlgorithm = comPrimaryAlgorithm.SelectedIndex;
             Settings.Default.Save();
         }
 
-        private void comSecondaryAlgorithm_SelectedIndexChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Saves settings.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void comSecondaryAlgorithm_SelectedIndexChanged(object sender = null, EventArgs e = null)
         {
             Settings.Default.SecondaryAlgorithm = comSecondaryAlgorithm.SelectedIndex;
             Settings.Default.Save();
         }
 
-        private void comFogMethod_SelectedIndexChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Saves settings.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void comFogMethod_SelectedIndexChanged(object sender = null, EventArgs e = null)
         {
             Settings.Default.FogMethod = comFogMethod.SelectedIndex;
             Settings.Default.Save();
