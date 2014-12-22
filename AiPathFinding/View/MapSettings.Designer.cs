@@ -250,6 +250,7 @@
             0,
             0,
             65536});
+            this.numFog.ValueChanged += new System.EventHandler(this.numFog_ValueChanged);
             // 
             // label8
             // 
@@ -276,6 +277,7 @@
             0,
             0,
             0});
+            this.numMountain.ValueChanged += new System.EventHandler(this.numMountain_ValueChanged);
             // 
             // label7
             // 
@@ -302,6 +304,7 @@
             0,
             0,
             0});
+            this.numHill.ValueChanged += new System.EventHandler(this.numHill_ValueChanged);
             // 
             // label6
             // 
@@ -328,6 +331,7 @@
             0,
             0,
             0});
+            this.numForest.ValueChanged += new System.EventHandler(this.numForest_ValueChanged);
             // 
             // label5
             // 
@@ -354,6 +358,7 @@
             0,
             0,
             0});
+            this.numPlains.ValueChanged += new System.EventHandler(this.numPlains_ValueChanged);
             // 
             // label4
             // 
@@ -380,6 +385,7 @@
             0,
             0,
             0});
+            this.numStreet.ValueChanged += new System.EventHandler(this.numStreet_ValueChanged);
             // 
             // MapSettings
             // 

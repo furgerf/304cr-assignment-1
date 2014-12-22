@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using AiPathFinding.Algorithm;
 using AiPathFinding.Model;
+using AiPathFinding.Properties;
 
 namespace AiPathFinding.View
 {
@@ -56,13 +57,15 @@ namespace AiPathFinding.View
             // add ALL algorithms to primary algorithm combobox
             for (var i = 0; i < (int) AlgorithmNames.Count; i++)
                 comPrimaryAlgorithm.Items.Add((AlgorithmNames) i);
-            comPrimaryAlgorithm.SelectedIndex = (int) AlgorithmNames.AStar;
+            comPrimaryAlgorithm.SelectedIndex = Settings.Default.PrimaryAlgorithm;
 
             // add only algorithms to secondary algo combo that work without visibility
             for (var i = 0; i < (int)AlgorithmNames.Count; i++)
                 if (Array.IndexOf(AbstractAlgorithm.AlgorithmsRequiringVisibility, (AlgorithmNames)i) == -1)
                     comSecondaryAlgorithm.Items.Add((AlgorithmNames)i);
-            comSecondaryAlgorithm.SelectedIndex = 0;
+            comSecondaryAlgorithm.SelectedIndex = Settings.Default.SecondaryAlgorithm;
+
+            // TODO: ADD FOG METHOD STUFF
         }
 
         #endregion
@@ -187,6 +190,24 @@ namespace AiPathFinding.View
 
             if (AlgorithmStepChanged != null && _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count > 0)
                 AlgorithmStepChanged(_abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]);
+        }
+
+        private void comPrimaryAlgorithm_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.PrimaryAlgorithm = comPrimaryAlgorithm.SelectedIndex;
+            Settings.Default.Save();
+        }
+
+        private void comSecondaryAlgorithm_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.SecondaryAlgorithm = comSecondaryAlgorithm.SelectedIndex;
+            Settings.Default.Save();
+        }
+
+        private void comFogMethod_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.FogMethod = comFogMethod.SelectedIndex;
+            Settings.Default.Save();
         }
 
         #endregion

@@ -69,6 +69,7 @@
             this.comPrimaryAlgorithm.Name = "comPrimaryAlgorithm";
             this.comPrimaryAlgorithm.Size = new System.Drawing.Size(188, 21);
             this.comPrimaryAlgorithm.TabIndex = 0;
+            this.comPrimaryAlgorithm.SelectedIndexChanged += new System.EventHandler(this.comPrimaryAlgorithm_SelectedIndexChanged);
             // 
             // butStart
             // 
@@ -191,6 +192,7 @@
             this.comSecondaryAlgorithm.Name = "comSecondaryAlgorithm";
             this.comSecondaryAlgorithm.Size = new System.Drawing.Size(188, 21);
             this.comSecondaryAlgorithm.TabIndex = 0;
+            this.comSecondaryAlgorithm.SelectedIndexChanged += new System.EventHandler(this.comSecondaryAlgorithm_SelectedIndexChanged);
             // 
             // butRestart
             // 
@@ -221,6 +223,7 @@
             this.comFogMethod.Size = new System.Drawing.Size(188, 21);
             this.comFogMethod.TabIndex = 0;
             this.comFogMethod.Text = " ";
+            this.comFogMethod.SelectedIndexChanged += new System.EventHandler(this.comFogMethod_SelectedIndexChanged);
             // 
             // AlgorithmSettings
             // 

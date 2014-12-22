@@ -34,5 +34,113 @@ namespace AiPathFinding.Properties {
                 this["CellSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.5")]
+        public decimal FogPercentage {
+            get {
+                return ((decimal)(this["FogPercentage"]));
+            }
+            set {
+                this["FogPercentage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int StreetWeight {
+            get {
+                return ((int)(this["StreetWeight"]));
+            }
+            set {
+                this["StreetWeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int PlainsWeight {
+            get {
+                return ((int)(this["PlainsWeight"]));
+            }
+            set {
+                this["PlainsWeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int ForestWeight {
+            get {
+                return ((int)(this["ForestWeight"]));
+            }
+            set {
+                this["ForestWeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int HillWeight {
+            get {
+                return ((int)(this["HillWeight"]));
+            }
+            set {
+                this["HillWeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int MountainWeight {
+            get {
+                return ((int)(this["MountainWeight"]));
+            }
+            set {
+                this["MountainWeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PrimaryAlgorithm {
+            get {
+                return ((int)(this["PrimaryAlgorithm"]));
+            }
+            set {
+                this["PrimaryAlgorithm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SecondaryAlgorithm {
+            get {
+                return ((int)(this["SecondaryAlgorithm"]));
+            }
+            set {
+                this["SecondaryAlgorithm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int FogMethod {
+            get {
+                return ((int)(this["FogMethod"]));
+            }
+            set {
+                this["FogMethod"] = value;
+            }
+        }
     }
 }

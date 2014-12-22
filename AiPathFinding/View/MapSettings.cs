@@ -1,4 +1,5 @@
 ﻿using System.Windows.Forms;
+using AiPathFinding.Properties;
 
 namespace AiPathFinding.View
 {
@@ -74,6 +75,13 @@ namespace AiPathFinding.View
             numMapWidth.ValueChanged += (s, e) => { if (MapSizeChanged != null) MapSizeChanged(MapWidth, MapHeight); };
             numMapHeight.ValueChanged += (s, e) => { if (MapSizeChanged != null) MapSizeChanged(MapWidth, MapHeight); };
             numCellSize.ValueChanged += (s, e) => { if (MapSizeChanged != null) CellSizeChanged(CellSize); };
+
+            numFog.Value = Settings.Default.FogPercentage;
+            numStreet.Value = Settings.Default.StreetWeight;
+            numPlains.Value = Settings.Default.PlainsWeight;
+            numForest.Value = Settings.Default.ForestWeight;
+            numHill.Value = Settings.Default.HillWeight;
+            numMountain.Value = Settings.Default.MountainWeight;
         }
 
         #endregion
@@ -87,6 +95,46 @@ namespace AiPathFinding.View
 
             if (cellSize != 0)
                 numCellSize.Value = cellSize;
+        }
+
+        #endregion
+
+        #region Event Handling
+
+        private void numFog_ValueChanged(object sender, System.EventArgs e)
+        {
+            Settings.Default.FogPercentage = numFog.Value;
+            Settings.Default.Save();
+        }
+
+        private void numStreet_ValueChanged(object sender, System.EventArgs e)
+        {
+            Settings.Default.StreetWeight = (int)numStreet.Value;
+            Settings.Default.Save();
+        }
+
+        private void numPlains_ValueChanged(object sender, System.EventArgs e)
+        {
+            Settings.Default.PlainsWeight = (int)numPlains.Value;
+            Settings.Default.Save();
+        }
+
+        private void numForest_ValueChanged(object sender, System.EventArgs e)
+        {
+            Settings.Default.ForestWeight = (int)numForest.Value;
+            Settings.Default.Save();
+        }
+
+        private void numHill_ValueChanged(object sender, System.EventArgs e)
+        {
+            Settings.Default.HillWeight = (int)numHill.Value;
+            Settings.Default.Save();
+        }
+
+        private void numMountain_ValueChanged(object sender, System.EventArgs e)
+        {
+            Settings.Default.MountainWeight = (int) numMountain.Value;
+            Settings.Default.Save();
         }
 
         #endregion
