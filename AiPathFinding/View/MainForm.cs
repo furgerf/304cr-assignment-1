@@ -176,12 +176,30 @@ namespace AiPathFinding.View
             };
 
             if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                // load map
                 Map.LoadMap(dlg.FileName);
+
+                // update entity locations
+                foreach (var e in Entity.Entities)
+                    e.Node = Map.GetGraph().Nodes[e.Node.Location.X][e.Node.Location.Y];
+
+                // re-create algorithms with new map
+                algorithmSettings.RegisterMap(Map);
+            }
         }
 
         private void RegenerateMap()
         {
+            // generate new map
             Map.RegenerateMap(mapSettings.MapWidth, mapSettings.MapHeight, mapSettings.StreetWeight, mapSettings.PlainsWeight, mapSettings.ForestWeight, mapSettings.HillWeight, mapSettings.MountainWeight, mapSettings.FogPercentage);
+
+            // update entity locations
+            foreach (var e in Entity.Entities)
+                e.Node = Map.GetGraph().Nodes[e.Node.Location.X][e.Node.Location.Y];
+
+            // re-create algorithms with new map
+            algorithmSettings.RegisterMap(Map);
         }
 
         private void SetCanvasSize()

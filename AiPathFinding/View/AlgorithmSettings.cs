@@ -24,7 +24,7 @@ namespace AiPathFinding.View
                     progressSteps.Value = StepIndex;
 
                 labStep.Text = "Step " + (StepIndex + 1) + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count;
-                labExplored.Text = "Explored " + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explored + "/" + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explorable + " tiles (" + Math.Round(100 * _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]
+                labExplored.Text = "Visited " + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explored + " of " + _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explorable + " passible cells (" + Math.Round(100 * _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]
                                        .ExplorationPercentage, 2) + "%)";
             }
         }
@@ -77,6 +77,9 @@ namespace AiPathFinding.View
 
         public void RegisterMap(Map map)
         {
+            // clean up old data
+            butClear_Click();
+
             // required to create algorithms since they need the graph
             _abstractAlgorithms = new AbstractAlgorithm[] { new DijkstraAbstractAlgorithm(map.GetGraph()), new AStarAbstractAlgorithm(map.GetGraph()) };
 
@@ -136,7 +139,8 @@ namespace AiPathFinding.View
         private void butClear_Click(object sender = null, EventArgs e = null)
         {
             // reset algorithm
-            _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Reset();
+            if (_abstractAlgorithms != null)
+                _abstractAlgorithms[comPrimaryAlgorithm.SelectedIndex].Reset();
 
             // reset control enabled/disabled
             grpPlayback.Enabled = false;
