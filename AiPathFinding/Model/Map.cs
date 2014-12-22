@@ -267,13 +267,16 @@ namespace AiPathFinding.Model
             // move entities
             foreach (var e in Entity.Entities)
                 e.Node = null;
-            var split = data[0].Split('\t');
-            foreach (var s in split)
+            if (data[0] != "")
             {
-                var e = s.Split(';');
-                var g = Regex.Replace(e[1], @"[\{\}a-zA-Z=]", "").Split(',');
-                var p = new Point(int.Parse(g[0]), int.Parse(g[1]));
-                Entity.Entities[(int) Enum.Parse(typeof (EntityType), e[0])].Node = Graph.GetNode(p);
+                var split = data[0].Split('\t');
+                foreach (var s in split)
+                {
+                    var e = s.Split(';');
+                    var g = Regex.Replace(e[1], @"[\{\}a-zA-Z=]", "").Split(',');
+                    var p = new Point(int.Parse(g[0]), int.Parse(g[1]));
+                    Entity.Entities[(int)Enum.Parse(typeof(EntityType), e[0])].Node = Graph.GetNode(p);
+                }
             }
 
             // trigger event

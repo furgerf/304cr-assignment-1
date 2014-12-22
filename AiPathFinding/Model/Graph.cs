@@ -115,7 +115,12 @@ namespace AiPathFinding.Model
             {
                 nodes[i] = new Node[height];
                 for (var j = 0; j < height; j++)
-                    nodes[i][j] = new Node(new Point(i, j), rnd.NextDouble() > fog, (Terrain) Array.IndexOf(weights, weights.First(w => w > rnd.NextDouble())));
+                {
+                    // for some reason, it looks like the terrain rnd needs to be stored...
+                    var r = rnd.NextDouble();
+                    nodes[i][j] = new Node(new Point(i, j), rnd.NextDouble() > fog,
+                        (Terrain) 5 - weights.Count(w => r < w));
+                }
             }
 
             // add edges

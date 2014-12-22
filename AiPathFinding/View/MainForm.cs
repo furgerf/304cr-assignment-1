@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using AiPathFinding.Algorithm;
 using AiPathFinding.Model;
@@ -104,8 +105,11 @@ namespace AiPathFinding.View
             mapSettings.butLoadMap.Click += (s, e) => LoadMap();
             mapSettings.butSaveMap.Click += (s, e) => SaveMap();
             mapSettings.butGenerate.Click += (s, e) => RegenerateMap();
-            status.PlayerPosition = Entity.Player.Node.Location;
-            status.TargetPosition = Entity.Target.Node.Location;
+           
+            if (Entity.Player.Node != null)
+                status.PlayerPosition = Entity.Player.Node.Location;
+            if (Entity.Target.Node != null)
+                status.TargetPosition = Entity.Target.Node.Location;
 
             algorithmSettings.RegisterMap(Map);
             algorithmSettings.AlgorithmStepChanged += OnAlgorithmStepChanged;
@@ -120,7 +124,13 @@ namespace AiPathFinding.View
 
             // update status
             status.UpdateMapStatistics(Map, null, true, true);
+
+            AllocConsole();
         }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool AllocConsole();
 
         #endregion
 
@@ -315,7 +325,7 @@ namespace AiPathFinding.View
 
         private void OnMapLoaded()
         {
-            mapSettings.SetMapSize(Map.Width, Map.Height, (int)Settings.Default["CellSize"]);
+            mapSettings.SetMapSize(Map.Width, Map.Height, Settings.Default.CellSize);
             SetCanvasSize();
 
             _canvas.Invalidate();

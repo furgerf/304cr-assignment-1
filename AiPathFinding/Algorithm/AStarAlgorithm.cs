@@ -49,7 +49,7 @@ namespace AiPathFinding.Algorithm
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
-            if (currentNode != null && currentNode.Edges.Any(e => e.GetOtherNode(currentNode) == to))
+            if (currentNode != null && currentNode.Edges.Any(e => e != null && e.GetOtherNode(currentNode) == to))
             {
                 // path found! don't bother checking fog
 
