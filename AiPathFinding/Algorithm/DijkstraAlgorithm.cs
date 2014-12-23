@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -41,11 +42,10 @@ namespace AiPathFinding.Algorithm
             _nodeDataMap.Clear();
         }
 
-
-        override public void FindPath(Node from, Node to)
+        public override void FindPath(Node from, Node to)
         {
-            // TODO: Improve path finding output (stopwatch etc)
-            Console.WriteLine("* Dijkstra is attempting to find a path from " + from + " to " + to + ".");
+            Console.WriteLine("\n* Dijkstra is attempting to find a path from " + from + " to " + to + ".");
+            var watch = Stopwatch.StartNew();
 
             // PREPARE DATA
             // add all nodes to the unvisited-node-list and tag nodes as unvisited with max cost
@@ -55,6 +55,10 @@ namespace AiPathFinding.Algorithm
             // start with the first node
             _unvisitedNodes.Add(from);
 
+            Console.WriteLine("Preparation took " + watch.ElapsedMilliseconds + "ms");
+            watch.Restart();
+
+            // ALGORITHM
             // loop while we have options an at least one of the options and we have not yet found a way
             while (_unvisitedNodes.Count > 0 && _nodeDataMap[to].Item2 == int.MaxValue)
             {
@@ -65,45 +69,44 @@ namespace AiPathFinding.Algorithm
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
-            // TODO: Improve/fix, maybe?
+            var mainSteps = Steps.Count;
+            Console.WriteLine("Main calculation required " + mainSteps + " steps and took " + watch.ElapsedMilliseconds +
+                              "ms");
+            watch.Restart();
+
             // look for other paths with same cost
-            while (_unvisitedNodes.Count > 0)
+            // remove all costlier nodes from the unvisited list
+            var stillOpen =
+                _unvisitedNodes.Where(n => n != to && _nodeDataMap[n].Item2 < _nodeDataMap[to].Item2).ToArray();
+            _unvisitedNodes.Clear();
+            _unvisitedNodes.AddRange(stillOpen);
+
+            // check all remaining nodes
+            for (var i = 0; i < _unvisitedNodes.Count; i++)
             {
-                // remove all costlier nodes from the unvisited list
-                var stillOpen =
-                    _unvisitedNodes.Where(n => n != to && _nodeDataMap[n].Item2 < _nodeDataMap[to].Item2).ToArray();
-                _unvisitedNodes.Clear();
-                _unvisitedNodes.AddRange(stillOpen);
+                if (_unvisitedNodes[i] == to || _nodeDataMap[_unvisitedNodes[i]].Item2 >= _nodeDataMap[to].Item2)
+                    continue;
+                // check node
+                var currentNode = _unvisitedNodes[i];
+                i--;
 
-                // check all remaining nodes
-                for (var i = 0; i < _unvisitedNodes.Count; i++)
-                {
-                    if (_unvisitedNodes[i] == to)
-                        // no need to check the target node
-                        _unvisitedNodes.RemoveAt(i);
-                    else if (_nodeDataMap[_unvisitedNodes[i]].Item2 < _nodeDataMap[to].Item2)
-                    {
-                        // check node
-                        var currentNode = _unvisitedNodes[i];
+                ProcessNode(currentNode);
 
-                        ProcessNode(currentNode);
-
-                        Steps.Add(GetAlgorithmStep(from, currentNode));
-                    }
-                }
+                Steps.Add(GetAlgorithmStep(@from, currentNode));
             }
+
+            Console.WriteLine("Looking for alternative paths required " + (Steps.Count - mainSteps) + " steps and took " +
+                              watch.ElapsedMilliseconds + "ms");
+            watch.Reset();
 
             if (_nodeDataMap[to].Item2 != int.MaxValue)
-            {
-                // path found, add step with all possdible paths
+                // path found, add step with all possible paths
                 Steps.Add(GetAlternativesStep(from, to));
-
-                Console.WriteLine("* At least one path found!");
-            }
             else
-            {
+                // no path found
                 Console.WriteLine("* No path found...");
-            }
+
+            Console.WriteLine("");
         }
 
         /// <summary>
@@ -156,7 +159,7 @@ namespace AiPathFinding.Algorithm
         }
 
         /// <summary>
-        /// Finds all alternative paths to the target based on current information. TODO: FIX AS IT'S CURRENTLY NOT WORKING PROPERLY
+        /// Finds all alternative paths to the target based on current information.
         /// </summary>
         /// <param name="from">Start node</param>
         /// <param name="to">Target node</param>
@@ -164,7 +167,7 @@ namespace AiPathFinding.Algorithm
         private AlgorithmStep GetAlternativesStep(Node from, Node to)
         {
             // prepare data for drawing
-            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture), n.Location, Brushes.Turquoise, new Font("Microsoft Sans Serif", 10, FontStyle.Regular))).ToList();
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item2 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>(_nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture), n.Location, Brushes.Turquoise, new Font("Microsoft Sans Serif", _nodeDataMap[n].Item1 ? 10 : 14, _nodeDataMap[n].Item1 ? FontStyle.Regular : FontStyle.Bold))).ToList();
 
             // prepare data for path
             var pathData = new List<Tuple<Point, Point, Pen>>();
@@ -234,6 +237,8 @@ namespace AiPathFinding.Algorithm
                             new Point(p2.X + offset, p2.Y + offset), new Pen(color, 2)));
                 }
 
+            Console.WriteLine("* Found " + closedPaths.Count() + " distinct paths with cost of " + _nodeDataMap[to].Item2 + ", ranging from " + minPath + " to " + maxPath + " cells long!");
+
             // create new step
             var newStep = new AlgorithmStep(g =>
             {
@@ -266,7 +271,7 @@ namespace AiPathFinding.Algorithm
 
                 // if the current way is cheaper, update data
                 if (_nodeDataMap[otherNode].Item2 > _nodeDataMap[node].Item2 + otherNode.Cost)
-                    _nodeDataMap[otherNode] = new Tuple<bool, int>(false, _nodeDataMap[node].Item2 + otherNode.Cost);
+                    _nodeDataMap[otherNode] = new Tuple<bool, int>(_nodeDataMap[otherNode].Item1, _nodeDataMap[node].Item2 + otherNode.Cost);
 
                 if (!insert) continue;
 

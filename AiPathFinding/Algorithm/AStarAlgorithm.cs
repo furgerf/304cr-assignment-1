@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -41,8 +42,8 @@ namespace AiPathFinding.Algorithm
 
         override public void FindPath(Node from, Node to)
         {
-            // TODO: Improve path finding output (stopwatch etc)
-            Console.WriteLine("* AStar is attempting to find a path from " + from + " to " + to + ".");
+            Console.WriteLine("\n* AStar is attempting to find a path from " + from + " to " + to + ".");
+            var watch = Stopwatch.StartNew();
 
             // PREPARE DATA
             // add all nodes to the data map
@@ -50,6 +51,9 @@ namespace AiPathFinding.Algorithm
                 _nodeDataMap.Add(n, new Tuple<int, int>(n == @from ? 0 : int.MaxValue, GetHeuristic(n, to)));
             // start the pathfinding from the start node
             _openNodes.Add(from);
+
+            Console.WriteLine("Preparation took " + watch.ElapsedMilliseconds + "ms");
+            watch.Restart();
 
             // ALGORITHM
             Node currentNode = null;
@@ -62,37 +66,42 @@ namespace AiPathFinding.Algorithm
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
-            // TODO: Improve/fix, maybe?
+            var mainSteps = Steps.Count;
+            Console.WriteLine("Main calculation required " + mainSteps + " steps and took " + watch.ElapsedMilliseconds + "ms");
+            watch.Restart();
+
             // pathfinding has terminated
             if (currentNode != null && currentNode.Edges.Any(e => e != null && e.GetOtherNode(currentNode) == to))
             {
                 // path found! don't bother checking fog
-                Console.WriteLine("* At least one path found!");
 
                 // check for other paths with the same cost
-                while (_openNodes.Count > 0)
-                {
-                    // remove all costlier nodes from the list
-                    var stillOpen =
-                        _openNodes.Where(n => n != to && _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2 == _nodeDataMap[to].Item1).ToArray();
-                    _openNodes.Clear();
-                    _openNodes.AddRange(stillOpen);
+                // remove all costlier nodes from the list
+                var stillOpen =
+                    _openNodes.Where(n => _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2 <= _nodeDataMap[to].Item1)
+                        .ToArray();
+                _openNodes.Clear();
+                _openNodes.AddRange(stillOpen);
 
-                    // check all remaining nodes
-                    for (var i = 0; i < _openNodes.Count; i++)
-                    {
-                        if (_openNodes[i] == to)
-                            // no need to check target node
-                            _openNodes.RemoveAt(i);
-                        else if (_nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 == _nodeDataMap[to].Item1)
-                        {
-                            // check node
-                            currentNode = _openNodes[i];
-                            ProcessNode(currentNode);
-                            Steps.Add(GetAlgorithmStep(from, currentNode));
-                        }
-                    }
+                // check all remaining nodes
+                for (var i = 0; i < _openNodes.Count; i++)
+                {
+                    if (_openNodes[i] == to ||
+                        _nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 > _nodeDataMap[to].Item1)
+                        continue;
+
+                    // check node
+                    currentNode = _openNodes[i];
+                    i--;
+
+                    ProcessNode(currentNode);
+
+                    Steps.Add(GetAlgorithmStep(@from, currentNode));
                 }
+
+                Console.WriteLine("Looking for alternative paths required " + (Steps.Count - mainSteps) +
+                                  " steps and took " + watch.ElapsedMilliseconds + "ms");
+                watch.Reset();
 
                 // add step with all possdible paths
                 Steps.Add(GetAlternativesStep(from, to));
@@ -111,6 +120,8 @@ namespace AiPathFinding.Algorithm
                     return aCost < bCost ? -1 : 1;
                 });
             }
+
+            Console.WriteLine("");
         }
 
         public override void ResetAlgorithm()
@@ -265,6 +276,8 @@ namespace AiPathFinding.Algorithm
                             new Point(p1.X + offset, p1.Y + offset),
                             new Point(p2.X + offset, p2.Y + offset), new Pen(color, 2)));
                 }
+
+            Console.WriteLine("* Found " + closedPaths.Count() + " distinct paths with cost of " + _nodeDataMap[to].Item1 + ", ranging from " + minPath + " to " + maxPath + " cells long!");
 
             // create new step
             var newStep = new AlgorithmStep(g =>
