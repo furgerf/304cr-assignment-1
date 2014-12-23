@@ -16,13 +16,6 @@ namespace AiPathFinding.View
     public sealed partial class MainForm : Form
     {
         #region Fields
-        /// <summary>
-        /// Enables the console.
-        /// </summary>
-        /// <returns></returns>
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool AllocConsole();
 
         /// <summary>
         /// Name of the file where the map should be autosaved to.
@@ -107,9 +100,6 @@ namespace AiPathFinding.View
         /// </summary>
         public MainForm()
         {
-            // enable console
-            AllocConsole();
-
             Console.WriteLine("Creating MainForm");
 
             InitializeComponent();
@@ -129,6 +119,26 @@ namespace AiPathFinding.View
 
             // create controller
             Controller = new Controller.Controller(Map, this, _canvas, mapSettings);
+
+            // create tooltip
+            var toolTip = new ToolTip {BackColor = Color.LightGreen, ForeColor = Color.DarkGreen};
+            _canvas.MouseMove += (s, e) =>
+            {
+                var p = CanvasPointToMapPoint(e.Location);
+                if (toolTip.Tag != null && (Point)toolTip.Tag == p)
+                    return;
+
+                if (p.X >= Map.Width || p.Y >= Map.Height)
+                {
+                    toolTip.Tag = null;
+                    toolTip.Hide(_canvas);
+                    return;
+                }
+
+                var rect = MapPointToCanvasRectangle(p);
+                toolTip.Show(p.X + "/" + p.Y, _canvas, new Point(rect.Left + rect.Width/2, rect.Top + rect.Height / 2));
+                toolTip.Tag = p;
+            };
 
             // REGISTER EVENTS
             // get paint hook
