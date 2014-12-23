@@ -219,6 +219,9 @@ namespace AiPathFinding.View
         /// <param name="e">unused</param>
         private void butFirst_Click(object sender = null, EventArgs e = null)
         {
+            if (!butPrevious.Enabled)
+                return;
+
             StepIndex = 0;
 
             SetStepButtonsEnabled();
@@ -232,8 +235,11 @@ namespace AiPathFinding.View
         /// </summary>
         /// <param name="sender">unused</param>
         /// <param name="e">unused</param>
-        private void butPrevious_Click(object sender = null, EventArgs e = null)
+        public void butPrevious_Click(object sender = null, EventArgs e = null)
         {
+            if (!butPrevious.Enabled)
+                return;
+
             StepIndex--;
 
             SetStepButtonsEnabled();
@@ -247,8 +253,11 @@ namespace AiPathFinding.View
         /// </summary>
         /// <param name="sender">unused</param>
         /// <param name="e">unused</param>
-        private void butNext_Click(object sender = null, EventArgs e = null)
+        public void butNext_Click(object sender = null, EventArgs e = null)
         {
+            if (!butNext.Enabled)
+                return;
+
             StepIndex++;
 
             SetStepButtonsEnabled();
@@ -264,6 +273,9 @@ namespace AiPathFinding.View
         /// <param name="e">unused</param>
         private void butLast_Click(object sender = null, EventArgs e = null)
         {
+            if (!butLast.Enabled)
+                return;
+
             StepIndex = _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
 
             SetStepButtonsEnabled();

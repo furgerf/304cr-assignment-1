@@ -154,6 +154,7 @@ namespace AiPathFinding.View
             _canvas.MouseDown += CanvasOnMouseDown;
             _canvas.MouseUp += CanvasOnMouseUp;
             _canvas.MouseMove += CanvasOnMouseMove;
+            MouseWheel += OnMouseWheel;
 
             // settings buttons event handling
             mapSettings.butLoadMap.Click += (s, e) => LoadMap();
@@ -451,6 +452,19 @@ namespace AiPathFinding.View
             base.OnLoad(e);
 
             DoubleBuffered = true;
+        }
+
+        /// <summary>
+        /// Called when the user uses the mouse wheel.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">MouseEventArgs</param>
+        private void OnMouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta > 0)
+                algorithmSettings.butNext_Click();
+            if (e.Delta < 0)
+                algorithmSettings.butPrevious_Click();
         }
 
         /// <summary>
