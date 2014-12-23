@@ -89,6 +89,8 @@ namespace AiPathFinding.View
             comSecondaryAlgorithm.SelectedIndex = Settings.Default.SecondaryAlgorithm;
 
             // TODO: ADD FOG METHOD STUFF
+
+            Console.WriteLine("AlgorithmSettings created");
         }
 
         #endregion
@@ -101,6 +103,8 @@ namespace AiPathFinding.View
         /// <param name="graph">New graph</param>
         public void RegisterGraph(Graph graph)
         {
+            Console.WriteLine("Registering new graph for algorithms");
+
             // clean up old data
             butClear_Click();
 

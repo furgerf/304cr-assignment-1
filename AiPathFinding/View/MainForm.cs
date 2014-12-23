@@ -110,6 +110,8 @@ namespace AiPathFinding.View
             // enable console
             AllocConsole();
 
+            Console.WriteLine("Creating MainForm");
+
             InitializeComponent();
 
             _instance = this;
@@ -172,6 +174,8 @@ namespace AiPathFinding.View
 
             // update status (map)
             status.UpdateMapStatistics(Map, null, true, true);
+
+            Console.WriteLine("MainForm created!");
         }
 
         #endregion

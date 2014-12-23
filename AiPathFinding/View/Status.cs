@@ -87,6 +87,8 @@ namespace AiPathFinding.View
 
             // track changes from the entities
             Entity.NodeChanged += OnEntityNodeChanged;
+
+            Console.WriteLine("Status created");
         }
 
         #endregion

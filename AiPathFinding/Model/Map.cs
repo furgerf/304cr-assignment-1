@@ -101,6 +101,8 @@ namespace AiPathFinding.Model
         public Map(Graph graph)
         {
             Graph = graph;
+
+            Console.WriteLine("New map instantiated");
         }
 
         /// <summary>
@@ -110,6 +112,8 @@ namespace AiPathFinding.Model
         /// <returns>New map</returns>
         public static Map FromMapFile(string path)
         {
+            Console.WriteLine("Loading map from file");
+
             var map = new Map(null);
 
             map.LoadMap(path);
@@ -185,6 +189,8 @@ namespace AiPathFinding.Model
         /// <param name="height">New height of the map</param>
         public void SetMapSize(int width, int height)
         {
+            Console.WriteLine("Changing map size");
+
             // get current width/height
             var oldWidth = Width;
             var oldHeight = Height;
@@ -301,6 +307,8 @@ namespace AiPathFinding.Model
         /// <param name="path">Path to the file</param>
         public void SaveMap(string path)
         {
+            Console.WriteLine("Saving current map to " + path);
+
             // gather data: entities
             var data = "";
             for (var i = 0; i < (int) EntityType.Count; i++)
@@ -325,10 +333,12 @@ namespace AiPathFinding.Model
         /// <param name="path">Path to the file</param>
         public void LoadMap(string path)
         {
+            Console.WriteLine("Loading map from " + path);
+
             var data = File.ReadAllLines(path);
             
             // create graph
-            Graph = Graph.FromMap(data);
+            Graph = Graph.FromData(data);
 
             // move entities
             foreach (var e in Entity.Entities)
@@ -363,6 +373,8 @@ namespace AiPathFinding.Model
         /// <param name="fog">Percentage of foggy cells</param>
         public void RegenerateMap(int width, int height, int street, int plains, int forest, int hill, int mountain, double fog)
         {
+            Console.WriteLine("Regenerating map");
+
             // create graph
             double sum = street + plains + forest + hill + mountain;
             var weights = new double[] {street, plains, forest, hill, mountain};

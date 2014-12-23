@@ -137,6 +137,8 @@ namespace AiPathFinding.View
             numForest.Value = Settings.Default.ForestWeight;
             numHill.Value = Settings.Default.HillWeight;
             numMountain.Value = Settings.Default.MountainWeight;
+
+            Console.WriteLine("MapSettings created");
         }
 
         #endregion

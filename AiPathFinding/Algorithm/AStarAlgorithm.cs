@@ -41,7 +41,8 @@ namespace AiPathFinding.Algorithm
 
         override public void FindPath(Node from, Node to)
         {
-            Console.WriteLine("AStar is attempting to find a path from " + from + " to " + to + ".");
+            // TODO: Improve path finding output (stopwatch etc)
+            Console.WriteLine("* AStar is attempting to find a path from " + from + " to " + to + ".");
 
             // PREPARE DATA
             // add all nodes to the data map
@@ -61,10 +62,12 @@ namespace AiPathFinding.Algorithm
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
+            // TODO: Improve/fix, maybe?
             // pathfinding has terminated
             if (currentNode != null && currentNode.Edges.Any(e => e != null && e.GetOtherNode(currentNode) == to))
             {
                 // path found! don't bother checking fog
+                Console.WriteLine("* At least one path found!");
 
                 // check for other paths with the same cost
                 while (_openNodes.Count > 0)
@@ -96,6 +99,8 @@ namespace AiPathFinding.Algorithm
             }
             else
             {
+                Console.WriteLine("* No path found...");
+                // TODO
                 // no path found. check fog
                 // find foggy tile that is closest to target
                 _foggyNodes.Sort((a, b) =>

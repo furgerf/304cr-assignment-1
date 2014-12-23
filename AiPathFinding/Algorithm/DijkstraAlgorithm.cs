@@ -44,6 +44,9 @@ namespace AiPathFinding.Algorithm
 
         override public void FindPath(Node from, Node to)
         {
+            // TODO: Improve path finding output (stopwatch etc)
+            Console.WriteLine("* Dijkstra is attempting to find a path from " + from + " to " + to + ".");
+
             // PREPARE DATA
             // add all nodes to the unvisited-node-list and tag nodes as unvisited with max cost
             foreach (var n in Graph.Nodes.Where(n => n != null).SelectMany(nn => nn.Where(n => n != null)))
@@ -62,6 +65,7 @@ namespace AiPathFinding.Algorithm
                 Steps.Add(GetAlgorithmStep(from, currentNode));
             }
 
+            // TODO: Improve/fix, maybe?
             // look for other paths with same cost
             while (_unvisitedNodes.Count > 0)
             {
@@ -90,8 +94,16 @@ namespace AiPathFinding.Algorithm
             }
 
             if (_nodeDataMap[to].Item2 != int.MaxValue)
+            {
                 // path found, add step with all possdible paths
                 Steps.Add(GetAlternativesStep(from, to));
+
+                Console.WriteLine("* At least one path found!");
+            }
+            else
+            {
+                Console.WriteLine("* No path found...");
+            }
         }
 
         /// <summary>

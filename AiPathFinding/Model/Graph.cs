@@ -58,6 +58,8 @@ namespace AiPathFinding.Model
         private Graph(Node[][] nodes)
         {
             Nodes = nodes;
+
+            Console.WriteLine("New graph instantiated");
         }
 
         #endregion
@@ -72,6 +74,8 @@ namespace AiPathFinding.Model
         /// <returns>New map</returns>
         public static Graph EmptyGraph(int width, int height)
         {
+            Console.WriteLine("Creating new empty graph");
+
             // create array
             var nodes = new Node[width][];
 
@@ -101,8 +105,10 @@ namespace AiPathFinding.Model
         /// </summary>
         /// <param name="data">String representation of the data, lines of the array representing lines in the file</param>
         /// <returns>New map</returns>
-        public static Graph FromMap(string[] data)
+        public static Graph FromData(string[] data)
         {
+            Console.WriteLine("Creating new graph from data");
+
             // create array
             var nodes = new Node[data[1].Count(x => x == ';') + 1][];
 
@@ -140,6 +146,8 @@ namespace AiPathFinding.Model
         /// <returns>New map</returns>
         public static Graph Random(int width, int height, double[] weights, double fog)
         {
+            Console.WriteLine("Creating new random graph");
+
             var rnd = new Random();
 
             // create array

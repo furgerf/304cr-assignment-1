@@ -97,6 +97,8 @@ namespace AiPathFinding.Controller
             // register events
             form.SelectedPointsChanged += OnSelectedPointsChanged;
             settings.MapSizeChanged += OnMapSizeChanged;
+
+            Console.WriteLine("Controller created!");
         }
 
         #endregion
