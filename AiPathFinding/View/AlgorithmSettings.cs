@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using AiPathFinding.Algorithm;
+using AiPathFinding.Fog;
 using AiPathFinding.Model;
 using AiPathFinding.Properties;
 
@@ -88,7 +89,10 @@ namespace AiPathFinding.View
                     comSecondaryAlgorithm.Items.Add((AlgorithmNames)i);
             comSecondaryAlgorithm.SelectedIndex = Settings.Default.SecondaryAlgorithm;
 
-            // TODO: ADD FOG METHOD STUFF
+            // add ALL fog methods to fog method combobox
+            for (var i = 0; i < (int)FogMethod.Count; i++)
+                comFogMethod.Items.Add((FogMethod)i);
+            comFogMethod.SelectedIndex = Settings.Default.FogMethod;
 
             Console.WriteLine("AlgorithmSettings created");
         }
@@ -152,7 +156,7 @@ namespace AiPathFinding.View
         private void butRestart_Click(object sender = null, EventArgs e = null)
         {
             // reset algorithm
-            _algorithms[comPrimaryAlgorithm.SelectedIndex].ResetAlgorithm();
+            _algorithms[comPrimaryAlgorithm.SelectedIndex].ResetAbstractAlgorithm();
 
             butStart_Click();
         }
@@ -171,8 +175,13 @@ namespace AiPathFinding.View
             butClear.Enabled = true;
             grpPrimaryAlgorithm.Enabled = false;
             grpSecondaryAlgorithm.Enabled = false;
+            grpFogSelection.Enabled = false;
 
-            // starts calculation
+            // set fogmethod if necessary
+            var blindAlgorithm = _algorithms[comPrimaryAlgorithm.SelectedIndex] as AbstractBlindAlgorithm;
+            if (blindAlgorithm != null)
+                blindAlgorithm.FogMethod = (FogMethod)comFogMethod.SelectedIndex;
+            // start calculation
             _algorithms[comPrimaryAlgorithm.SelectedIndex].FindPath(Entity.Player.Node, Entity.Target.Node);
 
             // set progress bar stuff
@@ -181,6 +190,7 @@ namespace AiPathFinding.View
             progressSteps.Maximum = _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count == 0 ? 0 : _algorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
 
             // auto-load last step
+            butLast.Enabled = true;
             butLast_Click();
         }
 
@@ -193,7 +203,7 @@ namespace AiPathFinding.View
         {
             // reset algorithm
             if (_algorithms != null)
-                _algorithms[comPrimaryAlgorithm.SelectedIndex].ResetAlgorithm();
+                _algorithms[comPrimaryAlgorithm.SelectedIndex].ResetAbstractAlgorithm();
 
             // reset control enabled/disabled
             grpPlayback.Enabled = false;
@@ -202,6 +212,7 @@ namespace AiPathFinding.View
             butClear.Enabled = false;
             grpPrimaryAlgorithm.Enabled = true;
             grpSecondaryAlgorithm.Enabled = Array.IndexOf(AbstractAlgorithm.AlgorithmsRequiringVisibility, (AlgorithmNames) comPrimaryAlgorithm.SelectedIndex) > -1;
+            grpFogSelection.Enabled = grpSecondaryAlgorithm.Enabled;
 
             labStep.Text = "(No steps to show)";
             labExplored.Text = "(No exploration yet)";

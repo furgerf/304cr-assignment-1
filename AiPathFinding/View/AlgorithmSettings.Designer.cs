@@ -217,12 +217,12 @@
             // 
             // comFogMethod
             // 
+            this.comFogMethod.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comFogMethod.FormattingEnabled = true;
             this.comFogMethod.Location = new System.Drawing.Point(6, 19);
             this.comFogMethod.Name = "comFogMethod";
             this.comFogMethod.Size = new System.Drawing.Size(188, 21);
             this.comFogMethod.TabIndex = 0;
-            this.comFogMethod.Text = " ";
             this.comFogMethod.SelectedIndexChanged += new System.EventHandler(this.comFogMethod_SelectedIndexChanged);
             // 
             // AlgorithmSettings
