@@ -26,11 +26,6 @@ namespace AiPathFinding.Algorithm
         private readonly List<Node> _closedNodes = new List<Node>();
 
         /// <summary>
-        /// List of nodes that are foggy but could be explored later.
-        /// </summary>
-        //private readonly List<Tuple<Node, Node>> _foggyNodes = new List<Tuple<Node, Node>>(); 
-
-        /// <summary>
         /// Assigns a value for "g" and "h" to each node.
         /// </summary>
         private readonly Dictionary<Node, Tuple<int, int>> _nodeDataMap = new Dictionary<Node, Tuple<int, int>>(); 
@@ -47,8 +42,10 @@ namespace AiPathFinding.Algorithm
         protected override void PrepareData(Node playerNode, Node targetNode)
         {
             // add all nodes to the data map
-            foreach (var n in Graph.Nodes.Where(n => n != null).SelectMany(nn => nn.Where(n => n != null)))
-                _nodeDataMap.Add(n, new Tuple<int, int>(n == playerNode ? 0 : int.MaxValue, GetHeuristic(n, targetNode)));
+            // BUT ONLY IF THIS IS THE FIRST INSTANCE OF THE ALGORITHM
+            if (playerNode.EntityOnNode == Entity.Player)
+                foreach (var n in Graph.Nodes.Where(n => n != null).SelectMany(nn => nn.Where(n => n != null)))
+                    _nodeDataMap.Add(n, new Tuple<int, int>(n == playerNode ? 0 : int.MaxValue, GetHeuristic(n, targetNode)));
 
             // start the pathfinding playerNode the start node
             _openNodes.Add(playerNode);
@@ -61,7 +58,7 @@ namespace AiPathFinding.Algorithm
 
         protected override int GetCostFromNode(Node node)
         {
-            return _nodeDataMap[node].Item2;
+            return _nodeDataMap[node].Item1;
         }
 
         protected override int CostFromNodeToNode(Node start, Node node)
@@ -130,7 +127,7 @@ namespace AiPathFinding.Algorithm
         /// <param name="from">Node to start playerNode</param>
         /// <param name="currentNode">Node to which the path is being tried</param>
         /// <returns>Step of the algorithm</returns>
-        private AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
+        protected override AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
         {
             // prepare data for printing cost
             var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
@@ -192,7 +189,7 @@ namespace AiPathFinding.Algorithm
         /// <param name="from">Start node</param>
         /// <param name="to">Target node</param>
         /// <returns>AlgorithmStep with all alternative paths</returns>
-        private AlgorithmStep GetAlternativesStep(Node from, Node to)
+        protected override AlgorithmStep GetAlternativesStep(Node from, Node to)
         {
             // prepare data for drawing
             var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == to ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();

@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using AiPathFinding.Model;
 
 namespace AiPathFinding.Algorithm
 {
@@ -45,6 +46,21 @@ namespace AiPathFinding.Algorithm
             Explorable = explorable;
             Explored = explored;
             DrawStep = drawStep;
+        }
+
+        #endregion
+
+        #region Methods
+
+        public void AddDrawing(Action<Graphics> drawingAction)
+        {
+            var oldAction = DrawStep;
+            var newAction = new Action<Graphics>(g =>
+            {
+                oldAction(g);
+                drawingAction(g);
+            });
+            DrawStep = newAction;
         }
 
         #endregion

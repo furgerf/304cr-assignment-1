@@ -47,7 +47,7 @@ namespace AiPathFinding.View
         private readonly Pen _fineSelectionPen = new Pen(Color.LightPink, 1);
         
         // brushes
-        private readonly Brush _fogBrush = new SolidBrush(Color.FromArgb(180, 0, 0, 0));
+        private readonly Brush _fogBrush = new SolidBrush(Color.FromArgb(125, 0, 0, 0));
 
         // images
         private readonly Image _streetImage = Resources.street;
