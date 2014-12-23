@@ -201,6 +201,11 @@ namespace AiPathFinding.Model
             return Nodes[p.X][p.Y];
         }
 
+        //public Graph DeepCopy()
+        //{
+        //    return FromData(ToString().Split('\n'));
+        //}
+
         /// <summary>
         /// Text representation of a graph; Encodes terrain according to static map; fog as *; cells separated by semicolon (CSV).
         /// </summary>

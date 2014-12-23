@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace AiPathFinding.Algorithm
     /// <summary>
     /// Implementation of the A*-Algorithm.
     /// </summary>
-    public sealed class AStarAlgorithm : AbstractAlgorithm
+    public sealed class AStarAlgorithm : AbstractPathFindAlgorithm
     {
         #region Fields
 
@@ -29,7 +28,7 @@ namespace AiPathFinding.Algorithm
         /// <summary>
         /// List of nodes that are foggy but could be explored later.
         /// </summary>
-        private readonly List<Tuple<Node, int>> _foggyNodes = new List<Tuple<Node, int>>(); 
+        //private readonly List<Tuple<Node, Node>> _foggyNodes = new List<Tuple<Node, Node>>(); 
 
         /// <summary>
         /// Assigns a value for "g" and "h" to each node.
@@ -38,104 +37,97 @@ namespace AiPathFinding.Algorithm
 
         #endregion
 
+        public AStarAlgorithm()
+            : base(PathFindName.AStar)
+        {
+        }
+
         #region Main Methods
 
-        override public void FindPath(Node from, Node to)
+        protected override void PrepareData(Node playerNode, Node targetNode)
         {
-            Console.WriteLine("\n* AStar is attempting to find a path from " + from + " to " + to + ".");
-            var watch = Stopwatch.StartNew();
-
-            // PREPARE DATA
             // add all nodes to the data map
             foreach (var n in Graph.Nodes.Where(n => n != null).SelectMany(nn => nn.Where(n => n != null)))
-                _nodeDataMap.Add(n, new Tuple<int, int>(n == @from ? 0 : int.MaxValue, GetHeuristic(n, to)));
-            // start the pathfinding from the start node
-            _openNodes.Add(from);
+                _nodeDataMap.Add(n, new Tuple<int, int>(n == playerNode ? 0 : int.MaxValue, GetHeuristic(n, targetNode)));
 
-            Console.WriteLine("Preparation took " + watch.ElapsedMilliseconds + "ms");
-            watch.Restart();
+            // start the pathfinding playerNode the start node
+            _openNodes.Add(playerNode);
+        }
 
-            // ALGORITHM
+        protected override void AddCostToNode(Node node, int cost)
+        {
+            _nodeDataMap[node] = new Tuple<int, int>(cost, _nodeDataMap[node].Item2);
+        }
+
+        protected override int GetCostFromNode(Node node)
+        {
+            return _nodeDataMap[node].Item2;
+        }
+
+        protected override int CostFromNodeToNode(Node start, Node node)
+        {
+            return _nodeDataMap[node].Item1 - _nodeDataMap[start].Item1;
+        }
+
+        protected override void FindAlternativePaths(Node playerNode, Node targetNode)
+        {
+            // check for other paths with the same cost
+            // remove all costlier nodes playerNode the list
+            var stillOpen =
+                _openNodes.Where(n => _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2 <= _nodeDataMap[targetNode].Item1)
+                    .ToArray();
+            _openNodes.Clear();
+            _openNodes.AddRange(stillOpen);
+
+            // check all remaining nodes
+            for (var i = 0; i < _openNodes.Count; i++)
+            {
+                if (_openNodes[i] == targetNode ||
+                    _nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 > _nodeDataMap[targetNode].Item1)
+                    continue;
+
+                // check node
+                var currentNode = _openNodes[i];
+                i--;
+
+                ProcessNode(currentNode);
+
+                Steps.Add(GetAlgorithmStep(playerNode, currentNode));
+            }
+
+            // add step with all possdible paths
+            Steps.Add(GetAlternativesStep(playerNode, targetNode));
+        }
+
+        protected override bool FindShortestPath(Node playerNode, Node to)
+        {
             Node currentNode = null;
             // loop while we have options an at least one of the options and we have not yet found a way
             while (_openNodes.Count > 0 && _nodeDataMap[to].Item1 == int.MaxValue)
             {
-                // look for a path from the first open node
+                // look for a path playerNode the first open node
                 currentNode = _openNodes[0];
                 ProcessNode(currentNode);
-                Steps.Add(GetAlgorithmStep(from, currentNode));
+                Steps.Add(GetAlgorithmStep(playerNode, currentNode));
             }
 
-            var mainSteps = Steps.Count;
-            Console.WriteLine("Main calculation required " + mainSteps + " steps and took " + watch.ElapsedMilliseconds + "ms");
-            watch.Restart();
-
-            // pathfinding has terminated
-            if (currentNode != null && currentNode.Edges.Any(e => e != null && e.GetOtherNode(currentNode) == to))
-            {
-                // path found! don't bother checking fog
-
-                // check for other paths with the same cost
-                // remove all costlier nodes from the list
-                var stillOpen =
-                    _openNodes.Where(n => _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2 <= _nodeDataMap[to].Item1)
-                        .ToArray();
-                _openNodes.Clear();
-                _openNodes.AddRange(stillOpen);
-
-                // check all remaining nodes
-                for (var i = 0; i < _openNodes.Count; i++)
-                {
-                    if (_openNodes[i] == to ||
-                        _nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 > _nodeDataMap[to].Item1)
-                        continue;
-
-                    // check node
-                    currentNode = _openNodes[i];
-                    i--;
-
-                    ProcessNode(currentNode);
-
-                    Steps.Add(GetAlgorithmStep(@from, currentNode));
-                }
-
-                Console.WriteLine("Looking for alternative paths required " + (Steps.Count - mainSteps) +
-                                  " steps and took " + watch.ElapsedMilliseconds + "ms");
-                watch.Reset();
-
-                // add step with all possdible paths
-                Steps.Add(GetAlternativesStep(from, to));
-            }
-            else
-            {
-                Console.WriteLine("* No path found...");
-                // TODO
-                // no path found. check fog
-                // find foggy tile that is closest to target
-                _foggyNodes.Sort((a, b) =>
-                {
-                    var aCost = a.Item2 + _nodeDataMap[a.Item1].Item2;
-                    var bCost = b.Item2 + _nodeDataMap[b.Item1].Item2;
-                    if (aCost == bCost) return 0;
-                    return aCost < bCost ? -1 : 1;
-                });
-            }
-
-            Console.WriteLine("");
+            // pathfinding has terminated, tell about result
+            return currentNode != null && currentNode.Edges.Any(e => e != null && e.GetOtherNode(currentNode) == to);
         }
 
         public override void ResetAlgorithm()
         {
+            base.ResetAlgorithm();
+
             _openNodes.Clear();
             _closedNodes.Clear();
             _nodeDataMap.Clear();
-            _foggyNodes.Clear();
         }
 
         /// <summary>
         /// Gets a step in the algorithm, mostly to draw progress on map.
         /// </summary>
-        /// <param name="from">Node to start from</param>
+        /// <param name="from">Node to start playerNode</param>
         /// <param name="currentNode">Node to which the path is being tried</param>
         /// <returns>Step of the algorithm</returns>
         private AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
@@ -148,7 +140,7 @@ namespace AiPathFinding.Algorithm
             var node = currentNode;
             while (node != from)
             {
-                // find neighbor where you would "come from"
+                // find neighbor where you would "come playerNode"
                 var edges = node.Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(node)].Item1 != int.MaxValue && !_openNodes.Contains(e.GetOtherNode(node))).ToList();
                 // find cheapest edge
                 edges.Sort(
@@ -277,7 +269,7 @@ namespace AiPathFinding.Algorithm
                             new Point(p2.X + offset, p2.Y + offset), new Pen(color, 2)));
                 }
 
-            Console.WriteLine("* Found " + closedPaths.Count() + " distinct paths with cost of " + _nodeDataMap[to].Item1 + ", ranging from " + minPath + " to " + maxPath + " cells long!");
+            Console.WriteLine("* Found " + closedPaths.Count() + " distinct paths with cost of " + _nodeDataMap[to].Item1 + ", ranging playerNode " + minPath + " to " + maxPath + " cells long!");
 
             // create new step
             var newStep = new AlgorithmStep(g =>
@@ -305,8 +297,8 @@ namespace AiPathFinding.Algorithm
             _closedNodes.Add(node);
 
             // add foggy neighbors
-            foreach (var e in node.Edges.Where(e => e != null && e.GetOtherNode(node).Cost != int.MaxValue && !_foggyNodes.Contains(new Tuple<Node, int>(e.GetOtherNode(node), _nodeDataMap[node].Item1)) && !e.GetOtherNode(node).KnownToPlayer))
-                _foggyNodes.Add(new Tuple<Node, int>(e.GetOtherNode(node), _nodeDataMap[node].Item1));
+            foreach (var e in node.Edges.Where(e => e != null && e.GetOtherNode(node).Cost != int.MaxValue && !FoggyNodes.Contains(node) && !e.GetOtherNode(node).KnownToPlayer))
+                FoggyNodes.Add(e.GetOtherNode(node));
 
             // process passible, unvisited neighbors
             foreach (var e in node.Edges.Where(e => e != null && e.GetOtherNode(node).Cost != int.MaxValue && !_closedNodes.Contains(e.GetOtherNode(node)) && e.GetOtherNode(node).KnownToPlayer))
@@ -326,7 +318,7 @@ namespace AiPathFinding.Algorithm
 
                     if (_openNodes.Contains(n))
                     {
-                        // remove from open list (since f changed)
+                        // remove playerNode open list (since f changed)
                         _openNodes.Remove(n);
                         insert = true;
                     }

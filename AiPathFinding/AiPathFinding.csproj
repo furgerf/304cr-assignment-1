@@ -45,11 +45,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithm\AlgorithmNames.cs" />
+    <Compile Include="Fog\AbstractFogExploreAlgorithm.cs" />
+    <Compile Include="Algorithm\PathFindName.cs" />
     <Compile Include="Algorithm\AlgorithmStep.cs" />
     <Compile Include="Algorithm\AStarAlgorithm.cs" />
     <Compile Include="Algorithm\DijkstraAlgorithm.cs" />
-    <Compile Include="Algorithm\AbstractAlgorithm.cs" />
+    <Compile Include="Algorithm\AbstractPathFindAlgorithm.cs" />
+    <Compile Include="Fog\DepthFirstAlgorithm.cs" />
+    <Compile Include="Fog\FogExploreName.cs" />
+    <Compile Include="Fog\FogMethod.cs" />
+    <Compile Include="Fog\FogSelector.cs" />
     <Compile Include="Model\Entity.cs" />
     <Compile Include="Model\EntityType.cs" />
     <Compile Include="View\AlgorithmSettings.cs">
