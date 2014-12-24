@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using AiPathFinding.Model;
+using AiPathFinding.Properties;
 using AiPathFinding.View;
 
 namespace AiPathFinding.Algorithm
@@ -127,7 +128,7 @@ namespace AiPathFinding.Algorithm
         /// <param name="from">Node to start playerNode</param>
         /// <param name="currentNode">Node to which the path is being tried</param>
         /// <returns>Step of the algorithm</returns>
-        protected override AlgorithmStep GetAlgorithmStep(Node from, Node currentNode)
+        protected override AlgorithmStep GetAlgorithmStep(Node from, Node currentNode, bool withPlayer = false)
         {
             // prepare data for printing cost
             var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == currentNode ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
@@ -176,8 +177,12 @@ namespace AiPathFinding.Algorithm
                     g.DrawString(d.Item1.ToString(CultureInfo.InvariantCulture), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
 
                 // draw path
-                foreach (var d in pathData)
-                    g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
+                if (withPlayer)
+                    foreach (var d in pathData)
+                        g.DrawIcon(Resources.runner, d.Item1.X, d.Item1.Y);
+                else
+                    foreach (var d in pathData)
+                        g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
             }, _closedNodes.Count, Graph.PassibleNodeCount);
 
             return newStep;
@@ -258,7 +263,7 @@ namespace AiPathFinding.Algorithm
                     var p1 = MainForm.MapPointToCanvasRectangle(path[i - 1].Location);
                     var p2 = MainForm.MapPointToCanvasRectangle(path[i].Location);
                     var offset = 2 + 4*closedPaths.IndexOf(path);
-                    var perc = maxPath == minPath ? 1 : (double) (path.Count - minPath)/(maxPath - minPath);
+                    var perc = maxPath == minPath ? 0 : (double) (path.Count - minPath)/(maxPath - minPath);
                     var color = Color.FromArgb(255, (int) (perc*255), (int) ((1 - perc)*255), 0);
                     pathData.Add(
                         new Tuple<Point, Point, Pen>(
