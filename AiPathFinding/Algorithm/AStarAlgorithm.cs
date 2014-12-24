@@ -78,19 +78,20 @@ namespace AiPathFinding.Algorithm
             _openNodes.AddRange(stillOpen);
 
             // check all remaining nodes
-            for (var i = 0; i < _openNodes.Count; i++)
+            while (_openNodes.Count > 0)
             {
-                if (_openNodes[i] == targetNode ||
-                    _nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 > _nodeDataMap[targetNode].Item1)
+                if (_openNodes[0] == targetNode ||
+                    _nodeDataMap[_openNodes[0]].Item1 + _nodeDataMap[_openNodes[0]].Item2 >
+                    _nodeDataMap[targetNode].Item1)
+                {
+                    _openNodes.RemoveAt(0);
                     continue;
+                }
 
                 // check node
-                var currentNode = _openNodes[i];
-                i--;
-
-                ProcessNode(currentNode);
-
-                Steps.Add(GetAlgorithmStep(playerNode, currentNode));
+                ProcessNode(_openNodes[0]);
+                Steps.Add(GetAlgorithmStep(playerNode, _openNodes[0]));
+                _openNodes.RemoveAt(0);
             }
 
             // add step with all possdible paths
@@ -127,6 +128,7 @@ namespace AiPathFinding.Algorithm
         /// </summary>
         /// <param name="from">Node to start playerNode</param>
         /// <param name="currentNode">Node to which the path is being tried</param>
+        /// <param name="withPlayer">True if the player should be drawn instead of a path</param>
         /// <returns>Step of the algorithm</returns>
         protected override AlgorithmStep GetAlgorithmStep(Node from, Node currentNode, bool withPlayer = false)
         {
@@ -205,53 +207,74 @@ namespace AiPathFinding.Algorithm
             var closedPaths = new List<List<Node>>();
             do
             {
-                for (var i = 0; i < openPaths.Count; i++)
-                {
-                    var min = (from e in openPaths[i].Last().Edges where e != null select e.GetOtherNode(openPaths[i].Last()) into otherNode where _nodeDataMap[otherNode].Item1 != int.MaxValue select _nodeDataMap[otherNode].Item1).Concat(new[] {int.MaxValue}).Min();
+                //var min = (from e in openPaths[0].Last().Edges
+                //    where e != null
+                //    select e.GetOtherNode(openPaths[0].Last())
+                //    into otherNode
+                //    where _nodeDataMap[otherNode].Item1 != int.MaxValue
+                //    select _nodeDataMap[otherNode].Item1).Concat(new[] {int.MaxValue}).Min();
+                var min = int.MaxValue;
+                foreach (var e in openPaths[0].Last().Edges)
+                    if (e != null && GetCostFromNode(e.GetOtherNode(openPaths[0].Last())) < min)
+                        min = GetCostFromNode(e.GetOtherNode(openPaths[0].Last()));
 
-                    // find all neighbor (edges) with min cost
-                    var cheapestEdges =
-                        openPaths[i].Last()
-                            .Edges.Where(
-                                e =>
-                                    e != null && _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 != int.MaxValue &&
-                                    _nodeDataMap[e.GetOtherNode(openPaths[i].Last())].Item1 == min)
-                            .ToArray();
+                // find all neighbor (edges) with min cost
+                //var cheapestEdges =
+                //    openPaths[0].Last()
+                //        .Edges.Where(
+                //            e =>
+                //                e != null && _nodeDataMap[e.GetOtherNode(openPaths[0].Last())].Item1 != int.MaxValue &&
+                //                _nodeDataMap[e.GetOtherNode(openPaths[0].Last())].Item1 == min)
+                //        .ToArray();
+                var foo = new List<Edge>();
+                foreach (var e in openPaths[0].Last().Edges)
+                    if (e != null && GetCostFromNode(e.GetOtherNode(openPaths[0].Last())) == min)
+                        foo.Add(e);
 
-                    if (cheapestEdges.Length == 0)
-                        throw new Exception("Shouldn't hit a dead end!!");
-
-                    // if only one exists, continue the current path
-                    if (cheapestEdges.Length == 1)
-                        openPaths[i].Add(cheapestEdges[0].GetOtherNode(openPaths[i].Last()));
-                    else
+                foreach (var e in foo)
+                    if (e.GetOtherNode(openPaths[0].Last()) == from)
                     {
-                        // copy current path to end of openpaths and add the different nodes
-                        for (var j = 1; j < cheapestEdges.Length; j++)
-                        {
-                            var newList = new Node[openPaths[i].Count];
-                            openPaths[i].CopyTo(newList);
-
-                            if (cheapestEdges[j].GetOtherNode(openPaths[i].Last()) == from)
-                            {
-                                closedPaths.Add(newList.ToList());
-                                closedPaths.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[i].Last()));
-                            }
-                            else
-                            {
-                                openPaths.Add(newList.ToList());
-                                openPaths.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[i].Last()));
-                            }
-                        }
-                        openPaths[i].Add(cheapestEdges[0].GetOtherNode(openPaths[i].Last()));
+                        foo.Clear();
+                        foreach (var ee in openPaths[0].Last().Edges)
+                            if (ee != null && ee.GetOtherNode(openPaths[0].Last()) == from)
+                                foo.Add(ee);
+                        break;
                     }
 
-                    // move completed (main) path to other list if it reaches the starting point
-                    if (openPaths[i].Last() != from) continue;
-                    closedPaths.Add(openPaths[i]);
-                    openPaths.RemoveAt(i);
-                    i--;
+                var cheapestEdges = foo.ToArray();
+
+                if (cheapestEdges.Length == 0)
+                    throw new Exception("Shouldn't hit a dead end!!");
+
+                // if only one exists, continue the current path
+                if (cheapestEdges.Length == 1)
+                    openPaths[0].Add(cheapestEdges[0].GetOtherNode(openPaths[0].Last()));
+                else
+                {
+                    // copy current path to end of openpaths and add the different nodes
+                    for (var j = 1; j < cheapestEdges.Length; j++)
+                    {
+                        var newList = new Node[openPaths[0].Count];
+                        openPaths[0].CopyTo(newList);
+
+                        if (cheapestEdges[j].GetOtherNode(openPaths[0].Last()) == from)
+                        {
+                            closedPaths.Add(newList.ToList());
+                            closedPaths.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[0].Last()));
+                        }
+                        else
+                        {
+                            openPaths.Add(newList.ToList());
+                            openPaths.Last().Add(cheapestEdges[j].GetOtherNode(openPaths[0].Last()));
+                        }
+                    }
+                    openPaths[0].Add(cheapestEdges[0].GetOtherNode(openPaths[0].Last()));
                 }
+
+                // move completed (main) path to other list if it reaches the starting point
+                if (openPaths[0].Last() != from) continue;
+                closedPaths.Add(openPaths[0]);
+                openPaths.RemoveAt(0);
             } while (openPaths.Count > 0);
 
             // add path to list data
@@ -271,7 +294,7 @@ namespace AiPathFinding.Algorithm
                             new Point(p2.X + offset, p2.Y + offset), new Pen(color, 2)));
                 }
 
-            Console.WriteLine("* Found " + closedPaths.Count() + " distinct paths with cost of " + _nodeDataMap[to].Item1 + ", ranging playerNode " + minPath + " to " + maxPath + " cells long!");
+            Console.WriteLine("* Found " + closedPaths.Count() + " distinct paths with cost of " + _nodeDataMap[to].Item1 + ", ranging from " + minPath + " to " + maxPath + " cells long!");
 
             // create new step
             var newStep = new AlgorithmStep(g =>

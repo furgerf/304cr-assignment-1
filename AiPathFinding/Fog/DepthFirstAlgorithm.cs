@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AiPathFinding.Model;
@@ -6,11 +7,11 @@ namespace AiPathFinding.Fog
 {
     public class DepthFirstAlgorithm : AbstractFogExploreAlgorithm
     {
-        protected override Node ChooseNextNode(Node position, Graph graph, Node[] ignoreNodes)
+        protected override Node ChooseNextNode(Node position, Graph graph, Node[] ignoreNodes, Node[] visitedNodes)
         {
             var clearNeighborsCost = new List<Node>();
             var foggyNeighborsCost = new List<Node>();
-            
+
             foreach (var e in position.Edges)
             {
                 if (e == null)
@@ -27,16 +28,26 @@ namespace AiPathFinding.Fog
                 if (neighbor.KnownToPlayer)
                     clearNeighborsCost.Add(neighbor);
                 else
-                    foggyNeighborsCost.Add(neighbor);
+                    if (!visitedNodes.Contains(neighbor))
+                        foggyNeighborsCost.Add(neighbor);
             }
 
+            var rnd = new Random();
+            Node[] possibilities;
             if (!ignoreNodes.Contains(position) && clearNeighborsCost.Count > 0)
-                return clearNeighborsCost.OrderBy(n => n.Cost).First();
+            {
+                possibilities =
+                    clearNeighborsCost.Where(n => n.Cost == clearNeighborsCost.Min(nn => nn.Cost)).ToArray();
+                return possibilities[rnd.Next(possibilities.Length)];
+            }
 
-            if (foggyNeighborsCost.Count > 0)
-                return foggyNeighborsCost.OrderBy(n => n.Cost).First();
+            if (foggyNeighborsCost.Count == 0)
+                return null;
 
-            return null;
+            possibilities = foggyNeighborsCost.Where(n => n.Cost == foggyNeighborsCost.Min(nn => nn.Cost)).ToArray();
+
+            Console.WriteLine(possibilities.Length + " possibilities.");
+            return possibilities[rnd.Next(possibilities.Length)];
         }
     }
 }

@@ -40,21 +40,21 @@ namespace AiPathFinding.Fog
             {
                 // move
                 var oldCost = getCostFromNode(currentNode);
-                currentNode = ChooseNextNode(currentNode, graph, ignoreNodes.Concat(visitedNodes).ToArray());
+                currentNode = ChooseNextNode(currentNode, graph, ignoreNodes, visitedNodes.Concat(discardedNodes).ToArray());
 
                 while (currentNode == null)
                 {
                     // stuck: have to backtrack
 
                     // can't backtrack, return without result
-                    if (visitedNodes.Count == 1)
+                    if (visitedNodes.Count == 0)
                         return null;
 
                     // backtrack
                     discardedNodes.Add(visitedNodes.Last());
                     visitedNodes.Remove(visitedNodes.Last());
                     oldCost = getCostFromNode(visitedNodes.Last());
-                    currentNode = ChooseNextNode(visitedNodes.Last(), graph, ignoreNodes);
+                    currentNode = ChooseNextNode(visitedNodes.Last(), graph, ignoreNodes, visitedNodes.Concat(discardedNodes).ToArray());
 
                     var allNodes = new List<Node> { position };
                     allNodes.AddRange(visitedNodes);
@@ -117,6 +117,6 @@ namespace AiPathFinding.Fog
             }
         }
 
-        protected abstract Node ChooseNextNode(Node position, Graph graph, Node[] ignoreNodes);
+        protected abstract Node ChooseNextNode(Node position, Graph graph, Node[] ignoreNodes, Node[] visitedNodes);
     }
 }
