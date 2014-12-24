@@ -1,7 +1,7 @@
 namespace AiPathFinding.Algorithm
 {
     /// <summary>
-    /// Names of all algorithms that can be applied. Used for ComboBoxes.
+    /// Names of all path finding algorithms that can be applied.
     /// </summary>
     public enum PathFindName
     {

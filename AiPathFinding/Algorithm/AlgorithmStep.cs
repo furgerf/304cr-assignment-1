@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using AiPathFinding.Model;
 
 namespace AiPathFinding.Algorithm
 {
@@ -52,6 +51,10 @@ namespace AiPathFinding.Algorithm
 
         #region Methods
 
+        /// <summary>
+        /// Adds more drawing to the step.
+        /// </summary>
+        /// <param name="drawingAction">Action that draws more stuff</param>
         public void AddDrawing(Action<Graphics> drawingAction)
         {
             var oldAction = DrawStep;
