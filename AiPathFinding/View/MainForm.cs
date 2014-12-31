@@ -78,8 +78,9 @@ namespace AiPathFinding.View
         private readonly Point[] _selectionRange = new Point[2];
         private Point? _mouseDownLocation;
 
-        // field for handling control key
+        // field for handling shift/control key
         private bool _controlKeyActive;
+        private bool _shiftKeyActive;
 
         #endregion
 
@@ -167,8 +168,16 @@ namespace AiPathFinding.View
             _canvas.MouseUp += CanvasOnMouseUp;
             _canvas.MouseMove += CanvasOnMouseMove;
             MouseWheel += OnMouseWheel;
-            KeyDown += (s, e) => { _controlKeyActive = e.Control; };
-            KeyUp += (s, e) => { _controlKeyActive = e.Control; };
+            KeyDown += (s, e) =>
+            {
+                _controlKeyActive = e.Control;
+                _shiftKeyActive = e.Shift;
+            };
+            KeyUp += (s, e) =>
+            {
+                _controlKeyActive = e.Control;
+                _shiftKeyActive = e.Shift;
+            };
 
             // settings buttons event handling
             mapSettings.butLoadMap.Click += (s, e) => LoadMap();
@@ -476,9 +485,9 @@ namespace AiPathFinding.View
         private void OnMouseWheel(object sender, MouseEventArgs e)
         {
             if (e.Delta > 0)
-                algorithmSettings.butNext_Click(_controlKeyActive ? 5 : 1);
+                algorithmSettings.butNext_Click((_controlKeyActive ? 5 : 1) * (_shiftKeyActive ? 10 : 1));
             if (e.Delta < 0)
-                algorithmSettings.butPrevious_Click(_controlKeyActive ? 5 : 1);
+                algorithmSettings.butPrevious_Click((_controlKeyActive ? 5 : 1) * (_shiftKeyActive ? 10 : 1));
         }
 
         /// <summary>
