@@ -293,6 +293,8 @@ namespace AiPathFinding.Algorithm
         {
             Steps.Clear();
             PartialCost = 0;
+            FoggyNodes.Clear();
+            _allFoggyNodes.Clear();
             AbstractFogExploreAlgorithm.Reset();
         }
 
