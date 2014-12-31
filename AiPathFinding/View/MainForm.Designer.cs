@@ -79,6 +79,7 @@
             this.Controls.Add(this.algorithmSettings);
             this.Controls.Add(this.mapSettings);
             this.Controls.Add(this._canvas);
+            this.KeyPreview = true;
             this.Name = "MainForm";
             this.Text = "MainForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);

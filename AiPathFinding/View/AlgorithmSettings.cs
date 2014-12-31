@@ -241,14 +241,19 @@ namespace AiPathFinding.View
         /// <summary>
         /// Moves to the previous algorithm step.
         /// </summary>
-        /// <param name="sender">unused</param>
+        /// <param name="countObject">number of steps to advance</param>
         /// <param name="e">unused</param>
-        public void butPrevious_Click(object sender = null, EventArgs e = null)
+        public void butPrevious_Click(object countObject = null, EventArgs e = null)
         {
             if (!butPrevious.Enabled)
                 return;
 
-            StepIndex--;
+            var count = countObject == null ? 1 : (int)countObject;
+
+            if (StepIndex - count < 0)
+                StepIndex = 0;
+            else
+                StepIndex -= count;
 
             SetStepButtonsEnabled();
 
@@ -259,14 +264,20 @@ namespace AiPathFinding.View
         /// <summary>
         /// Moves to the next algorithm step.
         /// </summary>
-        /// <param name="sender">unused</param>
+        /// <param name="countObject">number of steps to advance</param>
         /// <param name="e">unused</param>
-        public void butNext_Click(object sender = null, EventArgs e = null)
+        public void butNext_Click(object countObject = null, EventArgs e = null)
         {
             if (!butNext.Enabled)
                 return;
 
-            StepIndex++;
+            var count = countObject == null ? 1 : (int) countObject;
+
+            if (StepIndex + count > _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1)
+                StepIndex = _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
+            else
+                StepIndex += count;
+
 
             SetStepButtonsEnabled();
 

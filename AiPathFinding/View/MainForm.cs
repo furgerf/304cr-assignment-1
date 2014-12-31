@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using AiPathFinding.Algorithm;
 using AiPathFinding.Model;
@@ -78,6 +77,9 @@ namespace AiPathFinding.View
         private bool _drawSelection;
         private readonly Point[] _selectionRange = new Point[2];
         private Point? _mouseDownLocation;
+
+        // field for handling control key
+        private bool _controlKeyActive;
 
         #endregion
 
@@ -165,6 +167,8 @@ namespace AiPathFinding.View
             _canvas.MouseUp += CanvasOnMouseUp;
             _canvas.MouseMove += CanvasOnMouseMove;
             MouseWheel += OnMouseWheel;
+            KeyDown += (s, e) => { _controlKeyActive = e.Control; };
+            KeyUp += (s, e) => { _controlKeyActive = e.Control; };
 
             // settings buttons event handling
             mapSettings.butLoadMap.Click += (s, e) => LoadMap();
@@ -472,9 +476,9 @@ namespace AiPathFinding.View
         private void OnMouseWheel(object sender, MouseEventArgs e)
         {
             if (e.Delta > 0)
-                algorithmSettings.butNext_Click();
+                algorithmSettings.butNext_Click(_controlKeyActive ? 3 : 1);
             if (e.Delta < 0)
-                algorithmSettings.butPrevious_Click();
+                algorithmSettings.butPrevious_Click(_controlKeyActive ? 3 : 1);
         }
 
         /// <summary>
