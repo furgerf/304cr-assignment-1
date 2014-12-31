@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using AiPathFinding.Fog;
 using AiPathFinding.Model;
@@ -30,11 +29,18 @@ namespace AiPathFinding.Algorithm
         private PathFindName Name { get; set; }
 
         /// <summary>
-        /// List of all foggy nodes that could be explored.
+        /// List of all foggy nodes that could be explored in the currently un-foggy area.
         /// </summary>
         protected List<Node> FoggyNodes = new List<Node>();
 
-        private readonly List<Node> _allFoggyNodes = new List<Node>(); 
+        /// <summary>
+        /// List of all (previously) encountered foggy cells.
+        /// </summary>
+        private readonly List<Node> _allFoggyNodes = new List<Node>();
+
+        protected readonly List<Node> UpdatedNodes = new List<Node>(); 
+
+        protected int PartialCost { get; private set; }
 
         #endregion
 
@@ -116,8 +122,7 @@ namespace AiPathFinding.Algorithm
                 // pick "best" foggy node
                 var foggyNode = FogSelector.SelectFoggyNode(playerNode, possibilities.ToArray(), fogMethod,
                     CostFromNodeToNode);
-                // THAT DOESNT WORK. WHAT TO DO WHEN STUCK? EITHER TRY DIFFERENT ROUTES OR BACKTRACK
-                // I'M LEANING TOWARDS BACKTRACKING... BUT HOW? HAVE TO RESTORE FOG LIST AND PLAYER POSITION...
+
                 var minCost = int.MaxValue;
                 foreach (var e in foggyNode.Edges)
                     if (e != null)
@@ -149,16 +154,23 @@ namespace AiPathFinding.Algorithm
                         }
                 }
 
+                //if (minCost <= PartialCost)
+                //    throw new Exception("Cost to foggy tile shouldn't be lower than current cost");
+                PartialCost = minCost;
+
                 Console.WriteLine("Best node target investigate fog is " + foggyNode);
 
                 // add step for graphics stuff
                 var min = int.MaxValue;
                 AlgorithmStep oldStep = null;
+                Node clearNeighborToFoggyNode = null;
                 foreach (var e in foggyNode.Edges)
                     if (e != null && GetCostFromNode(e.GetOtherNode(foggyNode)) < min)
                     {
                         min = GetCostFromNode(e.GetOtherNode(foggyNode));
+                        PartialCost = min;
                         oldStep = GetAlgorithmStep(playerNode, e.GetOtherNode(foggyNode), true);
+                        clearNeighborToFoggyNode = e.GetOtherNode(foggyNode);
                     }
 
                 Console.WriteLine("Setting cost of " + foggyNode + " to " + (foggyNode.Cost + min));
@@ -171,10 +183,16 @@ namespace AiPathFinding.Algorithm
                 var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
                     _allFoggyNodes.ToArray(), AddCostToNode, GetCostFromNode, oldStep, s => Steps.Add(s));
 
-                if (result == null || result.Item1 == null)
+                Console.WriteLine("Cost of path upon return: " + result.Item3);
+                if (result.Item1 == null)
                 {
                     // no other exit found, try other foggy node
+                    Console.WriteLine("Setting cost of " + clearNeighborToFoggyNode + " to " + (result.Item3 + clearNeighborToFoggyNode.Cost));
                     Console.WriteLine("Node " + foggyNode + " didn't yield anything useful, trying next node...");
+                    //AddCostToNode(clearNeighborToFoggyNode, result.Item3 + clearNeighborToFoggyNode.Cost);
+                    var fogCost = result.Item3 - GetCostFromNode(clearNeighborToFoggyNode) + clearNeighborToFoggyNode.Cost;
+                    foreach (var n in UpdatedNodes)
+                        AddCostToNode(n, GetCostFromNode(n) + fogCost);
                     FoggyNodes.Remove(foggyNode);
                     continue;
                 }
@@ -188,6 +206,11 @@ namespace AiPathFinding.Algorithm
                 }
                 
                 // exit was another fog-less area, start pathfinding
+
+                if (result.Item3 <= PartialCost)
+                    throw new Exception("Cost through fog shouldn't be lower than current cost");
+                PartialCost = result.Item3;
+
                 var stepCount = Steps.Count;
                 // start pathfinding again
                 FoggyNodes.Clear();
@@ -269,6 +292,7 @@ namespace AiPathFinding.Algorithm
         public virtual void ResetAlgorithm()
         {
             Steps.Clear();
+            PartialCost = 0;
             AbstractFogExploreAlgorithm.Reset();
         }
 

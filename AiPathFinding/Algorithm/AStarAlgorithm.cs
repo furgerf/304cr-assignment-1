@@ -52,6 +52,9 @@ namespace AiPathFinding.Algorithm
                 foreach (var n in Graph.Nodes.Where(n => n != null).SelectMany(nn => nn.Where(n => n != null)))
                     _nodeDataMap.Add(n, new Tuple<int, int>(n == playerNode ? 0 : int.MaxValue, GetHeuristic(n, targetNode)));
 
+            // we haven't updated any nodes yet...
+            UpdatedNodes.Clear();
+
             // start the pathfinding playerNode the start node
             _openNodes.Add(playerNode);
         }
@@ -109,6 +112,7 @@ namespace AiPathFinding.Algorithm
                 currentNode = _openNodes[0];
                 ProcessNode(currentNode);
                 Steps.Add(GetAlgorithmStep(playerNode, currentNode));
+                UpdatedNodes.Add(currentNode);
             }
 
             // pathfinding has terminated, tell about result
@@ -134,8 +138,8 @@ namespace AiPathFinding.Algorithm
             var node = target;
             while (node != player)
             {
-                // find neighbor where you would "come playerNode"
-                var edges = node.Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(node)].Item1 != int.MaxValue && !_openNodes.Contains(e.GetOtherNode(node))).ToList();
+                // find neighbor where you would "come from"
+                var edges = node.Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(node)].Item1 != int.MaxValue && e.GetOtherNode(node).KnownToPlayer && !_openNodes.Contains(e.GetOtherNode(node))).ToList();
                 // find cheapest edge
                 edges.Sort(
                     (a, b) =>
@@ -179,7 +183,7 @@ namespace AiPathFinding.Algorithm
                 else
                     foreach (var d in pathData)
                         g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
-            }, _closedNodes.Count, Graph.PassibleNodeCount);
+            }, _closedNodes.Count, Graph.PassibleNodeCount, PartialCost);
 
             return newStep;
         }
@@ -280,7 +284,7 @@ namespace AiPathFinding.Algorithm
                 // draw paths
                 foreach (var d in pathData)
                     g.DrawLine(d.Item3, d.Item1, d.Item2);
-            }, _closedNodes.Count, Graph.PassibleNodeCount);
+            }, _closedNodes.Count, Graph.PassibleNodeCount, PartialCost);
 
             return newStep;
         }

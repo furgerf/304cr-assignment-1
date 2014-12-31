@@ -30,6 +30,11 @@ namespace AiPathFinding.Algorithm
         /// </summary>
         public double ExplorationPercentage { get { return Explorable == 0 ? 0 : (double)Explored/Explorable; } }
 
+        /// <summary>
+        /// Contains the cost of the currently travelled path.
+        /// </summary>
+        public int CurrentCost { get; private set; }
+
         #endregion
 
         #region Constructor
@@ -40,8 +45,10 @@ namespace AiPathFinding.Algorithm
         /// <param name="drawStep">Action that draws the step</param>
         /// <param name="explored">Number of explored cells</param>
         /// <param name="explorable">Number of explorable cells</param>
-        public AlgorithmStep(Action<Graphics> drawStep, int explored, int explorable)
+        /// <param name="currentCost">Cost of the travelled path until now</param>
+        public AlgorithmStep(Action<Graphics> drawStep, int explored, int explorable, int currentCost)
         {
+            CurrentCost = currentCost;
             Explorable = explorable;
             Explored = explored;
             DrawStep = drawStep;
