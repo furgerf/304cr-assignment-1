@@ -34,7 +34,8 @@ namespace AiPathFinding.View
                     progressSteps.Value = StepIndex;
 
                 // update text labels
-                labStep.Text = "Step " + (StepIndex + 1) + "/" + _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count;
+                labStep.Text = "Step " + (StepIndex + 1) + "/" + _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count +
+                    "               Cost: " + _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].CurrentCost;
                 labExplored.Text = "Visited " + _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explored + " of " + _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex].Explorable + " passible cells (" + Math.Round(100 * _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps[StepIndex]
                                        .ExplorationPercentage, 2) + "%)";
             }
@@ -248,7 +249,7 @@ namespace AiPathFinding.View
             if (!butPrevious.Enabled)
                 return;
 
-            var count = countObject == null ? 1 : (int)countObject;
+            var count = !(countObject is int) ? 1 : (int)countObject;
 
             if (StepIndex - count < 0)
                 StepIndex = 0;
@@ -271,13 +272,12 @@ namespace AiPathFinding.View
             if (!butNext.Enabled)
                 return;
 
-            var count = countObject == null ? 1 : (int) countObject;
+            var count = !(countObject is int) ? 1 : (int)countObject;
 
             if (StepIndex + count > _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1)
                 StepIndex = _pathFindAlgorithms[comPrimaryAlgorithm.SelectedIndex].Steps.Count - 1;
             else
                 StepIndex += count;
-
 
             SetStepButtonsEnabled();
 
