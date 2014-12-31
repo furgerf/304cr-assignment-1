@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using AiPathFinding.Fog;
 using AiPathFinding.Model;
@@ -32,6 +33,8 @@ namespace AiPathFinding.Algorithm
         /// List of all foggy nodes that could be explored.
         /// </summary>
         protected List<Node> FoggyNodes = new List<Node>();
+
+        private readonly List<Node> _allFoggyNodes = new List<Node>(); 
 
         #endregion
 
@@ -104,9 +107,47 @@ namespace AiPathFinding.Algorithm
         {
             while (true)
             {
+                var possibilities = new List<Node>();
+                possibilities.AddRange(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes));
+
+                if (possibilities.Count == 0)
+                    break;
+
                 // pick "best" foggy node
-                var foggyNode = FogSelector.SelectFoggyNode(playerNode, FoggyNodes.ToArray(), fogMethod,
+                var foggyNode = FogSelector.SelectFoggyNode(playerNode, possibilities.ToArray(), fogMethod,
                     CostFromNodeToNode);
+                // THAT DOESNT WORK. WHAT TO DO WHEN STUCK? EITHER TRY DIFFERENT ROUTES OR BACKTRACK
+                // I'M LEANING TOWARDS BACKTRACKING... BUT HOW? HAVE TO RESTORE FOG LIST AND PLAYER POSITION...
+                var minCost = int.MaxValue;
+                foreach (var e in foggyNode.Edges)
+                    if (e != null)
+                    {
+                        if (GetCostFromNode(playerNode) == int.MaxValue || GetCostFromNode(e.GetOtherNode(foggyNode)) == int.MaxValue)
+                            continue;
+
+                        var c = CostFromNodeToNode(playerNode, e.GetOtherNode(foggyNode));
+                        if (c > 0 && c < minCost)
+                            minCost = c;
+                    }
+
+                while (minCost == int.MaxValue)
+                {
+                    possibilities.Remove(foggyNode);
+                    foggyNode = FogSelector.SelectFoggyNode(playerNode, possibilities.ToArray(), fogMethod,
+                        CostFromNodeToNode);
+
+                    minCost = int.MaxValue;
+                    foreach (var e in foggyNode.Edges)
+                        if (e != null)
+                        {
+                            if (GetCostFromNode(playerNode) == int.MaxValue || GetCostFromNode(e.GetOtherNode(foggyNode)) == int.MaxValue)
+                                continue;
+
+                            var c = CostFromNodeToNode(playerNode, e.GetOtherNode(foggyNode));
+                            if (c > 0 && c < minCost)
+                                minCost = c;
+                        }
+                }
 
                 Console.WriteLine("Best node target investigate fog is " + foggyNode);
 
@@ -120,15 +161,17 @@ namespace AiPathFinding.Algorithm
                         oldStep = GetAlgorithmStep(playerNode, e.GetOtherNode(foggyNode), true);
                     }
 
-                Console.WriteLine("Setting cost of " + foggyNode + " target " + (foggyNode.Cost + min));
+                Console.WriteLine("Setting cost of " + foggyNode + " to " + (foggyNode.Cost + min));
                 AddCostToNode(foggyNode, foggyNode.Cost + min);
                 Steps.Add(oldStep);
 
+                // add currently foggy nodes to all foggy nodes
+                _allFoggyNodes.AddRange(FoggyNodes);
                 // explore fog
                 var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
-                    FoggyNodes.ToArray(), AddCostToNode, GetCostFromNode, oldStep, s => Steps.Add(s));
+                    _allFoggyNodes.ToArray(), AddCostToNode, GetCostFromNode, oldStep, s => Steps.Add(s));
 
-                if (result.Item1 == null)
+                if (result == null || result.Item1 == null)
                 {
                     // no other exit found, try other foggy node
                     Console.WriteLine("Node " + foggyNode + " didn't yield anything useful, trying next node...");
@@ -147,6 +190,7 @@ namespace AiPathFinding.Algorithm
                 // exit was another fog-less area, start pathfinding
                 var stepCount = Steps.Count;
                 // start pathfinding again
+                FoggyNodes.Clear();
                 Console.WriteLine("Found another part of the known map, restarting pathfinding...");
                 FindPath(result.Item1, targetNode, fogMethod, fogExploreName);
 
@@ -225,6 +269,7 @@ namespace AiPathFinding.Algorithm
         public virtual void ResetAlgorithm()
         {
             Steps.Clear();
+            AbstractFogExploreAlgorithm.Reset();
         }
 
         #endregion

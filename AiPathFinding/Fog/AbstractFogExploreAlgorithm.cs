@@ -17,6 +17,9 @@ namespace AiPathFinding.Fog
     {
         #region Fields
 
+        private static readonly List<Node> VisitedNodes = new List<Node>();
+        private static readonly List<Node> DiscardedNodes = new List<Node>();
+
         /// <summary>
         /// Contains all the instances of the fog explore algorithms.
         /// </summary>
@@ -32,6 +35,33 @@ namespace AiPathFinding.Fog
         #endregion
 
         #region Methods
+
+        public static void Reset()
+        {
+            VisitedNodes.Clear();
+            DiscardedNodes.Clear();
+        }
+
+        public static List<Node> RemoveKnownFoggyNodes(List<Node> foggyNodes)
+        {
+            var valid = new List<Node>();
+            var invalid = VisitedNodes.Concat(DiscardedNodes).ToArray();
+
+            foreach (var f in foggyNodes)
+            {
+                var ok = true;
+
+                foreach (var i in invalid)
+                    foreach (var e in i.Edges)
+                        if (e != null && e.GetOtherNode(i) == f)
+                            ok = false;
+
+                if (ok)
+                    valid.Add(f);
+            }
+
+            return valid;
+        }
 
         /// <summary>
         /// Explores the fog.
@@ -72,36 +102,60 @@ namespace AiPathFinding.Fog
             }, previousStep.Explored, previousStep.Explorable));
 
             // prepare data
-            var visitedNodes = new List<Node>();
-            var discardedNodes = new List<Node>();
             var currentNode = position;
+            DiscardedNodes.AddRange(VisitedNodes);
+            VisitedNodes.Clear();
+            //DiscardedNodes.Clear();
 
             // loop until a way is found or we are stuck
             while (true)
             {
                 // move
                 var oldCost = getCostFromNode(currentNode);
-                currentNode = ChooseNextNode(currentNode, graph, ignoreNodes, visitedNodes.Concat(discardedNodes).ToArray());
+                currentNode = ChooseNextNode(currentNode, graph, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
 
                 while (currentNode == null)
                 {
                     // stuck: have to backtrack
 
-                    // can't backtrack, return without result
-                    if (visitedNodes.Count == 0)
+                    // if we can't backtrack, return without result
+                    if (VisitedNodes.Count == 1)
+                    {
+                        // add backtracking algorithm step
+                        var foo = new List<Node> { position };
+                        var bar = new List<Node>();
+                        bar.AddRange(VisitedNodes);
+                        bar.AddRange(DiscardedNodes);
+                        addStep(new AlgorithmStep(g =>
+                        {
+                            DrawStep(g, foo, bar, getCostFromNode);
+                            previousStep.DrawStep(g);
+                        }, previousStep.Explored, previousStep.Explorable));
+
+                        addStep(new AlgorithmStep(g =>
+                        {
+                            DrawStep(g, new List<Node>(), bar.Concat(new List<Node>{position}), getCostFromNode);
+                            previousStep.DrawStep(g);
+                        }, previousStep.Explored, previousStep.Explorable));
+
                         return null;
+                    }
 
                     // backtrack
-                    discardedNodes.Add(visitedNodes.Last());
-                    visitedNodes.Remove(visitedNodes.Last());
-                    oldCost = getCostFromNode(visitedNodes.Last());
-                    currentNode = ChooseNextNode(visitedNodes.Last(), graph, ignoreNodes, visitedNodes.Concat(discardedNodes).ToArray());
+                    Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 2]);
+                    DiscardedNodes.Add(VisitedNodes.Last());
+                    VisitedNodes.Remove(VisitedNodes.Last());
+                    oldCost += VisitedNodes.Last().Cost;
+                    currentNode = ChooseNextNode(VisitedNodes.Last(), graph, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
+
+                    // DONT UPDATE COST OF BACKTRACKED NODE HERE :(
+                    // because that would mess up going step-by-step
 
                     // draw step
                     var allNodes = new List<Node> { position };
-                    allNodes.AddRange(visitedNodes);
+                    allNodes.AddRange(VisitedNodes);
                     var allDiscNodes = new List<Node>();
-                    allDiscNodes.AddRange(discardedNodes);
+                    allDiscNodes.AddRange(DiscardedNodes);
                     addStep(new AlgorithmStep(g =>
                     {
                         DrawStep(g, allNodes, allDiscNodes, getCostFromNode);
@@ -114,13 +168,13 @@ namespace AiPathFinding.Fog
                 addCostToNode(currentNode, oldCost + currentNode.Cost);
 
                 // update path
-                visitedNodes.Add(currentNode);
+                VisitedNodes.Add(currentNode);
 
                 // draw step
                 var nodes = new List<Node> { position };
-                nodes.AddRange(visitedNodes);
+                nodes.AddRange(VisitedNodes);
                 var discNodes = new List<Node>();
-                discNodes.AddRange(discardedNodes);
+                discNodes.AddRange(DiscardedNodes);
                 addStep(new AlgorithmStep(g =>
                 {
                     DrawStep(g, nodes, discNodes, getCostFromNode);

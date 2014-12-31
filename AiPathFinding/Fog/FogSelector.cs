@@ -21,6 +21,9 @@ namespace AiPathFinding.Fog
         /// <returns>Best foggy candidate</returns>
         public static Node SelectFoggyNode(Node start, Node[] foggyNodes, FogMethod method, Func<Node, Node, int> getCostFromPlayerToNode)
         {
+            if (foggyNodes.Length == 0)
+                throw new ArgumentException("cannot chose among zero candidates");
+
             switch (method)
             {
                 case FogMethod.MinCost:
