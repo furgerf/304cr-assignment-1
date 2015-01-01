@@ -5,6 +5,6 @@ namespace AiPathFinding.Fog
     /// </summary>
     public enum FogMethod
     {
-        MinCost, Count
+        ClosestToPlayer, ClosestToTarget, MinClosestToPlayerPlusTarget, Count
     }
 }
