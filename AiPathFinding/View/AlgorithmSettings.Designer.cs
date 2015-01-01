@@ -45,6 +45,7 @@
             this.butRestart = new System.Windows.Forms.Button();
             this.grpFogSelection = new System.Windows.Forms.GroupBox();
             this.comFogMethod = new System.Windows.Forms.ComboBox();
+            this.labComment = new System.Windows.Forms.Label();
             this.grpPrimaryAlgorithm.SuspendLayout();
             this.grpPlayback.SuspendLayout();
             this.grpSecondaryAlgorithm.SuspendLayout();
@@ -73,7 +74,7 @@
             // 
             // butStart
             // 
-            this.butStart.Location = new System.Drawing.Point(3, 259);
+            this.butStart.Location = new System.Drawing.Point(3, 271);
             this.butStart.Name = "butStart";
             this.butStart.Size = new System.Drawing.Size(62, 23);
             this.butStart.TabIndex = 1;
@@ -83,6 +84,7 @@
             // 
             // grpPlayback
             // 
+            this.grpPlayback.Controls.Add(this.labComment);
             this.grpPlayback.Controls.Add(this.labExplored);
             this.grpPlayback.Controls.Add(this.progressSteps);
             this.grpPlayback.Controls.Add(this.labStep);
@@ -93,7 +95,7 @@
             this.grpPlayback.Enabled = false;
             this.grpPlayback.Location = new System.Drawing.Point(3, 159);
             this.grpPlayback.Name = "grpPlayback";
-            this.grpPlayback.Size = new System.Drawing.Size(200, 94);
+            this.grpPlayback.Size = new System.Drawing.Size(200, 106);
             this.grpPlayback.TabIndex = 2;
             this.grpPlayback.TabStop = false;
             this.grpPlayback.Text = "Algorithm Playback";
@@ -166,7 +168,7 @@
             // butClear
             // 
             this.butClear.Enabled = false;
-            this.butClear.Location = new System.Drawing.Point(139, 259);
+            this.butClear.Location = new System.Drawing.Point(139, 271);
             this.butClear.Name = "butClear";
             this.butClear.Size = new System.Drawing.Size(62, 23);
             this.butClear.TabIndex = 3;
@@ -197,7 +199,7 @@
             // butRestart
             // 
             this.butRestart.Enabled = false;
-            this.butRestart.Location = new System.Drawing.Point(71, 259);
+            this.butRestart.Location = new System.Drawing.Point(71, 271);
             this.butRestart.Name = "butRestart";
             this.butRestart.Size = new System.Drawing.Size(62, 23);
             this.butRestart.TabIndex = 5;
@@ -225,6 +227,15 @@
             this.comFogMethod.TabIndex = 0;
             this.comFogMethod.SelectedIndexChanged += new System.EventHandler(this.comFogMethod_SelectedIndexChanged);
             // 
+            // labComment
+            // 
+            this.labComment.AutoSize = true;
+            this.labComment.Location = new System.Drawing.Point(6, 89);
+            this.labComment.Name = "labComment";
+            this.labComment.Size = new System.Drawing.Size(73, 13);
+            this.labComment.TabIndex = 7;
+            this.labComment.Text = "(No comment)";
+            // 
             // AlgorithmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -239,7 +250,7 @@
             this.Controls.Add(this.butStart);
             this.Controls.Add(this.grpPrimaryAlgorithm);
             this.Name = "AlgorithmSettings";
-            this.Size = new System.Drawing.Size(206, 287);
+            this.Size = new System.Drawing.Size(206, 300);
             this.grpPrimaryAlgorithm.ResumeLayout(false);
             this.grpPlayback.ResumeLayout(false);
             this.grpPlayback.PerformLayout();
@@ -268,5 +279,6 @@
         private System.Windows.Forms.Label labExplored;
         private System.Windows.Forms.GroupBox grpFogSelection;
         private System.Windows.Forms.ComboBox comFogMethod;
+        private System.Windows.Forms.Label labComment;
     }
 }

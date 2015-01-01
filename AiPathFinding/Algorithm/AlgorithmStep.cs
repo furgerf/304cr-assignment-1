@@ -33,7 +33,12 @@ namespace AiPathFinding.Algorithm
         /// <summary>
         /// Contains the cost of the currently travelled path.
         /// </summary>
-        public int CurrentCost { get; private set; }
+        public int CurrentCost { get; set; }
+
+        /// <summary>
+        /// Comment about what happens in the step.
+        /// </summary>
+        public string Comment { get; private set; }
 
         #endregion
 
@@ -46,8 +51,10 @@ namespace AiPathFinding.Algorithm
         /// <param name="explored">Number of explored cells</param>
         /// <param name="explorable">Number of explorable cells</param>
         /// <param name="currentCost">Cost of the travelled path until now</param>
-        public AlgorithmStep(Action<Graphics> drawStep, int explored, int explorable, int currentCost)
+        /// <param name="comment">Comment of the step</param>
+        public AlgorithmStep(Action<Graphics> drawStep, int explored, int explorable, int currentCost, string comment)
         {
+            Comment = comment;
             CurrentCost = currentCost;
             Explorable = explorable;
             Explored = explored;

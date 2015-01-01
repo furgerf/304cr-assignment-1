@@ -47,7 +47,7 @@
             // 
             this.status.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.status.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.status.Location = new System.Drawing.Point(12, 682);
+            this.status.Location = new System.Drawing.Point(12, 694);
             this.status.Name = "status";
             this.status.Size = new System.Drawing.Size(208, 313);
             this.status.TabIndex = 3;
@@ -58,7 +58,7 @@
             this.algorithmSettings.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.algorithmSettings.Location = new System.Drawing.Point(12, 388);
             this.algorithmSettings.Name = "algorithmSettings";
-            this.algorithmSettings.Size = new System.Drawing.Size(208, 288);
+            this.algorithmSettings.Size = new System.Drawing.Size(208, 300);
             this.algorithmSettings.TabIndex = 2;
             // 
             // mapSettings
@@ -74,7 +74,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1039, 1006);
+            this.ClientSize = new System.Drawing.Size(1039, 1019);
             this.Controls.Add(this.status);
             this.Controls.Add(this.algorithmSettings);
             this.Controls.Add(this.mapSettings);
