@@ -95,6 +95,7 @@ namespace AiPathFinding.Algorithm
 
                 // check node
                 ProcessNode(_openNodes[0]);
+                ExploredClearCells++;
                 CreateStep(GetAlgorithmStep(playerNode, _openNodes[0]), "A*: Looking for alternative paths");
                 _openNodes.RemoveAt(0);
             }
@@ -112,6 +113,7 @@ namespace AiPathFinding.Algorithm
                 // look for a path playerNode the first open node
                 currentNode = _openNodes[0];
                 ProcessNode(currentNode);
+                ExploredClearCells++;
                 UpdatedNodes.Add(currentNode);
                 CreateStep(GetAlgorithmStep(playerNode, currentNode), "A*: Exploring " + currentNode);
             }

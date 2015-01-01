@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -20,6 +21,13 @@ namespace AiPathFinding.Common
             att.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
             g.DrawImage(image, new Rectangle(location.X, location.Y, bmp.Width, bmp.Width), 0, 0,
                 image.Width, image.Height, GraphicsUnit.Pixel, att);
+        }
+
+        public static T[] SubArray<T>(this T[] data, int index, int length)
+        {
+            var result = new T[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
         }
     }
 }

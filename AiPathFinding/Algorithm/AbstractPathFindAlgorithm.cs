@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using AiPathFinding.Common;
 using AiPathFinding.Fog;
@@ -96,7 +97,7 @@ namespace AiPathFinding.Algorithm
             {
                 // path was found, look for alternative, equal-cost paths
                 var step = FindAlternativePaths(playerNode, targetNode);
-                AddStep(step);
+                //AddStep(step);
                 Console.WriteLine("Looking for alternative paths required " + (_steps.Count - mainSteps) +
                                   " steps and took " +
                                   watch.ElapsedMilliseconds + "ms");
@@ -189,39 +190,52 @@ namespace AiPathFinding.Algorithm
                 var min = int.MaxValue;
                 Node[] path = null;
                 //Node clearNeighborToFoggyNode = null;
-                var partialCostBackup = PartialCost;
+                //var partialCostBackup = PartialCost;
                 foreach (var e in foggyNode.Edges)
                     if (e != null && GetCostFromNode(e.GetOtherNode(foggyNode)) < min)
                     {
                         min = GetCostFromNode(e.GetOtherNode(foggyNode));
-                        PartialCost = partialCostBackup + min;
+                        //PartialCost = partialCostBackup + min;
                         path = GetPath(playerNode, e.GetOtherNode(foggyNode));
                         //clearNeighborToFoggyNode = e.GetOtherNode(foggyNode);
                     }
 
-                Console.WriteLine("Setting cost of " + foggyNode + " to " + (foggyNode.Cost + min));
-                AddCostToNode(foggyNode, foggyNode.Cost + min);
+                if (path != null)
+                {
+                    var pathList = path.ToList();
+                    //pathList.Add(foggyNode);
+
+                    if (path[0] == playerNode)
+                        pathList.RemoveAt(0);
+                    
+                    path = pathList.ToArray();
+                }
+
+                // segment completed stuff
+                var pathCostData = MovePath(path, "Moving towards fog at " + foggyNode);
 
                 // add currently foggy nodes to all foggy nodes
                 _allFoggyNodes.AddRange(FoggyNodes);
 
-                // segment completed stuff
-                Move(path);
-                CreateStep(g => DrawPath(g, path), "Moving towards fog");
-
                 // <----------------- segment ends here ----------------->
-                SegmentCompleted(g => DrawPath(g, path));
+                //MoveFog(foggyNode, "Moving onto fog at " + foggyNode);
+
+                SegmentCompleted(g => DrawPath(g, path, pathCostData));
+
+                Console.WriteLine("Setting cost of " + foggyNode + " to " + (PartialCost + foggyNode.Cost));
+                AddCostToNode(foggyNode, PartialCost + foggyNode.Cost);
+
 
                 // <----------------- new segment starts here ----------------->
                 // explore fog
                 var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
-                    _allFoggyNodes.ToArray(), AddCostToNode, GetCostFromNode, CreateStep);
+                    _allFoggyNodes.ToArray(), GetCostFromNode, AddCostToNode, MoveFog);
 
                 //AddStep(result.Item2);
-                SegmentCompleted(result.Item2.DrawStep);
+                SegmentCompleted(DrawFoggyPath(result.Item2, result.Item3));
 
                 // <----------------- segment ends here ----------------->
-                Console.WriteLine("Cost of path upon return: " + result.Item2.CurrentCost);
+                //Console.WriteLine("Cost of path upon return: " + result.Item2.CurrentCost);
                 if (result.Item1 == null)
                 {
                     // no other exit found, try other foggy node
@@ -267,15 +281,41 @@ namespace AiPathFinding.Algorithm
             }
         }
 
-        protected void Move(Node n)
+        protected void MoveNode(Node n)
         {
             PartialCost += n.Cost;
         }
 
-        protected void Move(Node[] nodes)
+        protected int ExploredFoggyCells;
+        protected int ExploredClearCells;
+
+        private void MoveFog(Node n, Node[] path, Node[] backtrackedNodes, string comment, bool backtracking)
         {
-            foreach (var n in nodes)
-                Move(n);
+            if (n.KnownToPlayer)
+                throw new Exception();
+
+            if (!backtracking)
+                ExploredFoggyCells++;
+
+            MoveNode(n);
+
+            var foo = DrawFoggyPath(path, backtrackedNodes);
+
+            CreateStep(foo, comment);
+        }
+
+        private int[] MovePath(Node[] nodes, string comment)
+        {
+            var cost = new int[nodes.Length];
+            for (var i = 0; i < nodes.Length; i++)
+            {
+                MoveNode(nodes[i]);
+                cost[i] = PartialCost;
+                var i1 = i;
+                CreateStep(g => DrawPath(g, nodes.SubArray(0, i1 + 1).ToArray(), cost.SubArray(0, i1 + 1)), comment);
+            }
+
+            return cost;
         }
 
         protected void CreateStep(Action<Graphics> drawStep, string comment)
@@ -291,53 +331,51 @@ namespace AiPathFinding.Algorithm
 
                 // draw current (partial) segment
                 drawStep(g);
-            }, -1, -1, PartialCost, comment);
-
-            _steps.Add(newStep);
-        }
-
-        protected void AddStep(AlgorithmStep newStep)
-        {
-            //var newStep = new AlgorithmStep(g =>
-            //{
-            //    // draw cost
-            //    DrawCost(g);
-
-            //    // draw previous segments
-            //    foreach (var a in _segmentDrawActions)
-            //        a(g);
-
-            //    // draw current (partial) segment
-            //    drawStep(g);
-            //}, explored, explorable, currentCost, comment);
-            
-            //newStep.AddDrawing(DrawCost);
+            }, ExploredClearCells + ExploredFoggyCells, Graph.PassibleNodeCount, PartialCost, comment);
 
             _steps.Add(newStep);
         }
 
         private readonly List<Action<Graphics>> _segmentDrawActions = new List<Action<Graphics>>();
 
-        protected void DrawPath(Graphics g, Node[] path)
+        private Action<Graphics> DrawFoggyPath(Node[] path, Node[] backtrackedNodes)
         {
-            //if (player)
-                for (var i = 0; i < path.Length; i++)
-                {
-                    var p = MainForm.MapPointToCanvasRectangle(path[i].Location);
-                    Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p.Location,
-                        0.3f + ((1 - (float)i / path.Length)) / 0.7f);
-                }
-            //else
-            //{
-            //    for (var i = 0; i < path.Length - 1; i++)
-            //    {
-            //        var p1 = MainForm.MapPointToCanvasRectangle(path[i].Location);
-            //        var p2 = MainForm.MapPointToCanvasRectangle(path[i + 1].Location);
+            var pathCost = new int[path.Length];
+            for (var i = 0; i < path.Length; i++)
+                pathCost[i] = GetCostFromNode(path[i]);
+            var backtrackedCost = new int[backtrackedNodes.Length];
+            for (var i = 0; i < backtrackedNodes.Length; i++)
+                backtrackedCost[i] = GetCostFromNode(backtrackedNodes[i]);
 
-            //        g.DrawLine(new Pen(Color.Yellow, 3), new Point(p1.X + p1.Width / 2, p1.Y + p1.Height / 2),
-            //            new Point(p2.X + p2.Width / 2, p2.Y + p2.Height / 2));
-            //    }
-            //}
+            return g =>
+            {
+                DrawPath(g, path, pathCost);
+                DrawPath(g, backtrackedNodes, backtrackedCost, true);
+            };
+        }
+
+        protected void DrawPath(Graphics g, Node[] path, int[] cost, bool backtrackingPath = false)
+        {
+            var foo = new Tuple<Node, bool>[path.Length];
+            for (var i = 0; i < path.Length; i++)
+                foo[i] = new Tuple<Node, bool>(path[i], backtrackingPath);
+
+            DrawPath(g, foo, cost);
+        }
+
+        protected void DrawPath(Graphics g, Tuple<Node, bool>[] path, int[] cost)
+        {
+            for (var i = 0; i < path.Length; i++)
+            {
+                var r = MainForm.MapPointToCanvasRectangle(path[i].Item1.Location);
+                var p = new Point(r.Location.X + r.Width / 2, r.Location.Y + r.Height / 2);
+                Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p,
+                    0.3f + ((1 - (float)i / path.Length)) / 0.7f, path[i].Item2);
+
+                g.DrawString(cost[i].ToString(CultureInfo.InvariantCulture),
+                    new Font("Microsoft Sans Serif", 12, FontStyle.Bold), path[i].Item2 ? Brushes.Orange : Brushes.Red,
+                    r.Location);
+            }
         }
 
         private void SegmentCompleted(Action<Graphics> segmentDrawAction)
