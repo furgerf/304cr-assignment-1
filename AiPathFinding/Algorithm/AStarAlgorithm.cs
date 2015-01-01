@@ -95,7 +95,7 @@ namespace AiPathFinding.Algorithm
 
                 // check node
                 ProcessNode(_openNodes[0]);
-                AddStep(GetAlgorithmStep(playerNode, _openNodes[0]));
+                CreateStep(GetAlgorithmStep(playerNode, _openNodes[0]), "A*: Looking for alternative paths");
                 _openNodes.RemoveAt(0);
             }
 
@@ -113,7 +113,7 @@ namespace AiPathFinding.Algorithm
                 currentNode = _openNodes[0];
                 ProcessNode(currentNode);
                 UpdatedNodes.Add(currentNode);
-                AddStep(GetAlgorithmStep(playerNode, currentNode));
+                CreateStep(GetAlgorithmStep(playerNode, currentNode), "A*: Exploring " + currentNode);
             }
 
             // pathfinding has terminated, tell about result
@@ -128,7 +128,6 @@ namespace AiPathFinding.Algorithm
             _closedNodes.Clear();
             _nodeDataMap.Clear();
         }
-
 
         protected override Node[] GetPath(Node player, Node target)
         {
@@ -172,7 +171,7 @@ namespace AiPathFinding.Algorithm
             return pathData.ToArray();
         }
 
-        protected override AlgorithmStep GetAlgorithmStep(Node player, Node target, bool withCost = true)
+        protected override Action<Graphics> GetAlgorithmStep(Node player, Node target, bool withCost = true)
         {
             // prepare data for printing cost
             var costData = new List<Tuple<string, Point, Brush, Font>>();
@@ -192,7 +191,9 @@ namespace AiPathFinding.Algorithm
             }
 
             // create new step
-            var newStep = new AlgorithmStep(g =>
+            //var newStep = new AlgorithmStep(
+            return
+                g =>
             {
                 // draw cost of nodes
                 foreach (var d in costData)
@@ -201,9 +202,10 @@ namespace AiPathFinding.Algorithm
                 // draw path
                 foreach (var d in pathData)
                     g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
-            }, _closedNodes.Count, Graph.PassibleNodeCount, PartialCost, null);
+            };
+            //, _closedNodes.Count, Graph.PassibleNodeCount, PartialCost, null);
 
-            return newStep;
+            //return newStep;
         }
         protected override AlgorithmStep GetAlternativesStep(Node player, Node target)
         {

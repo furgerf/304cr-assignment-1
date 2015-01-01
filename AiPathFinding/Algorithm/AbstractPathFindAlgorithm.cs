@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using AiPathFinding.Common;
 using AiPathFinding.Fog;
 using AiPathFinding.Model;
+using AiPathFinding.Properties;
+using AiPathFinding.View;
 
 namespace AiPathFinding.Algorithm
 {
@@ -100,7 +103,7 @@ namespace AiPathFinding.Algorithm
                 watch.Reset();
 
                 // <----------------- segment ends here ----------------->
-                SegmentCompleted(step.DrawStep, GetCostFromNode(targetNode));
+                SegmentCompleted(step.DrawStep);
             }
             else
             {
@@ -184,7 +187,7 @@ namespace AiPathFinding.Algorithm
 
                 // add step for graphics stuff
                 var min = int.MaxValue;
-                AlgorithmStep oldStep = null;
+                Node[] path = null;
                 //Node clearNeighborToFoggyNode = null;
                 var partialCostBackup = PartialCost;
                 foreach (var e in foggyNode.Edges)
@@ -192,7 +195,7 @@ namespace AiPathFinding.Algorithm
                     {
                         min = GetCostFromNode(e.GetOtherNode(foggyNode));
                         PartialCost = partialCostBackup + min;
-                        oldStep = GetAlgorithmStep(playerNode, e.GetOtherNode(foggyNode));
+                        path = GetPath(playerNode, e.GetOtherNode(foggyNode));
                         //clearNeighborToFoggyNode = e.GetOtherNode(foggyNode);
                     }
 
@@ -203,18 +206,19 @@ namespace AiPathFinding.Algorithm
                 _allFoggyNodes.AddRange(FoggyNodes);
 
                 // segment completed stuff
-                AddStep(oldStep);
+                Move(path);
+                CreateStep(g => DrawPath(g, path), "Moving towards fog");
 
                 // <----------------- segment ends here ----------------->
-                SegmentCompleted(oldStep.DrawStep, min);
+                SegmentCompleted(g => DrawPath(g, path));
 
                 // <----------------- new segment starts here ----------------->
                 // explore fog
                 var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
-                    _allFoggyNodes.ToArray(), AddCostToNode, GetCostFromNode, AddStep);
+                    _allFoggyNodes.ToArray(), AddCostToNode, GetCostFromNode, CreateStep);
 
                 //AddStep(result.Item2);
-                SegmentCompleted(result.Item2.DrawStep, result.Item2.CurrentCost);
+                SegmentCompleted(result.Item2.DrawStep);
 
                 // <----------------- segment ends here ----------------->
                 Console.WriteLine("Cost of path upon return: " + result.Item2.CurrentCost);
@@ -263,6 +267,35 @@ namespace AiPathFinding.Algorithm
             }
         }
 
+        protected void Move(Node n)
+        {
+            PartialCost += n.Cost;
+        }
+
+        protected void Move(Node[] nodes)
+        {
+            foreach (var n in nodes)
+                Move(n);
+        }
+
+        protected void CreateStep(Action<Graphics> drawStep, string comment)
+        {
+            var previousActions = new List<Action<Graphics>>();
+            previousActions.AddRange(_segmentDrawActions);
+
+            var newStep = new AlgorithmStep(g =>
+            {
+                // draw previous segments
+                foreach (var a in previousActions)
+                    a(g);
+
+                // draw current (partial) segment
+                drawStep(g);
+            }, -1, -1, PartialCost, comment);
+
+            _steps.Add(newStep);
+        }
+
         protected void AddStep(AlgorithmStep newStep)
         {
             //var newStep = new AlgorithmStep(g =>
@@ -285,37 +318,30 @@ namespace AiPathFinding.Algorithm
 
         private readonly List<Action<Graphics>> _segmentDrawActions = new List<Action<Graphics>>();
 
-        //protected abstract void DrawCost(Graphics g);
-
-        //protected void DrawPath(Graphics g, Node[] path, bool player)
-        //{
-        //    if (player)
-        //        for (var i = 0; i < path.Length; i++)
-        //        {
-        //            var p = MainForm.MapPointToCanvasRectangle(path[i].Location);
-        //            Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p.Location,
-        //                0.3f + ((1 - (float) i/path.Length))/0.7f);
-        //        }
-        //    else
-        //    {
-        //        for (var i = 0; i < path.Length - 1; i++)
-        //        {
-        //            var p1 = MainForm.MapPointToCanvasRectangle(path[i].Location);
-        //            var p2 = MainForm.MapPointToCanvasRectangle(path[i + 1].Location);
-
-        //            g.DrawLine(new Pen(Color.Yellow, 3), new Point(p1.X + p1.Width/2, p1.Y + p1.Height/2),
-        //                new Point(p2.X + p2.Width/2, p2.Y + p2.Height/2));
-        //        }
-        //    }
-        //}
-
-        private void SegmentCompleted(Action<Graphics> segmentDrawAction, int segmentCost)
+        protected void DrawPath(Graphics g, Node[] path)
         {
-            PartialCost += segmentCost; 
-            
-            if (segmentDrawAction == null)
-                return;
+            //if (player)
+                for (var i = 0; i < path.Length; i++)
+                {
+                    var p = MainForm.MapPointToCanvasRectangle(path[i].Location);
+                    Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p.Location,
+                        0.3f + ((1 - (float)i / path.Length)) / 0.7f);
+                }
+            //else
+            //{
+            //    for (var i = 0; i < path.Length - 1; i++)
+            //    {
+            //        var p1 = MainForm.MapPointToCanvasRectangle(path[i].Location);
+            //        var p2 = MainForm.MapPointToCanvasRectangle(path[i + 1].Location);
 
+            //        g.DrawLine(new Pen(Color.Yellow, 3), new Point(p1.X + p1.Width / 2, p1.Y + p1.Height / 2),
+            //            new Point(p2.X + p2.Width / 2, p2.Y + p2.Height / 2));
+            //    }
+            //}
+        }
+
+        private void SegmentCompleted(Action<Graphics> segmentDrawAction)
+        {
             _segmentDrawActions.Insert(0, segmentDrawAction);
 
             //var oldAction = _partialDrawAction;
@@ -334,7 +360,7 @@ namespace AiPathFinding.Algorithm
         /// <param name="target">End node</param>
         /// <param name="withPlayer">True if the path should be traced with the player icon rather than a line</param>
         /// <returns>AlgorithmStep that shows the step</returns>
-        protected abstract AlgorithmStep GetAlgorithmStep(Node player, Node target, bool withCost = true);
+        protected abstract Action<Graphics> GetAlgorithmStep(Node player, Node target, bool withCost = true);
 
         protected abstract Node[] GetPath(Node player, Node target);
 

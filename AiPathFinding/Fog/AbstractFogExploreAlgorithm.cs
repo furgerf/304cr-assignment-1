@@ -80,7 +80,7 @@ namespace AiPathFinding.Fog
         /// <param name="getCostFromNode">Function that retrieves a node's cost</param>
         /// <param name="createStep">Action that adds an algorithm step</param>
         /// <returns>The node that is either the target or that is not foggy and the action that draws the path through the fog and the cost of the last foggy node</returns>
-        public static Tuple<Node, AlgorithmStep> ExploreFog(FogExploreName name, Node position, Graph graph, Node[] ignoreNodes, Action<Node, int> addCostToNode, Func<Node, int> getCostFromNode, Action<AlgorithmStep> createStep)
+        public static Tuple<Node, AlgorithmStep> ExploreFog(FogExploreName name, Node position, Graph graph, Node[] ignoreNodes, Action<Node, int> addCostToNode, Func<Node, int> getCostFromNode, Action<Action<Graphics>,string> createStep)
         {
             // call instance method
             return Algorithms[name].ExploreFog(position, graph, ignoreNodes, addCostToNode, getCostFromNode, createStep);
@@ -96,12 +96,12 @@ namespace AiPathFinding.Fog
         /// <param name="getCostFromNode">Function that retrieves a node's cost</param>
         /// <param name="createStep">Action that adds an algorithm step</param>
         /// <returns>The node that is either the target or that is not foggy and the action that draws the path through the fog and the cost of the last foggy node</returns>
-        private Tuple<Node, AlgorithmStep> ExploreFog(Node position, Graph graph, Node[] ignoreNodes, Action<Node, int> addCostToNode, Func<Node, int> getCostFromNode, Action<AlgorithmStep> createStep)
+        private Tuple<Node, AlgorithmStep> ExploreFog(Node position, Graph graph, Node[] ignoreNodes, Action<Node, int> addCostToNode, Func<Node, int> getCostFromNode, Action<Action<Graphics>, string> createStep)
         {
             // add algorithm step for entering the fog
             var cost = getCostFromNode(position);
-            createStep(new AlgorithmStep(g => DrawStep(g, new List<Node> {position}, new List<Node>(),
-                    new Dictionary<Node, int> {{position, cost}}), -1, -2, getCostFromNode(position), null));
+            createStep(g => DrawStep(g, new List<Node> {position}, new List<Node>(),
+                    new Dictionary<Node, int> {{position, cost}}), "foo");//, -1, -2, getCostFromNode(position), null));
 
             // prepare data
             var currentNode = position;
@@ -134,7 +134,7 @@ namespace AiPathFinding.Fog
                         bar.AddRange(VisitedNodes);
                         bar.AddRange(_backtrackedNodes);
                         var foobar = foo.Concat(bar).ToDictionary(n => n, getCostFromNode);
-                        createStep(new AlgorithmStep(g => DrawStep(g, foo, bar, foobar), -1, -2, oldCost + position.Cost, null));
+                        createStep(g => DrawStep(g, foo, bar, foobar), "bar");//, -1, -2, oldCost + position.Cost, null));
 
                         //addStep(new AlgorithmStep(g =>
                         //{
@@ -163,7 +163,7 @@ namespace AiPathFinding.Fog
                     var allDiscNodes = new List<Node>();
                     allDiscNodes.AddRange(_backtrackedNodes);
                     var costMap = allNodes.Concat(allDiscNodes).ToDictionary(n => n, getCostFromNode);
-                    createStep(new AlgorithmStep(g => DrawStep(g, allNodes, allDiscNodes, costMap), -1, -2, oldCost, null));
+                    createStep(g => DrawStep(g, allNodes, allDiscNodes, costMap), "foobar");//, -1, -2, oldCost, null));
                 }
 
                 // update cost
@@ -179,7 +179,7 @@ namespace AiPathFinding.Fog
                 var discNodes = new List<Node>();
                 discNodes.AddRange(_backtrackedNodes);
                 var costs = nodes.Concat(discNodes).ToDictionary(n => n, getCostFromNode);
-                createStep(new AlgorithmStep(g => DrawStep(g, nodes, discNodes, costs), -1, -2, getCostFromNode(currentNode), null));
+                createStep(g => DrawStep(g, nodes, discNodes, costs), "fsdfsdf");//, -1, -2, getCostFromNode(currentNode), null));
 
                 // are we done?
                 if (currentNode.EntityOnNode == Entity.Target || currentNode.KnownToPlayer)
