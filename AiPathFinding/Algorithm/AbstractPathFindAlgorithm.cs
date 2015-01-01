@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 using AiPathFinding.Fog;
 using AiPathFinding.Model;
 
@@ -13,10 +15,12 @@ namespace AiPathFinding.Algorithm
     {
         #region Fields
 
+        public AlgorithmStep[] Steps { get { return _steps.ToArray(); } }
+
         /// <summary>
         /// List of steps that were computed during the path finding.
         /// </summary>
-        public readonly List<AlgorithmStep> Steps = new List<AlgorithmStep>();
+        private readonly List<AlgorithmStep> _steps = new List<AlgorithmStep>();
 
         /// <summary>
         /// Reference target the graph instance of the model.
@@ -38,7 +42,7 @@ namespace AiPathFinding.Algorithm
         /// </summary>
         private readonly List<Node> _allFoggyNodes = new List<Node>();
 
-        protected readonly List<Node> UpdatedNodes = new List<Node>(); 
+        protected readonly List<Node> UpdatedNodes = new List<Node>();
 
         protected int PartialCost { get; private set; }
 
@@ -68,6 +72,7 @@ namespace AiPathFinding.Algorithm
         /// <param name="fogExploreName">Determines how fog should be explored</param>
         public void FindPath(Node playerNode, Node targetNode, FogMethod fogMethod, FogExploreName fogExploreName)
         {
+            // <----------------- new segment starts here ----------------->
             // prepare data
             Console.WriteLine("\n* " + Name + " is attempting target find a path player " + playerNode + " target " + targetNode + ".");
             var watch = Stopwatch.StartNew();
@@ -80,19 +85,22 @@ namespace AiPathFinding.Algorithm
             // find path
             var pathFound = FindShortestPath(playerNode, targetNode);
 
-            var mainSteps = Steps.Count;
-            Console.WriteLine("Main calculation required " + mainSteps + " steps and took " + watch.ElapsedMilliseconds + "ms");
+            var mainSteps = _steps.Count;
+            Console.WriteLine("Main calculation required " + _steps.Count + " steps and took " + watch.ElapsedMilliseconds + "ms");
             watch.Restart();
 
             if (pathFound)
             {
                 // path was found, look for alternative, equal-cost paths
-                FindAlternativePaths(playerNode, targetNode);
-
-                Console.WriteLine("Looking for alternative paths required " + (Steps.Count - mainSteps) +
+                var step = FindAlternativePaths(playerNode, targetNode);
+                AddStep(step);
+                Console.WriteLine("Looking for alternative paths required " + (_steps.Count - mainSteps) +
                                   " steps and took " +
                                   watch.ElapsedMilliseconds + "ms");
                 watch.Reset();
+
+                // <----------------- segment ends here ----------------->
+                SegmentCompleted(step.DrawStep, GetCostFromNode(targetNode));
             }
             else
             {
@@ -113,15 +121,26 @@ namespace AiPathFinding.Algorithm
         {
             while (true)
             {
-                var possibilities = new List<Node>();
-                possibilities.AddRange(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes));
+                var foggyPossibilities = new List<Node>();
+                foggyPossibilities.AddRange(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes));
 
-                if (possibilities.Count == 0)
+                if (foggyPossibilities.Count == 0)
                     break;
 
+                var clearPossibilities = new List<Node>();
+                foreach (var n in foggyPossibilities)
+                {
+                    if (n.Edges.Count(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue) != 1)
+                        throw new Exception("Dunno which clear neighbor to choose...");
+                    clearPossibilities.Add(n.Edges.First(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue).GetOtherNode(n));
+                }
+
                 // pick "best" foggy node
-                var foggyNode = FogSelector.SelectFoggyNode(playerNode, possibilities.ToArray(), fogMethod,
+                var clearFavorite = FogSelector.SelectFoggyNode(playerNode, targetNode, clearPossibilities.ToArray(), fogMethod,
                     CostFromNodeToNode);
+                if (clearFavorite.Edges.Count(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer) != 1)
+                    throw new Exception("Dunno which foggy neighbor to chose");
+                var foggyNode = clearFavorite.Edges.First(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer).GetOtherNode(clearFavorite);
 
                 var minCost = int.MaxValue;
                 foreach (var e in foggyNode.Edges)
@@ -137,8 +156,15 @@ namespace AiPathFinding.Algorithm
 
                 while (minCost == int.MaxValue)
                 {
-                    possibilities.Remove(foggyNode);
-                    foggyNode = FogSelector.SelectFoggyNode(playerNode, possibilities.ToArray(), fogMethod,
+                    foggyPossibilities.Remove(foggyNode);
+                    clearPossibilities.Clear();
+                    foreach (var n in foggyPossibilities)
+                    {
+                        if (n.Edges.Count(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue) != 1)
+                            throw new Exception("Dunno which neighbor to choose...");
+                        clearPossibilities.Add(n.Edges.First(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue).GetOtherNode(n));
+                    }
+                    foggyNode = FogSelector.SelectFoggyNode(playerNode, targetNode, clearPossibilities.ToArray(), fogMethod,
                         CostFromNodeToNode);
 
                     minCost = int.MaxValue;
@@ -154,46 +180,60 @@ namespace AiPathFinding.Algorithm
                         }
                 }
 
-                //if (minCost <= PartialCost)
-                //    throw new Exception("Cost to foggy tile shouldn't be lower than current cost");
-                PartialCost = minCost;
-
                 Console.WriteLine("Best node target investigate fog is " + foggyNode);
 
                 // add step for graphics stuff
                 var min = int.MaxValue;
                 AlgorithmStep oldStep = null;
-                Node clearNeighborToFoggyNode = null;
+                //Node clearNeighborToFoggyNode = null;
+                var partialCostBackup = PartialCost;
                 foreach (var e in foggyNode.Edges)
                     if (e != null && GetCostFromNode(e.GetOtherNode(foggyNode)) < min)
                     {
                         min = GetCostFromNode(e.GetOtherNode(foggyNode));
-                        PartialCost = min;
-                        oldStep = GetAlgorithmStep(playerNode, e.GetOtherNode(foggyNode), true);
-                        clearNeighborToFoggyNode = e.GetOtherNode(foggyNode);
+                        PartialCost = partialCostBackup + min;
+                        oldStep = GetAlgorithmStep(playerNode, e.GetOtherNode(foggyNode));
+                        //clearNeighborToFoggyNode = e.GetOtherNode(foggyNode);
                     }
 
                 Console.WriteLine("Setting cost of " + foggyNode + " to " + (foggyNode.Cost + min));
                 AddCostToNode(foggyNode, foggyNode.Cost + min);
-                Steps.Add(oldStep);
 
                 // add currently foggy nodes to all foggy nodes
                 _allFoggyNodes.AddRange(FoggyNodes);
+
+                // segment completed stuff
+                AddStep(oldStep);
+
+                // <----------------- segment ends here ----------------->
+                SegmentCompleted(oldStep.DrawStep, min);
+
+                // <----------------- new segment starts here ----------------->
                 // explore fog
                 var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
-                    _allFoggyNodes.ToArray(), AddCostToNode, GetCostFromNode, oldStep, s => Steps.Add(s));
+                    _allFoggyNodes.ToArray(), AddCostToNode, GetCostFromNode, AddStep);
 
-                Console.WriteLine("Cost of path upon return: " + result.Item3);
+                //AddStep(result.Item2);
+                SegmentCompleted(result.Item2.DrawStep, result.Item2.CurrentCost);
+
+                // <----------------- segment ends here ----------------->
+                Console.WriteLine("Cost of path upon return: " + result.Item2.CurrentCost);
                 if (result.Item1 == null)
                 {
                     // no other exit found, try other foggy node
-                    Console.WriteLine("Setting cost of " + clearNeighborToFoggyNode + " to " + (result.Item3 + clearNeighborToFoggyNode.Cost));
+                    //Console.WriteLine("Setting cost of " + clearNeighborToFoggyNode + " to " + (result.Item3 + clearNeighborToFoggyNode.Cost));
                     Console.WriteLine("Node " + foggyNode + " didn't yield anything useful, trying next node...");
+                    //foreach (var n in UpdatedNodes)
+                    //    AddCostToNode(n, int.MaxValue);
+                    //AddCostToNode(clearNeighborToFoggyNode, PartialCost);
+                    //FoggyNodes.Clear();
+                    //FindPath(clearNeighborToFoggyNode, targetNode, fogMethod, fogExploreName);
+
                     //AddCostToNode(clearNeighborToFoggyNode, result.Item3 + clearNeighborToFoggyNode.Cost);
-                    var fogCost = result.Item3 - GetCostFromNode(clearNeighborToFoggyNode) + clearNeighborToFoggyNode.Cost;
-                    foreach (var n in UpdatedNodes)
-                        AddCostToNode(n, GetCostFromNode(n) + fogCost);
-                    FoggyNodes.Remove(foggyNode);
+                    //PartialCost += result.Item3 - GetCostFromNode(clearNeighborToFoggyNode) + clearNeighborToFoggyNode.Cost;
+                    //foreach (var n in UpdatedNodes)
+                    //    AddCostToNode(n, GetCostFromNode(n) + fogCost);
+                    //FoggyNodes.Remove(foggyNode);
                     continue;
                 }
 
@@ -207,20 +247,84 @@ namespace AiPathFinding.Algorithm
                 
                 // exit was another fog-less area, start pathfinding
 
-                if (result.Item3 <= PartialCost)
-                    throw new Exception("Cost through fog shouldn't be lower than current cost");
-                PartialCost = result.Item3;
+                //if (result.Item3 <= PartialCost)
+                //    throw new Exception("Cost through fog shouldn't be lower than current cost");
+                //PartialCost += result.Item3;
 
-                var stepCount = Steps.Count;
+                //var stepCount = _steps.Count;
                 // start pathfinding again
                 FoggyNodes.Clear();
                 Console.WriteLine("Found another part of the known map, restarting pathfinding...");
                 FindPath(result.Item1, targetNode, fogMethod, fogExploreName);
 
-                for (var i = stepCount; i < Steps.Count; i++)
-                    Steps[i].AddDrawing(result.Item2);
-                break;
+                //for (var i = stepCount; i < _steps.Count; i++)
+                //    _steps[i].AddDrawing(result.Item2);
+                return;
             }
+        }
+
+        protected void AddStep(AlgorithmStep newStep)
+        {
+            //var newStep = new AlgorithmStep(g =>
+            //{
+            //    // draw cost
+            //    DrawCost(g);
+
+            //    // draw previous segments
+            //    foreach (var a in _segmentDrawActions)
+            //        a(g);
+
+            //    // draw current (partial) segment
+            //    drawStep(g);
+            //}, explored, explorable, currentCost, comment);
+            
+            //newStep.AddDrawing(DrawCost);
+
+            _steps.Add(newStep);
+        }
+
+        private readonly List<Action<Graphics>> _segmentDrawActions = new List<Action<Graphics>>();
+
+        //protected abstract void DrawCost(Graphics g);
+
+        //protected void DrawPath(Graphics g, Node[] path, bool player)
+        //{
+        //    if (player)
+        //        for (var i = 0; i < path.Length; i++)
+        //        {
+        //            var p = MainForm.MapPointToCanvasRectangle(path[i].Location);
+        //            Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p.Location,
+        //                0.3f + ((1 - (float) i/path.Length))/0.7f);
+        //        }
+        //    else
+        //    {
+        //        for (var i = 0; i < path.Length - 1; i++)
+        //        {
+        //            var p1 = MainForm.MapPointToCanvasRectangle(path[i].Location);
+        //            var p2 = MainForm.MapPointToCanvasRectangle(path[i + 1].Location);
+
+        //            g.DrawLine(new Pen(Color.Yellow, 3), new Point(p1.X + p1.Width/2, p1.Y + p1.Height/2),
+        //                new Point(p2.X + p2.Width/2, p2.Y + p2.Height/2));
+        //        }
+        //    }
+        //}
+
+        private void SegmentCompleted(Action<Graphics> segmentDrawAction, int segmentCost)
+        {
+            PartialCost += segmentCost; 
+            
+            if (segmentDrawAction == null)
+                return;
+
+            _segmentDrawActions.Insert(0, segmentDrawAction);
+
+            //var oldAction = _partialDrawAction;
+            //var newAction = new Action<Graphics>(g =>
+            //{
+            //    oldAction(g);
+            //    segmentDrawAction(g);
+            //});
+            //_partialDrawAction = newAction;
         }
 
         /// <summary>
@@ -230,7 +334,9 @@ namespace AiPathFinding.Algorithm
         /// <param name="target">End node</param>
         /// <param name="withPlayer">True if the path should be traced with the player icon rather than a line</param>
         /// <returns>AlgorithmStep that shows the step</returns>
-        protected abstract AlgorithmStep GetAlgorithmStep(Node player, Node target, bool withPlayer = false);
+        protected abstract AlgorithmStep GetAlgorithmStep(Node player, Node target, bool withCost = true);
+
+        protected abstract Node[] GetPath(Node player, Node target);
 
         /// <summary>
         /// Gets all alternative paths to the target.
@@ -270,7 +376,7 @@ namespace AiPathFinding.Algorithm
         /// </summary>
         /// <param name="playerNode">Starting point</param>
         /// <param name="targetNode">End point</param>
-        protected abstract void FindAlternativePaths(Node playerNode, Node targetNode);
+        protected abstract AlgorithmStep FindAlternativePaths(Node playerNode, Node targetNode);
 
         /// <summary>
         /// Actual algorithm implementation: Find shortest path.
@@ -291,7 +397,10 @@ namespace AiPathFinding.Algorithm
         /// </summary>
         public virtual void ResetAlgorithm()
         {
-            Steps.Clear();
+            _steps.Clear();
+            //AdditionalCost = 0;
+            //_partialDrawAction = g => { };
+            _segmentDrawActions.Clear();
             PartialCost = 0;
             FoggyNodes.Clear();
             _allFoggyNodes.Clear();

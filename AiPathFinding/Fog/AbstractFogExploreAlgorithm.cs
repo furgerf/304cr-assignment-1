@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using AiPathFinding.Algorithm;
+using AiPathFinding.Common;
 using AiPathFinding.Model;
 using AiPathFinding.Properties;
 using AiPathFinding.View;
@@ -19,6 +20,7 @@ namespace AiPathFinding.Fog
 
         private static readonly List<Node> VisitedNodes = new List<Node>();
         private static readonly List<Node> DiscardedNodes = new List<Node>();
+        private readonly List<Node> _backtrackedNodes = new List<Node>();
 
         /// <summary>
         /// Contains all the instances of the fog explore algorithms.
@@ -45,7 +47,10 @@ namespace AiPathFinding.Fog
         public static List<Node> RemoveKnownFoggyNodes(List<Node> foggyNodes)
         {
             var valid = new List<Node>();
-            var invalid = VisitedNodes.Concat(DiscardedNodes).ToArray();
+            var invalid = VisitedNodes.Concat(DiscardedNodes).Where(i => !i.KnownToPlayer && i.Edges.Count(e => e != null && e.GetOtherNode(i).KnownToPlayer) == 0).ToArray();
+
+            if (invalid.Length == 0)
+                return foggyNodes;
 
             foreach (var f in foggyNodes)
             {
@@ -54,7 +59,8 @@ namespace AiPathFinding.Fog
                 foreach (var i in invalid)
                     foreach (var e in i.Edges)
                         if (e != null && e.GetOtherNode(i) == f)
-                            ok = false;
+                            if (!i.KnownToPlayer && !e.GetOtherNode(i).KnownToPlayer)
+                                ok = false;
 
                 if (ok)
                     valid.Add(f);
@@ -72,13 +78,12 @@ namespace AiPathFinding.Fog
         /// <param name="ignoreNodes">All nodes that should be ignored (because they are adjacent to known non-foggy tiles)</param>
         /// <param name="addCostToNode">Action that updates a node's cost</param>
         /// <param name="getCostFromNode">Function that retrieves a node's cost</param>
-        /// <param name="previousStep">Previous algorithm step which will be drawn as well</param>
-        /// <param name="addStep">Action that adds an algorithm step</param>
+        /// <param name="createStep">Action that adds an algorithm step</param>
         /// <returns>The node that is either the target or that is not foggy and the action that draws the path through the fog and the cost of the last foggy node</returns>
-        public static Tuple<Node, Action<Graphics>, int> ExploreFog(FogExploreName name, Node position, Graph graph, Node[] ignoreNodes, Action<Node, int> addCostToNode, Func<Node, int> getCostFromNode, AlgorithmStep previousStep, Action<AlgorithmStep> addStep)
+        public static Tuple<Node, AlgorithmStep> ExploreFog(FogExploreName name, Node position, Graph graph, Node[] ignoreNodes, Action<Node, int> addCostToNode, Func<Node, int> getCostFromNode, Action<AlgorithmStep> createStep)
         {
             // call instance method
-            return Algorithms[name].ExploreFog(position, graph, ignoreNodes, addCostToNode, getCostFromNode, previousStep, addStep);
+            return Algorithms[name].ExploreFog(position, graph, ignoreNodes, addCostToNode, getCostFromNode, createStep);
         }
 
         /// <summary>
@@ -89,23 +94,20 @@ namespace AiPathFinding.Fog
         /// <param name="ignoreNodes">All nodes that should be ignored (because they are adjacent to known non-foggy tiles)</param>
         /// <param name="addCostToNode">Action that updates a node's cost</param>
         /// <param name="getCostFromNode">Function that retrieves a node's cost</param>
-        /// <param name="previousStep">Previous algorithm step which will be drawn as well</param>
-        /// <param name="addStep">Action that adds an algorithm step</param>
+        /// <param name="createStep">Action that adds an algorithm step</param>
         /// <returns>The node that is either the target or that is not foggy and the action that draws the path through the fog and the cost of the last foggy node</returns>
-        private Tuple<Node, Action<Graphics>, int> ExploreFog(Node position, Graph graph, Node[] ignoreNodes, Action<Node, int> addCostToNode, Func<Node, int> getCostFromNode, AlgorithmStep previousStep, Action<AlgorithmStep> addStep)
+        private Tuple<Node, AlgorithmStep> ExploreFog(Node position, Graph graph, Node[] ignoreNodes, Action<Node, int> addCostToNode, Func<Node, int> getCostFromNode, Action<AlgorithmStep> createStep)
         {
             // add algorithm step for entering the fog
             var cost = getCostFromNode(position);
-            addStep(new AlgorithmStep(g =>
-            {
-                DrawStep(g, new List<Node> { position }, new List<Node>(), new Dictionary<Node, int> { { position, cost } });
-                previousStep.DrawStep(g);
-            }, previousStep.Explored, previousStep.Explorable, getCostFromNode(position)));
+            createStep(new AlgorithmStep(g => DrawStep(g, new List<Node> {position}, new List<Node>(),
+                    new Dictionary<Node, int> {{position, cost}}), -1, -2, getCostFromNode(position), null));
 
             // prepare data
             var currentNode = position;
             DiscardedNodes.AddRange(VisitedNodes);
             VisitedNodes.Clear();
+            _backtrackedNodes.Clear();
             //DiscardedNodes.Clear();
 
             // loop until a way is found or we are stuck
@@ -130,13 +132,9 @@ namespace AiPathFinding.Fog
                         var foo = new List<Node> { position };
                         var bar = new List<Node>();
                         bar.AddRange(VisitedNodes);
-                        bar.AddRange(DiscardedNodes);
+                        bar.AddRange(_backtrackedNodes);
                         var foobar = foo.Concat(bar).ToDictionary(n => n, getCostFromNode);
-                        addStep(new AlgorithmStep(g =>
-                        {
-                            DrawStep(g, foo, bar, foobar);
-                            previousStep.DrawStep(g);
-                        }, previousStep.Explored, previousStep.Explorable, oldCost + position.Cost));
+                        createStep(new AlgorithmStep(g => DrawStep(g, foo, bar, foobar), -1, -2, oldCost + position.Cost, null));
 
                         //addStep(new AlgorithmStep(g =>
                         //{
@@ -144,31 +142,28 @@ namespace AiPathFinding.Fog
                         //    previousStep.DrawStep(g);
                         //}, previousStep.Explored, previousStep.Explorable, oldCost + position.Cost));
 
-                        return new Tuple<Node, Action<Graphics>, int>(null, null, oldCost + position.Cost);
+                        return new Tuple<Node, AlgorithmStep>(null, new AlgorithmStep(g => DrawStep(g, foo, bar, foobar), -1, -2, oldCost + position.Cost, null));
                     }
 
                     // backtrack
-                    Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 2]);
+                    //Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 2]);
                     DiscardedNodes.Add(VisitedNodes.Last());
+                    _backtrackedNodes.Add(VisitedNodes.Last());
                     VisitedNodes.Remove(VisitedNodes.Last());
                     oldCost += VisitedNodes.Last().Cost;
                     currentNode = ChooseNextNode(VisitedNodes.Last(), graph, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
 
                     // update cost
-                    Console.WriteLine("-> updating cost of " + VisitedNodes[VisitedNodes.Count - 1] + " to " + oldCost);
+                    Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 1] + " and updating cost to " + oldCost);
                     addCostToNode(VisitedNodes[VisitedNodes.Count - 1], oldCost);
 
                     // draw step
                     var allNodes = new List<Node> { position };
                     allNodes.AddRange(VisitedNodes);
                     var allDiscNodes = new List<Node>();
-                    allDiscNodes.AddRange(DiscardedNodes);
+                    allDiscNodes.AddRange(_backtrackedNodes);
                     var costMap = allNodes.Concat(allDiscNodes).ToDictionary(n => n, getCostFromNode);
-                    addStep(new AlgorithmStep(g =>
-                    {
-                        DrawStep(g, allNodes, allDiscNodes, costMap);
-                        previousStep.DrawStep(g);
-                    }, previousStep.Explored, previousStep.Explorable, oldCost));
+                    createStep(new AlgorithmStep(g => DrawStep(g, allNodes, allDiscNodes, costMap), -1, -2, oldCost, null));
                 }
 
                 // update cost
@@ -182,22 +177,17 @@ namespace AiPathFinding.Fog
                 var nodes = new List<Node> { position };
                 nodes.AddRange(VisitedNodes);
                 var discNodes = new List<Node>();
-                discNodes.AddRange(DiscardedNodes);
+                discNodes.AddRange(_backtrackedNodes);
                 var costs = nodes.Concat(discNodes).ToDictionary(n => n, getCostFromNode);
-                addStep(new AlgorithmStep(g =>
-                {
-                    DrawStep(g, nodes, discNodes, costs);
-                    previousStep.DrawStep(g);
-                }, previousStep.Explored, previousStep.Explorable, getCostFromNode(currentNode)));
+                createStep(new AlgorithmStep(g => DrawStep(g, nodes, discNodes, costs), -1, -2, getCostFromNode(currentNode), null));
 
                 // are we done?
                 if (currentNode.EntityOnNode == Entity.Target || currentNode.KnownToPlayer)
+                    // current node is not part of the foggy path, remove it
+                    //VisitedNodes.Remove(currentNode);
+
                     // return node because it's the target
-                    return new Tuple<Node, Action<Graphics>, int>(currentNode, g =>
-                    {
-                        previousStep.DrawStep(g);
-                        DrawStep(g, nodes, discNodes, costs, false);
-                    }, getCostFromNode(currentNode));
+                    return new Tuple<Node, AlgorithmStep>(currentNode, new AlgorithmStep(g => DrawStep(g, nodes, discNodes, costs, false), -1, -2, getCostFromNode(currentNode), null));
             }
         }
 
@@ -209,7 +199,7 @@ namespace AiPathFinding.Fog
         /// <param name="discardedNodes">All nodes that led to a dead end</param>
         /// <param name="nodeCosts">Dictionary that maps a cost to each node</param>
         /// <param name="withLabels">True if cost labels should be drawn</param>
-        private static void DrawStep(Graphics g, IList<Node> nodes, IEnumerable<Node> discardedNodes, Dictionary<Node, int> nodeCosts,
+        private static void DrawStep(Graphics g, IList<Node> nodes, IList<Node> discardedNodes, Dictionary<Node, int> nodeCosts,
             bool withLabels = true)
         {
             // draw discarded node labels
@@ -224,13 +214,22 @@ namespace AiPathFinding.Fog
             {
                 // draw icon
                 var p1 = MainForm.MapPointToCanvasRectangle(nodes[i].Location);
-                g.DrawIcon(Resources.runner, p1.X + p1.Width/2, p1.Y + p1.Width/2);
+                //g.DrawIcon(Resources.runner, p1.X + p1.Width/2, p1.Y + p1.Width/2);
+                Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p1.X + p1.Width / 2, p1.Y + p1.Height / 2, 0.3f + (float) i / nodes.Count / 0.7f);
 
                 // draw label
                 if (withLabels)
                     g.DrawString(nodeCosts[nodes[i]].ToString(CultureInfo.InvariantCulture),
                         new Font("Microsoft Sans Serif", 12, FontStyle.Bold), Brushes.Red,
                         MainForm.MapPointToCanvasRectangle(nodes[i].Location));
+            }
+
+            foreach (var n in discardedNodes)
+            {
+                // draw icon
+                var p1 = MainForm.MapPointToCanvasRectangle(n.Location);
+                //g.DrawIcon(Resources.runner, p1.X + p1.Width/2, p1.Y + p1.Width/2);
+                Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p1.X + p1.Width / 2, p1.Y + p1.Height / 2, 0.5f, true);
             }
         }
 

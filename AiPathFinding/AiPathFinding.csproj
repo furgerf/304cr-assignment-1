@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Utils.cs" />
     <Compile Include="Fog\AbstractFogExploreAlgorithm.cs" />
     <Compile Include="Algorithm\PathFindName.cs" />
     <Compile Include="Algorithm\AlgorithmStep.cs" />
