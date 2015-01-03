@@ -36,6 +36,14 @@ namespace AiPathFinding.Fog
                 {
                     FogExploreName.MinCost,
                     new MinCostAlgorithm()
+                },
+                {
+                    FogExploreName.MinDistanceToTarget,
+                    new MinDistanceToTargetAlgorithm()
+                },
+                {
+                    FogExploreName.MinCostPlusDistanceToTarget,
+                    new MinDistanceToTargetAlgorithm()
                 }
             };
 
@@ -96,24 +104,25 @@ namespace AiPathFinding.Fog
         /// <param name="getCostFromNode">Function that returns the cost of a node</param>
         /// <param name="addCostToNode">Action that updates the cost of a node</param>
         /// <param name="moveInFog">Action that moves onto another node in the fog</param>
+        /// <param name="getDistanceToTarget">Function that returns the distance to the target</param>
         /// <returns>Tuple containing the node where the fog has been exited, an array of the path that has been taken and an array of nodes where there has been backtracking</returns>
-        public static Tuple<Node, Node[], Node[]> ExploreFog(FogExploreName name, Node position, Node[] ignoreNodes, Func<Node, int> getCostFromNode, Action<Node, int> addCostToNode, Action<Node, Node[], Node[], string, bool> moveInFog)
+        public static Tuple<Node, Node[], Node[]> ExploreFog(FogExploreName name, Node position, Node[] ignoreNodes, Func<Node, int> getCostFromNode, Action<Node, int> addCostToNode, Action<Node, Node[], Node[], string, bool> moveInFog, Func<Node, int> getDistanceToTarget)
         {
             // call instance method
-            return Algorithms[name].ExploreFog(position, ignoreNodes, getCostFromNode, addCostToNode, moveInFog);
+            return Algorithms[name].ExploreFog(position, ignoreNodes, getCostFromNode, addCostToNode, moveInFog, getDistanceToTarget);
         }
 
         /// <summary>
         /// Explores fog.
         /// </summary>
-        /// <param name="name">Name of the method how to chose new, unknown foggy node</param>
         /// <param name="position">Node where the exploration starts</param>
         /// <param name="ignoreNodes">Nodes to ignore, eg from prevous fog explorations</param>
         /// <param name="getCostFromNode">Function that returns the cost of a node</param>
         /// <param name="addCostToNode">Action that updates the cost of a node</param>
         /// <param name="moveInFog">Action that moves onto another node in the fog</param>
+        /// <param name="getDistanceToTarget">Function that returns the distance to the target</param>
         /// <returns>Tuple containing the node where the fog has been exited, an array of the path that has been taken and an array of nodes where there has been backtracking</returns>
-        private Tuple<Node, Node[], Node[]> ExploreFog(Node position, Node[] ignoreNodes, Func<Node, int> getCostFromNode, Action<Node, int> addCostToNode, Action<Node, Node[], Node[], string, bool> moveInFog)
+        private Tuple<Node, Node[], Node[]> ExploreFog(Node position, Node[] ignoreNodes, Func<Node, int> getCostFromNode, Action<Node, int> addCostToNode, Action<Node, Node[], Node[], string, bool> moveInFog, Func<Node, int> getDistanceToTarget)
         {
             // prepare data
             var currentNode = position;
@@ -129,7 +138,7 @@ namespace AiPathFinding.Fog
             {
                 // move
                 var oldCost = getCostFromNode(currentNode);
-                currentNode = ChooseNextNode(currentNode, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
+                currentNode = ChooseNextNode(currentNode, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget);
 
                 while (currentNode == null)
                 {
@@ -158,7 +167,7 @@ namespace AiPathFinding.Fog
                     _backtrackedNodes.Add(VisitedNodes.Last());
                     VisitedNodes.Remove(VisitedNodes.Last());
                     oldCost += VisitedNodes.Last().Cost;
-                    currentNode = ChooseNextNode(VisitedNodes.Last(), ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
+                    currentNode = ChooseNextNode(VisitedNodes.Last(), ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget);
 
                     // update cost
                     Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 1] + ".");
@@ -197,8 +206,9 @@ namespace AiPathFinding.Fog
         /// <param name="position">Current position</param>
         /// <param name="ignoreNodes">All nodes to ignore</param>
         /// <param name="visitedNodes">All nodes that have previously been visited</param>
-        /// <returns></returns>
-        protected abstract Node ChooseNextNode(Node position, Node[] ignoreNodes, Node[] visitedNodes);
+        /// <param name="getDistanceToTarget">Function that returns the heuristic distance to the target</param>
+        /// <returns>Best node to move to</returns>
+        protected abstract Node ChooseNextNode(Node position, Node[] ignoreNodes, Node[] visitedNodes, Func<Node, int> getDistanceToTarget);
 
         #endregion
     }

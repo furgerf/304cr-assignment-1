@@ -372,13 +372,7 @@ namespace AiPathFinding.Algorithm
             }
         }
 
-        /// <summary>
-        /// Returns heuristic distance (manhatten distance) between nodes.
-        /// </summary>
-        /// <param name="node">One node</param>
-        /// <param name="target">Other node</param>
-        /// <returns>Distance</returns>
-        protected virtual int GetHeuristic(Node node, Node target)
+        protected override int GetHeuristic(Node node, Node target)
         {
             // Manhatten Distance
             return Math.Abs(target.Location.X - node.Location.X) + Math.Abs(target.Location.Y - node.Location.Y);

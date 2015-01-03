@@ -20,6 +20,7 @@ namespace AiPathFinding.Algorithm
 
         protected override int GetHeuristic(Node node, Node target)
         {
+            // zero
             return 0;
         }
 

@@ -267,7 +267,7 @@ namespace AiPathFinding.Algorithm
 
                 // <----------------- new segment starts here ----------------->
                 // explore fog
-                var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, _allFoggyNodes.ToArray(), GetCostFromNode, AddCostToNode, MoveFog);
+                var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, _allFoggyNodes.ToArray(), GetCostFromNode, AddCostToNode, MoveFog, n => GetHeuristic(n, targetNode));
                 
                 // <----------------- segment ends here ----------------->
                 SegmentCompleted(DrawFoggyPath(result.Item2, result.Item3));
@@ -546,6 +546,14 @@ namespace AiPathFinding.Algorithm
         /// <param name="playerNode">Starting point</param>
         /// <param name="targetNode">End point</param>
         protected abstract void PrepareData(Node playerNode, Node targetNode);
+
+        /// <summary>
+        /// Returns heuristic distance between nodes.
+        /// </summary>
+        /// <param name="node">One node</param>
+        /// <param name="target">Other node</param>
+        /// <returns>Distance</returns>
+        protected abstract int GetHeuristic(Node node, Node target);
 
         #endregion
     }

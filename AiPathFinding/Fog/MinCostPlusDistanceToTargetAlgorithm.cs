@@ -5,10 +5,7 @@ using AiPathFinding.Model;
 
 namespace AiPathFinding.Fog
 {
-    /// <summary>
-    /// Choses the cheapest neighboring node when exploring fog.
-    /// </summary>
-    public class MinCostAlgorithm : AbstractFogExploreAlgorithm
+    public class MinCostPlusDistanceToTargetAlgorithm : AbstractFogExploreAlgorithm
     {
         #region Methods
 
@@ -42,7 +39,7 @@ namespace AiPathFinding.Fog
                         foggyNeighborsCost.Add(neighbor);
             }
 
-            // choose randomly among cheapest nodes
+            // choose randomly among closest nodes
             var rnd = new Random();
             Node[] possibilities;
 
@@ -50,7 +47,7 @@ namespace AiPathFinding.Fog
             if (!ignoreNodes.Contains(position) && clearNeighborsCost.Count > 0)
             {
                 possibilities =
-                    clearNeighborsCost.Where(n => n.Cost == clearNeighborsCost.Min(nn => nn.Cost)).ToArray();
+                    clearNeighborsCost.Where(n => getDistanceToTarget(n) + n.Cost == clearNeighborsCost.Min(nn => nn.Cost + getDistanceToTarget(nn))).ToArray();
                 return possibilities[rnd.Next(possibilities.Length)];
             }
 
@@ -59,7 +56,7 @@ namespace AiPathFinding.Fog
                 return null;
 
             // chose among foggy nodes
-            possibilities = foggyNeighborsCost.Where(n => n.Cost == foggyNeighborsCost.Min(nn => nn.Cost)).ToArray();
+            possibilities = foggyNeighborsCost.Where(n => getDistanceToTarget(n) + n.Cost == foggyNeighborsCost.Min(nn => nn.Cost + getDistanceToTarget(nn))).ToArray();
             return possibilities[rnd.Next(possibilities.Length)];
         }
 
