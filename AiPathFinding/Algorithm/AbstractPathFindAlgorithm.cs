@@ -50,6 +50,12 @@ namespace AiPathFinding.Algorithm
 
         protected int PartialCost { get; private set; }
 
+        private Node _lastNode;
+
+        protected int ExploredFoggyCells;
+
+        protected int ExploredClearCells;
+
         #endregion
 
         #region Constructor
@@ -97,17 +103,19 @@ namespace AiPathFinding.Algorithm
 
             if (pathFound)
             {
-                // path was found, look for alternative, equal-cost paths
+                // path was found!
+                CreateStep(GetAlgorithmStep(playerNode, targetNode), "Path to target " + targetNode + " found!");
+
+                // look for alternative, equal-cost paths
                 var step = FindAlternativePaths(playerNode, targetNode);
-                // TODO
-                //AddStep(step);
+                CreateStep(step, "Alternative paths to the target");
                 Console.WriteLine("Looking for alternative paths required " + (_steps.Count - mainSteps) +
                                   " steps and took " +
                                   watch.ElapsedMilliseconds + "ms");
                 watch.Reset();
 
                 // <----------------- segment ends here ----------------->
-                SegmentCompleted(step.DrawStep);
+                SegmentCompleted(step);
             }
             else
             {
@@ -126,7 +134,6 @@ namespace AiPathFinding.Algorithm
         /// <param name="fogExploreName">Determines how fog should be explored</param>
         private void ExploreFog(Node playerNode, Node targetNode, FogMethod fogMethod, FogExploreName fogExploreName)
         {
-            Tuple<Node, Node[], Node[]> result = null;
             Node clearNodeWhereFogWasLeft = null;
             while (true)
             {
@@ -247,43 +254,30 @@ namespace AiPathFinding.Algorithm
                 _allFoggyNodes.AddRange(FoggyNodes);
 
                 // <----------------- segment ends here ----------------->
-                // TODO continue cleanup from here
-                //MoveFog(foggyNode, "Moving onto fog at " + foggyNode);
                 SegmentCompleted(g => DrawPath(g, path, pathCostData));
 
-                Console.WriteLine("Setting cost of " + foggyNode + " to " + (PartialCost + foggyNode.Cost));
                 AddCostToNode(foggyNode, PartialCost + foggyNode.Cost);
-
 
                 // <----------------- new segment starts here ----------------->
                 // explore fog
-                result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
+                var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
                     _allFoggyNodes.ToArray(), GetCostFromNode, AddCostToNode, MoveFog);
 
                 //AddStep(result.Item2);
                 SegmentCompleted(DrawFoggyPath(result.Item2, result.Item3));
 
                 // <----------------- segment ends here ----------------->
-                //Console.WriteLine("Cost of path upon return: " + result.Item2.CurrentCost);
                 if (result.Item1 == null)
                 {
                     // no other exit found, try other foggy node
-                    //Console.WriteLine("Setting cost of " + clearNeighborToFoggyNode + " to " + (result.Item3 + clearNeighborToFoggyNode.Cost));
                     Console.WriteLine("Node " + foggyNode + " didn't yield anything useful, trying next node...");
-                    //foreach (var n in UpdatedNodes)
-                    //    AddCostToNode(n, int.MaxValue);
-                    //AddCostToNode(clearNeighborToFoggyNode, PartialCost);
-                    //FoggyNodes.Clear();
-                    //FindPath(clearNeighborToFoggyNode, targetNode, fogMethod, fogExploreName);
 
-                    //AddCostToNode(clearNeighborToFoggyNode, result.Item3 + clearNeighborToFoggyNode.Cost);
-                    //PartialCost += result.Item3 - GetCostFromNode(clearNeighborToFoggyNode) + clearNeighborToFoggyNode.Cost;
-                    //foreach (var n in UpdatedNodes)
-                    //    AddCostToNode(n, GetCostFromNode(n) + fogCost);
-                    //FoggyNodes.Remove(foggyNode);
                     if (result.Item3.Last().Edges.Count(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer) != 1)
-                        throw new Exception("Doomsday 's upon us!");
+                        throw new Exception("We didn't return on a clear tile :/");
+                    
+                    // set the clear tile where we returned
                     clearNodeWhereFogWasLeft = result.Item3.Last().Edges.First(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer).GetOtherNode(result.Item3.Last());
+
                     continue;
                 }
 
@@ -296,13 +290,6 @@ namespace AiPathFinding.Algorithm
                 }
                 
                 // exit was another fog-less area, start pathfinding
-
-                //if (result.Item3 <= PartialCost)
-                //    throw new Exception("Cost through fog shouldn't be lower than current cost");
-                //PartialCost += result.Item3;
-
-                //var stepCount = _steps.Count;
-                // start pathfinding again
                 MoveNode(result.Item1);
                 FoggyNodes.Clear();
                 Console.WriteLine("Found another part of the known map, restarting pathfinding...");
@@ -311,8 +298,6 @@ namespace AiPathFinding.Algorithm
                 return;
             }
         }
-
-        private Node _lastNode;
 
         protected void MoveNode(Node n)
         {
@@ -323,9 +308,6 @@ namespace AiPathFinding.Algorithm
 
             _lastNode = n;
         }
-
-        protected int ExploredFoggyCells;
-        protected int ExploredClearCells;
 
         private void MoveFog(Node n, Node[] path, Node[] backtrackedNodes, string comment, bool backtracking)
         {
@@ -434,7 +416,7 @@ namespace AiPathFinding.Algorithm
         /// </summary>
         /// <param name="player">Starting node</param>
         /// <param name="target">End node</param>
-        /// <param name="withPlayer">True if the path should be traced with the player icon rather than a line</param>
+        /// <param name="withCost">True if the cost on the nodes should be displayed as well</param>
         /// <returns>AlgorithmStep that shows the step</returns>
         protected abstract Action<Graphics> GetAlgorithmStep(Node player, Node target, bool withCost = true);
 
@@ -446,7 +428,7 @@ namespace AiPathFinding.Algorithm
         /// <param name="player">Start of the paths</param>
         /// <param name="target">Taget of the paths</param>
         /// <returns>AlgorithmStep that shows all alternatives</returns>
-        protected abstract AlgorithmStep GetAlternativesStep(Node player, Node target);
+        protected abstract Action<Graphics> GetAlternativesStep(Node player, Node target);
 
         /// <summary>
         /// Adds a cost to a node.
@@ -478,7 +460,7 @@ namespace AiPathFinding.Algorithm
         /// </summary>
         /// <param name="playerNode">Starting point</param>
         /// <param name="targetNode">End point</param>
-        protected abstract AlgorithmStep FindAlternativePaths(Node playerNode, Node targetNode);
+        protected abstract Action<Graphics> FindAlternativePaths(Node playerNode, Node targetNode);
 
         /// <summary>
         /// Actual algorithm implementation: Find shortest path.
@@ -500,10 +482,10 @@ namespace AiPathFinding.Algorithm
         public virtual void ResetAlgorithm()
         {
             _steps.Clear();
-            //AdditionalCost = 0;
-            //_partialDrawAction = g => { };
             _lastNode = null;
             _segmentDrawActions.Clear();
+            ExploredClearCells = 0;
+            ExploredFoggyCells = 0;
             PartialCost = 0;
             FoggyNodes.Clear();
             _allFoggyNodes.Clear();

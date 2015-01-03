@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using AiPathFinding.Model;
-using AiPathFinding.Properties;
 using AiPathFinding.View;
 
 namespace AiPathFinding.Algorithm
@@ -62,6 +61,8 @@ namespace AiPathFinding.Algorithm
 
         protected override void AddCostToNode(Node node, int cost)
         {
+            Console.WriteLine("Setting cost of " + node + " to " + cost);
+            
             // set tuple item in nodedatamap
             _nodeDataMap[node] = new Tuple<int, int>(cost, _nodeDataMap[node].Item2);
         }
@@ -72,7 +73,7 @@ namespace AiPathFinding.Algorithm
             return _nodeDataMap[node].Item1;
         }
 
-        protected override AlgorithmStep FindAlternativePaths(Node playerNode, Node targetNode)
+        protected override Action<Graphics> FindAlternativePaths(Node playerNode, Node targetNode)
         {
             // check for other paths with the same cost
             // remove all costlier nodes playerNode the list
@@ -192,10 +193,8 @@ namespace AiPathFinding.Algorithm
                     new Point(p2.X + p2.Width/2, p2.Y + p2.Height/2)));
             }
 
-            // create new step
-            //var newStep = new AlgorithmStep(
-            return
-                g =>
+            // return code to draw the step
+            return g =>
             {
                 // draw cost of nodes
                 foreach (var d in costData)
@@ -205,11 +204,8 @@ namespace AiPathFinding.Algorithm
                 foreach (var d in pathData)
                     g.DrawLine(new Pen(Color.Yellow, 3), d.Item1, d.Item2);
             };
-            //, _closedNodes.Count, Graph.PassibleNodeCount, PartialCost, null);
-
-            //return newStep;
         }
-        protected override AlgorithmStep GetAlternativesStep(Node player, Node target)
+        protected override Action<Graphics> GetAlternativesStep(Node player, Node target)
         {
             // prepare data for drawing
             var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == target ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
@@ -295,19 +291,17 @@ namespace AiPathFinding.Algorithm
 
             Console.WriteLine("* Found " + closedPaths.Count() + " distinct paths with cost of " + _nodeDataMap[target].Item1 + ", ranging player " + minPath + " target " + maxPath + " cells long!");
 
-            // create new step
-            var newStep = new AlgorithmStep(g =>
+            return g =>
             {
                 // draw cost of nodes
                 foreach (var d in costData)
-                    g.DrawString(d.Item1.ToString(CultureInfo.InvariantCulture), d.Item4, d.Item3, MainForm.MapPointToCanvasRectangle(d.Item2));
+                    g.DrawString(d.Item1.ToString(CultureInfo.InvariantCulture), d.Item4, d.Item3,
+                        MainForm.MapPointToCanvasRectangle(d.Item2));
 
                 // draw paths
                 foreach (var d in pathData)
                     g.DrawLine(d.Item3, d.Item1, d.Item2);
-            }, _closedNodes.Count, Graph.PassibleNodeCount, PartialCost, "Displaying all alternative paths");
-
-            return newStep;
+            };
         }
 
         #endregion

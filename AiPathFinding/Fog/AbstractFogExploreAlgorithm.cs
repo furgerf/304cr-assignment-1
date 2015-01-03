@@ -95,7 +95,6 @@ namespace AiPathFinding.Fog
                     if (VisitedNodes.Count == 1)
                     {
                         // update cost
-                        Console.WriteLine("Updating cost of " + position + " to " + (oldCost + position.Cost));
                         addCostToNode(position, oldCost + position.Cost);
 
                         // add backtracking algorithm step
@@ -118,7 +117,7 @@ namespace AiPathFinding.Fog
                     currentNode = ChooseNextNode(VisitedNodes.Last(), graph, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
 
                     // update cost
-                    Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 1] + " and updating cost to " + oldCost);
+                    Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 1] + ".");
                     addCostToNode(VisitedNodes[VisitedNodes.Count - 1], oldCost);
 
                     // draw step
@@ -127,7 +126,6 @@ namespace AiPathFinding.Fog
                 }
 
                 // update cost
-                Console.WriteLine("Updating cost of " + currentNode + " to " + (oldCost + currentNode.Cost));
                 addCostToNode(currentNode, oldCost + currentNode.Cost);
 
                 // update path
