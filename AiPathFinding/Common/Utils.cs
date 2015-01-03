@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using AiPathFinding.Algorithm;
+using AiPathFinding.Fog;
 
 namespace AiPathFinding.Common
 {
@@ -18,7 +21,52 @@ namespace AiPathFinding.Common
         /// </summary>
         private const float OpacityIndexOffset = 1f;
 
+        /// <summary>
+        /// Contains all the instances of the path find algorithms.
+        /// </summary>
+        public static readonly Dictionary<PathFindName, AbstractPathFindAlgorithm> PathFindAlgorithms =
+            new Dictionary<PathFindName, AbstractPathFindAlgorithm>
+            {
+                {
+                    PathFindName.AStar, new AStarAlgorithm()
+                },
+                {
+                    PathFindName.Dijkstra, new DijkstraAlgorithm()
+                }
+            };
+
+        /// <summary>
+        /// Contains all the instances of the fog explore algorithms.
+        /// </summary>
+        public static readonly Dictionary<FogExploreName, AbstractFogExploreAlgorithm> FogExploreAlgorithms = new Dictionary
+            <FogExploreName, AbstractFogExploreAlgorithm>
+        {
+            {
+                FogExploreName.MinCost,
+                new MinCostAlgorithm()
+            },
+            {
+                FogExploreName.MinDistanceToTarget,
+                new MinDistanceToTargetAlgorithm()
+            },
+            {
+                FogExploreName.MinCostPlusDistanceToTarget,
+                new MinDistanceToTargetAlgorithm()
+            }
+        };
+
         #endregion
+
+        /// <summary>
+        /// Static constructor ensuring that the dictionaries contain proper data.
+        /// </summary>
+        static Utils()
+        {
+            if (PathFindAlgorithms.Keys.Count != (int) PathFindName.Count)
+                throw new Exception("Make sure all path find algorithms are added to the dictionary");
+            if (FogExploreAlgorithms.Keys.Count != (int) FogExploreName.Count)
+                throw new Exception("Make sure all fog explore algorithms are added to the dictionary");
+        }
 
         #region Methods
 

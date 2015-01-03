@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using AiPathFinding.Algorithm;
+using AiPathFinding.Common;
 using AiPathFinding.Fog;
 using AiPathFinding.Model;
 using AiPathFinding.Properties;
@@ -19,7 +20,7 @@ namespace AiPathFinding.View
         /// </summary>
         private AbstractPathFindAlgorithm CurrentAlgorithm
         {
-            get { return AbstractPathFindAlgorithm.Algorithms[(PathFindName) comPrimaryAlgorithm.SelectedIndex]; }
+            get { return Utils.PathFindAlgorithms[(PathFindName) comPrimaryAlgorithm.SelectedIndex]; }
         }
 
         /// <summary>

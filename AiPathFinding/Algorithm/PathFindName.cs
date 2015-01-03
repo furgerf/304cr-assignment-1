@@ -5,6 +5,6 @@ namespace AiPathFinding.Algorithm
     /// </summary>
     public enum PathFindName
     {
-        Dijkstra, AStar, BestFirstSearch, BreadthFirstSearch, Count
+        Dijkstra, AStar, Count
     }
 }

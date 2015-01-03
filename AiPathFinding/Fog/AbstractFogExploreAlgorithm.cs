@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AiPathFinding.Common;
 using AiPathFinding.Model;
 
 namespace AiPathFinding.Fog
@@ -26,26 +27,6 @@ namespace AiPathFinding.Fog
         /// Contains all nodes where the algorithm, in the current iteration, has had to backtrack.
         /// </summary>
         private readonly List<Node> _backtrackedNodes = new List<Node>();
-
-        /// <summary>
-        /// Contains all the instances of the fog explore algorithms.
-        /// </summary>
-        private static readonly Dictionary<FogExploreName, AbstractFogExploreAlgorithm> Algorithms =
-            new Dictionary<FogExploreName, AbstractFogExploreAlgorithm>
-            {
-                {
-                    FogExploreName.MinCost,
-                    new MinCostAlgorithm()
-                },
-                {
-                    FogExploreName.MinDistanceToTarget,
-                    new MinDistanceToTargetAlgorithm()
-                },
-                {
-                    FogExploreName.MinCostPlusDistanceToTarget,
-                    new MinDistanceToTargetAlgorithm()
-                }
-            };
 
         #endregion
 
@@ -109,7 +90,7 @@ namespace AiPathFinding.Fog
         public static Tuple<Node, Node[], Node[]> ExploreFog(FogExploreName name, Node position, Node[] ignoreNodes, Func<Node, int> getCostFromNode, Action<Node, int> addCostToNode, Action<Node, Node[], Node[], string, bool> moveInFog, Func<Node, int> getDistanceToTarget)
         {
             // call instance method
-            return Algorithms[name].ExploreFog(position, ignoreNodes, getCostFromNode, addCostToNode, moveInFog, getDistanceToTarget);
+            return Utils.FogExploreAlgorithms[name].ExploreFog(position, ignoreNodes, getCostFromNode, addCostToNode, moveInFog, getDistanceToTarget);
         }
 
         /// <summary>

@@ -34,8 +34,12 @@ namespace AiPathFinding.Algorithm
 
         #region Constructor
 
-        public AStarAlgorithm(PathFindName name = PathFindName.AStar)
+        protected AStarAlgorithm(PathFindName name)
             : base(name)
+        {
+        }
+
+        public AStarAlgorithm() : base(PathFindName.AStar)
         {
         }
 

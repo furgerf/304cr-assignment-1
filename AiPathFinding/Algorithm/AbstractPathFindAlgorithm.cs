@@ -79,22 +79,6 @@ namespace AiPathFinding.Algorithm
         /// </summary>
         private readonly List<Action<Graphics>> _segmentDrawActions = new List<Action<Graphics>>();
 
-        /// <summary>
-        /// Contains all the instances of the path find algorithms.
-        /// </summary>
-        public static readonly Dictionary<PathFindName, AbstractPathFindAlgorithm> Algorithms =
-            new Dictionary<PathFindName, AbstractPathFindAlgorithm>
-            {
-                {
-                    PathFindName.AStar, 
-                    new AStarAlgorithm()
-                },
-                {
-                    PathFindName.Dijkstra, 
-                    new DijkstraAlgorithm()
-                }
-            };
-
         #endregion
 
         #region Constructor
@@ -124,7 +108,7 @@ namespace AiPathFinding.Algorithm
             FogExploreName fogExploreName)
         {
             // call instance method
-            Algorithms[name].FindPath(playerNode, targetNode, fogMethod, fogExploreName);
+            Utils.PathFindAlgorithms[name].FindPath(playerNode, targetNode, fogMethod, fogExploreName);
         }
 
         /// <summary>
