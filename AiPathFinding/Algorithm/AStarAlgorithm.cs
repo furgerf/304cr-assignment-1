@@ -107,6 +107,10 @@ namespace AiPathFinding.Algorithm
 
         protected override bool FindShortestPath(Node playerNode, Node to)
         {
+            // if we know that the target is unreachable, return
+            if (to.KnownToPlayer && to.Cost == int.MaxValue)
+                return false;
+
             Node currentNode = null;
             // loop while we have options an at least one of the options and we have not yet found a way
             while (_openNodes.Count > 0 && _nodeDataMap[to].Item1 == int.MaxValue)

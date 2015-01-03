@@ -106,8 +106,6 @@ namespace AiPathFinding.Algorithm
         protected AbstractPathFindAlgorithm(PathFindName name)
         {
             Name = name;
-
-            // TODO: move all algorithm instances to a dictionary here (like in the fogexplore stuff)
         }
 
         #endregion
@@ -334,7 +332,7 @@ namespace AiPathFinding.Algorithm
                 return;
             }
 
-            // TODO draw algorithmstep or something that says that no data was found
+            CreateStep(g => g.DrawString("No path found! :(", new Font("Microsoft Sans Serif", 64, FontStyle.Bold), Brushes.Lime, 0, 0), "No path found! :(");
         }
 
         /// <summary>
