@@ -183,7 +183,7 @@ namespace AiPathFinding.Algorithm
             var costData = new List<Tuple<string, Point, Brush, Font>>();
             
             if (withCost)
-                costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue && UpdatedNodes.Contains(k) || _openNodes.Contains(k)).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == target ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
+                costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue && UpdatedNodes.Contains(k) || _openNodes.Contains(k)).Select(n => new Tuple<string, Point, Brush, Font>("g=" + _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture), n.Location, n == target ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 10, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
 
             // prepare data for printing path
             var pathData = new List<Tuple<Point, Point>>();
@@ -211,7 +211,7 @@ namespace AiPathFinding.Algorithm
         protected override Action<Graphics> GetAlternativesStep(Node player, Node target)
         {
             // prepare data for drawing
-            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == target ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
+            var costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture), n.Location, n == target ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 10, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
 
             // prepare data for path
             var pathData = new List<Tuple<Point, Point, Pen>>();

@@ -442,7 +442,7 @@ namespace AiPathFinding.Algorithm
                 Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), iconRect, Utils.GetPathOpacity(i, data.Count), data[i].Item3);
 
                 g.DrawString(data[i].Item2.ToString(CultureInfo.InvariantCulture),
-                    new Font("Microsoft Sans Serif", 12, FontStyle.Bold), data[i].Item3 ? Brushes.Orange : Brushes.Red,
+                    new Font("Microsoft Sans Serif", 10, FontStyle.Bold), data[i].Item3 ? Brushes.Orange : Brushes.Red,
                     nodeRect.Location);
             }
         }
