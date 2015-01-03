@@ -11,7 +11,7 @@ namespace AiPathFinding.Algorithm
     /// <summary>
     /// Implementation of the A*-Algorithm.
     /// </summary>
-    public sealed class AStarAlgorithm : AbstractPathFindAlgorithm
+    public class AStarAlgorithm : AbstractPathFindAlgorithm
     {
         #region Fields
 
@@ -134,6 +134,9 @@ namespace AiPathFinding.Algorithm
 
         protected override Node[] GetPath(Node player, Node target)
         {
+            if (_nodeDataMap[player].Item1 == int.MaxValue || _nodeDataMap[target].Item1 == int.MaxValue)
+                throw new ArgumentException("I don't know how to get the cheapest path from player to target");
+
             // prepare data for printing path
             var pathData = new List<Node>();
             var node = target;
@@ -180,7 +183,7 @@ namespace AiPathFinding.Algorithm
             var costData = new List<Tuple<string, Point, Brush, Font>>();
             
             if (withCost)
-                costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == target ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
+                costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue && UpdatedNodes.Contains(k) || _openNodes.Contains(k)).Select(n => new Tuple<string, Point, Brush, Font>("g=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture)) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 == int.MaxValue ? "\u8734" : (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture)), n.Location, n == target ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 12, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
 
             // prepare data for printing path
             var pathData = new List<Tuple<Point, Point>>();
@@ -375,7 +378,7 @@ namespace AiPathFinding.Algorithm
         /// <param name="node">One node</param>
         /// <param name="target">Other node</param>
         /// <returns>Distance</returns>
-        private static int GetHeuristic(Node node, Node target)
+        protected virtual int GetHeuristic(Node node, Node target)
         {
             // Manhatten Distance
             return Math.Abs(target.Location.X - node.Location.X) + Math.Abs(target.Location.Y - node.Location.Y);
