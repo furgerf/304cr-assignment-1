@@ -97,6 +97,7 @@ namespace AiPathFinding.Algorithm
             {
                 // path was found, look for alternative, equal-cost paths
                 var step = FindAlternativePaths(playerNode, targetNode);
+                // TODO
                 //AddStep(step);
                 Console.WriteLine("Looking for alternative paths required " + (_steps.Count - mainSteps) +
                                   " steps and took " +
@@ -123,14 +124,18 @@ namespace AiPathFinding.Algorithm
         /// <param name="fogExploreName">Determines how fog should be explored</param>
         private void ExploreFog(Node playerNode, Node targetNode, FogMethod fogMethod, FogExploreName fogExploreName)
         {
+            Tuple<Node, Node[], Node[]> result = null;
+            Node clearNodeWhereFogWasLeft = null;
             while (true)
             {
+                // find possible foggy nodes to investigate
                 var foggyPossibilities = new List<Node>();
                 foggyPossibilities.AddRange(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes));
 
                 if (foggyPossibilities.Count == 0)
                     break;
 
+                // find clear nodes adjacent to the foggy nodes (need those since they're part of the pathfinding)
                 var clearPossibilities = new List<Node>();
                 foreach (var n in foggyPossibilities)
                 {
@@ -139,18 +144,22 @@ namespace AiPathFinding.Algorithm
                     clearPossibilities.Add(n.Edges.First(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue).GetOtherNode(n));
                 }
 
-                // pick "best" foggy node
+                // pick "best" clear neighbor to foggy node node
                 var clearFavorite = FogSelector.SelectFoggyNode(playerNode, targetNode, clearPossibilities.ToArray(), fogMethod,
                     CostFromNodeToNode);
                 if (clearFavorite.Edges.Count(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer) != 1)
                     throw new Exception("Dunno which foggy neighbor to chose");
+
+                // the foggy node to chose is the foggy neighbor to the clear favorite picked by the fogselector
                 var foggyNode = clearFavorite.Edges.First(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer).GetOtherNode(clearFavorite);
 
+                // maybe the foggy node has a cheaper clear neighbor to move to
                 var minCost = int.MaxValue;
                 foreach (var e in foggyNode.Edges)
                     if (e != null)
                     {
-                        if (GetCostFromNode(playerNode) == int.MaxValue || GetCostFromNode(e.GetOtherNode(foggyNode)) == int.MaxValue)
+                        if (GetCostFromNode(playerNode) == int.MaxValue ||
+                            GetCostFromNode(e.GetOtherNode(foggyNode)) == int.MaxValue)
                             continue;
 
                         var c = CostFromNodeToNode(playerNode, e.GetOtherNode(foggyNode));
@@ -160,54 +169,72 @@ namespace AiPathFinding.Algorithm
 
                 while (minCost == int.MaxValue)
                 {
-                    foggyPossibilities.Remove(foggyNode);
-                    clearPossibilities.Clear();
-                    foreach (var n in foggyPossibilities)
-                    {
-                        if (n.Edges.Count(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue) != 1)
-                            throw new Exception("Dunno which neighbor to choose...");
-                        clearPossibilities.Add(n.Edges.First(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue).GetOtherNode(n));
-                    }
-                    foggyNode = FogSelector.SelectFoggyNode(playerNode, targetNode, clearPossibilities.ToArray(), fogMethod,
-                        CostFromNodeToNode);
+                    throw new Exception("is this really being executed?");
+                    //foggyPossibilities.Remove(foggyNode);
+                    //clearPossibilities.Clear();
+                    //foreach (var n in foggyPossibilities)
+                    //{
+                    //    if (n.Edges.Count(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue) != 1)
+                    //        throw new Exception("Dunno which neighbor to choose...");
+                    //    clearPossibilities.Add(n.Edges.First(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue).GetOtherNode(n));
+                    //}
+                    //foggyNode = FogSelector.SelectFoggyNode(playerNode, targetNode, clearPossibilities.ToArray(), fogMethod,
+                    //    CostFromNodeToNode);
 
-                    minCost = int.MaxValue;
-                    foreach (var e in foggyNode.Edges)
-                        if (e != null)
-                        {
-                            if (GetCostFromNode(playerNode) == int.MaxValue || GetCostFromNode(e.GetOtherNode(foggyNode)) == int.MaxValue)
-                                continue;
+                    //minCost = int.MaxValue;
+                    //foreach (var e in foggyNode.Edges)
+                    //    if (e != null)
+                    //    {
+                    //        if (GetCostFromNode(playerNode) == int.MaxValue || GetCostFromNode(e.GetOtherNode(foggyNode)) == int.MaxValue)
+                    //            continue;
 
-                            var c = CostFromNodeToNode(playerNode, e.GetOtherNode(foggyNode));
-                            if (c > 0 && c < minCost)
-                                minCost = c;
-                        }
+                    //        var c = CostFromNodeToNode(playerNode, e.GetOtherNode(foggyNode));
+                    //        if (c > 0 && c < minCost)
+                    //            minCost = c;
+                    //    }
                 }
 
                 Console.WriteLine("Best node target investigate fog is " + foggyNode);
 
-                // add step for graphics stuff
+                // find path through clear map part to node
                 var min = int.MaxValue;
                 Node[] path = null;
-                //Node clearNeighborToFoggyNode = null;
-                //var partialCostBackup = PartialCost;
                 foreach (var e in foggyNode.Edges)
-                    if (e != null && GetCostFromNode(e.GetOtherNode(foggyNode)) < min)
+                    if (e != null && GetCostFromNode(e.GetOtherNode(foggyNode)) < min && e.GetOtherNode(foggyNode).KnownToPlayer)
                     {
                         min = GetCostFromNode(e.GetOtherNode(foggyNode));
-                        //PartialCost = partialCostBackup + min;
-                        path = GetPath(playerNode, e.GetOtherNode(foggyNode));
-                        //clearNeighborToFoggyNode = e.GetOtherNode(foggyNode);
+                            path = GetPath(playerNode, e.GetOtherNode(foggyNode));
                     }
 
+                // modify path
                 if (path != null)
                 {
                     var pathList = path.ToList();
-                    //pathList.Add(foggyNode);
 
+                    // remove starting node if it's the player node because that one has already been drawn
                     if (path[0] == playerNode)
                         pathList.RemoveAt(0);
-                    
+
+                    // if we aren't looking at the first foggy node in this part, do some more modifications
+                    if (clearNodeWhereFogWasLeft != null)
+                    {
+                        if (path.Contains(clearNodeWhereFogWasLeft))
+                        {
+                            // if the path from the player node to the next foggy node crosses the last clear node
+                            // (which is where we currently are)
+                            // then remove the first part of the path (playernode -> clearnode)
+                            while (pathList[0] != clearNodeWhereFogWasLeft)
+                                pathList.RemoveAt(0);
+                        }
+                        else
+                        {
+                            // otherwise, get the path from the playernode to the clear node,
+                            // reverse that part (to get clearnode -> playernode) and insert it
+                            var morePath = GetPath(playerNode, clearNodeWhereFogWasLeft);
+                            pathList.InsertRange(0, morePath.Reverse());
+                        }
+                    }
+
                     path = pathList.ToArray();
                 }
 
@@ -218,8 +245,8 @@ namespace AiPathFinding.Algorithm
                 _allFoggyNodes.AddRange(FoggyNodes);
 
                 // <----------------- segment ends here ----------------->
+                // TODO continue cleanup from here
                 //MoveFog(foggyNode, "Moving onto fog at " + foggyNode);
-
                 SegmentCompleted(g => DrawPath(g, path, pathCostData));
 
                 Console.WriteLine("Setting cost of " + foggyNode + " to " + (PartialCost + foggyNode.Cost));
@@ -228,7 +255,7 @@ namespace AiPathFinding.Algorithm
 
                 // <----------------- new segment starts here ----------------->
                 // explore fog
-                var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
+                result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
                     _allFoggyNodes.ToArray(), GetCostFromNode, AddCostToNode, MoveFog);
 
                 //AddStep(result.Item2);
@@ -252,6 +279,9 @@ namespace AiPathFinding.Algorithm
                     //foreach (var n in UpdatedNodes)
                     //    AddCostToNode(n, GetCostFromNode(n) + fogCost);
                     //FoggyNodes.Remove(foggyNode);
+                    if (result.Item3.Last().Edges.Count(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer) != 1)
+                        throw new Exception("Doomsday 's upon us!");
+                    clearNodeWhereFogWasLeft = result.Item3.Last().Edges.First(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer).GetOtherNode(result.Item3.Last());
                     continue;
                 }
 
@@ -271,18 +301,18 @@ namespace AiPathFinding.Algorithm
 
                 //var stepCount = _steps.Count;
                 // start pathfinding again
+                MoveNode(result.Item1);
                 FoggyNodes.Clear();
                 Console.WriteLine("Found another part of the known map, restarting pathfinding...");
                 FindPath(result.Item1, targetNode, fogMethod, fogExploreName);
 
-                //for (var i = stepCount; i < _steps.Count; i++)
-                //    _steps[i].AddDrawing(result.Item2);
                 return;
             }
         }
 
         protected void MoveNode(Node n)
         {
+            Console.WriteLine("---> Moving to node " + n);
             PartialCost += n.Cost;
         }
 
