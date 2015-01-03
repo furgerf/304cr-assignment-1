@@ -28,7 +28,6 @@ namespace AiPathFinding.Fog
             switch (method)
             {
                 case FogMethod.ClosestToPlayer:
-                    var minCost = foggyNodes.Min(nn => getCostFromPlayerToNode(start, nn));
                     return foggyNodes.First(n => getCostFromPlayerToNode(start, n) == 
                         foggyNodes.Min(nn => getCostFromPlayerToNode(start, nn)));
                 case FogMethod.ClosestToTarget:
@@ -36,7 +35,6 @@ namespace AiPathFinding.Fog
                         foggyNodes.Min(nn => Math.Abs(target.Location.X - nn.Location.X) + Math.Abs(target.Location.Y - nn.Location.Y)));
                 case FogMethod.MinClosestToPlayerPlusTarget:
                     var validNodes = foggyNodes.Where(n => getCostFromPlayerToNode(start, n) < int.MaxValue).ToArray();
-
                     return validNodes.First(n => getCostFromPlayerToNode(start, n) + Math.Abs(target.Location.X - n.Location.X) + Math.Abs(target.Location.Y - n.Location.Y) ==
                         validNodes.Min(nn => getCostFromPlayerToNode(start, nn) + Math.Abs(target.Location.X - nn.Location.X) + Math.Abs(target.Location.Y - nn.Location.Y)));
                 default:

@@ -6,13 +6,13 @@ using AiPathFinding.Model;
 namespace AiPathFinding.Fog
 {
     /// <summary>
-    /// Implementation of depth first search for exploring fog.
+    /// Choses the cheapest neighboring node when exploring fog.
     /// </summary>
-    public class DepthFirstAlgorithm : AbstractFogExploreAlgorithm
+    public class MinCostAlgorithm : AbstractFogExploreAlgorithm
     {
         #region Methods
 
-        protected override Node ChooseNextNode(Node position, Graph graph, Node[] ignoreNodes, Node[] visitedNodes)
+        protected override Node ChooseNextNode(Node position, Node[] ignoreNodes, Node[] visitedNodes)
         {
             // prepare data
             var clearNeighborsCost = new List<Node>();
@@ -42,6 +42,7 @@ namespace AiPathFinding.Fog
                         foggyNeighborsCost.Add(neighbor);
             }
 
+            // choose randomly among cheapest nodes
             var rnd = new Random();
             Node[] possibilities;
             

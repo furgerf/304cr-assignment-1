@@ -52,7 +52,7 @@
     <Compile Include="Algorithm\AStarAlgorithm.cs" />
     <Compile Include="Algorithm\DijkstraAlgorithm.cs" />
     <Compile Include="Algorithm\AbstractPathFindAlgorithm.cs" />
-    <Compile Include="Fog\DepthFirstAlgorithm.cs" />
+    <Compile Include="Fog\MinCostAlgorithm.cs" />
     <Compile Include="Fog\FogExploreName.cs" />
     <Compile Include="Fog\FogMethod.cs" />
     <Compile Include="Fog\FogSelector.cs" />

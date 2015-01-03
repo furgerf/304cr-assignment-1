@@ -5,6 +5,6 @@ namespace AiPathFinding.Fog
     /// </summary>
     public enum FogExploreName
     {
-        DepthFirst, Count
+        MinCost, Count
     }
 }

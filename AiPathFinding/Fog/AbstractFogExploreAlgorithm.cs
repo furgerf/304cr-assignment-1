@@ -12,8 +12,19 @@ namespace AiPathFinding.Fog
     {
         #region Fields
 
+        /// <summary>
+        /// Contains all nodes that have (ever) been visited.
+        /// </summary>
         private static readonly List<Node> VisitedNodes = new List<Node>();
+
+        /// <summary>
+        /// Contains all nodes that have (ever) been discarded.
+        /// </summary>
         private static readonly List<Node> DiscardedNodes = new List<Node>();
+
+        /// <summary>
+        /// Contains all nodes where the algorithm, in the current iteration, has had to backtrack.
+        /// </summary>
         private readonly List<Node> _backtrackedNodes = new List<Node>();
 
         /// <summary>
@@ -23,29 +34,40 @@ namespace AiPathFinding.Fog
             new Dictionary<FogExploreName, AbstractFogExploreAlgorithm>
             {
                 {
-                    FogExploreName.DepthFirst,
-                    new DepthFirstAlgorithm()
+                    FogExploreName.MinCost,
+                    new MinCostAlgorithm()
                 }
             };
 
         #endregion
 
-        #region Methods
+        #region Implemented Methods
 
+        /// <summary>
+        /// Resets all static data.
+        /// </summary>
         public static void Reset()
         {
             VisitedNodes.Clear();
             DiscardedNodes.Clear();
         }
 
+        /// <summary>
+        /// Expects an array of foggy nodes and filters out all nodes where it would not make sense to start looking for a path.
+        /// </summary>
+        /// <param name="foggyNodes">Foggy nodes</param>
+        /// <returns>Nodes where it's reasonable to explore</returns>
         public static List<Node> RemoveKnownFoggyNodes(List<Node> foggyNodes)
         {
-            var valid = new List<Node>();
+            // invalid nodes are those that have been visited and that border on a clear node
             var invalid = VisitedNodes.Concat(DiscardedNodes).Where(i => !i.KnownToPlayer && i.Edges.Count(e => e != null && e.GetOtherNode(i).KnownToPlayer) == 0).ToArray();
 
+            // if no nodes are invalid there is nothing to filter out
             if (invalid.Length == 0)
                 return foggyNodes;
 
+            // add all nodes to valid list that don't border on a invalid node
+            var valid = new List<Node>();
             foreach (var f in foggyNodes)
             {
                 var ok = true;
@@ -60,16 +82,38 @@ namespace AiPathFinding.Fog
                     valid.Add(f);
             }
 
+            // return valid nodes
             return valid;
         }
 
-        public static Tuple<Node, Node[], Node[]> ExploreFog(FogExploreName name, Node position, Graph graph, Node[] ignoreNodes, Func<Node, int> getCostFromNode, Action<Node, int> addCostToNode, Action<Node, Node[], Node[], string, bool> moveInFog)
+        //TODO: migrate ignored nodes (previously known foggy nodes) from pathfinding to here...
+        /// <summary>
+        /// Explores fog.
+        /// </summary>
+        /// <param name="name">Name of the method how to chose new, unknown foggy node</param>
+        /// <param name="position">Node where the exploration starts</param>
+        /// <param name="ignoreNodes">Nodes to ignore, eg from prevous fog explorations</param>
+        /// <param name="getCostFromNode">Function that returns the cost of a node</param>
+        /// <param name="addCostToNode">Action that updates the cost of a node</param>
+        /// <param name="moveInFog">Action that moves onto another node in the fog</param>
+        /// <returns>Tuple containing the node where the fog has been exited, an array of the path that has been taken and an array of nodes where there has been backtracking</returns>
+        public static Tuple<Node, Node[], Node[]> ExploreFog(FogExploreName name, Node position, Node[] ignoreNodes, Func<Node, int> getCostFromNode, Action<Node, int> addCostToNode, Action<Node, Node[], Node[], string, bool> moveInFog)
         {
             // call instance method
-            return Algorithms[name].ExploreFog(position, graph, ignoreNodes, getCostFromNode, addCostToNode, moveInFog);
+            return Algorithms[name].ExploreFog(position, ignoreNodes, getCostFromNode, addCostToNode, moveInFog);
         }
 
-        private Tuple<Node, Node[], Node[]> ExploreFog(Node position, Graph graph, Node[] ignoreNodes, Func<Node, int> getCostFromNode, Action<Node, int> addCostToNode, Action<Node, Node[], Node[], string, bool> moveInFog)
+        /// <summary>
+        /// Explores fog.
+        /// </summary>
+        /// <param name="name">Name of the method how to chose new, unknown foggy node</param>
+        /// <param name="position">Node where the exploration starts</param>
+        /// <param name="ignoreNodes">Nodes to ignore, eg from prevous fog explorations</param>
+        /// <param name="getCostFromNode">Function that returns the cost of a node</param>
+        /// <param name="addCostToNode">Action that updates the cost of a node</param>
+        /// <param name="moveInFog">Action that moves onto another node in the fog</param>
+        /// <returns>Tuple containing the node where the fog has been exited, an array of the path that has been taken and an array of nodes where there has been backtracking</returns>
+        private Tuple<Node, Node[], Node[]> ExploreFog(Node position, Node[] ignoreNodes, Func<Node, int> getCostFromNode, Action<Node, int> addCostToNode, Action<Node, Node[], Node[], string, bool> moveInFog)
         {
             // prepare data
             var currentNode = position;
@@ -85,7 +129,7 @@ namespace AiPathFinding.Fog
             {
                 // move
                 var oldCost = getCostFromNode(currentNode);
-                currentNode = ChooseNextNode(currentNode, graph, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
+                currentNode = ChooseNextNode(currentNode, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
 
                 while (currentNode == null)
                 {
@@ -114,7 +158,7 @@ namespace AiPathFinding.Fog
                     _backtrackedNodes.Add(VisitedNodes.Last());
                     VisitedNodes.Remove(VisitedNodes.Last());
                     oldCost += VisitedNodes.Last().Cost;
-                    currentNode = ChooseNextNode(VisitedNodes.Last(), graph, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
+                    currentNode = ChooseNextNode(VisitedNodes.Last(), ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray());
 
                     // update cost
                     Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 1] + ".");
@@ -143,7 +187,18 @@ namespace AiPathFinding.Fog
             }
         }
 
-        protected abstract Node ChooseNextNode(Node position, Graph graph, Node[] ignoreNodes, Node[] visitedNodes);
+        #endregion
+
+        #region Abstract Methods
+
+        /// <summary>
+        /// Determines to which node to move to.
+        /// </summary>
+        /// <param name="position">Current position</param>
+        /// <param name="ignoreNodes">All nodes to ignore</param>
+        /// <param name="visitedNodes">All nodes that have previously been visited</param>
+        /// <returns></returns>
+        protected abstract Node ChooseNextNode(Node position, Node[] ignoreNodes, Node[] visitedNodes);
 
         #endregion
     }

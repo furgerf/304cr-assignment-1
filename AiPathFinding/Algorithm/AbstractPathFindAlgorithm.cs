@@ -90,6 +90,8 @@ namespace AiPathFinding.Algorithm
         protected AbstractPathFindAlgorithm(PathFindName name)
         {
             Name = name;
+
+            // TODO: move all algorithm instances to a dictionary here (like in the fogexplore stuff)
         }
 
         #endregion
@@ -265,8 +267,7 @@ namespace AiPathFinding.Algorithm
 
                 // <----------------- new segment starts here ----------------->
                 // explore fog
-                var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, Graph,
-                    _allFoggyNodes.ToArray(), GetCostFromNode, AddCostToNode, MoveFog);
+                var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, _allFoggyNodes.ToArray(), GetCostFromNode, AddCostToNode, MoveFog);
                 
                 // <----------------- segment ends here ----------------->
                 SegmentCompleted(DrawFoggyPath(result.Item2, result.Item3));
