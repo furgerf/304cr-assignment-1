@@ -115,7 +115,7 @@ namespace AiPathFinding.View
 
             // instantiate algorithms if necessary
             if (_pathFindAlgorithms == null)
-                _pathFindAlgorithms = new AbstractPathFindAlgorithm[] { null, new AStarAlgorithm() };
+                _pathFindAlgorithms = new AbstractPathFindAlgorithm[] { new DijkstraAlgorithm(), new AStarAlgorithm() };
             // TODO
             //_pathFindAlgorithms = new AbstractPathFindAlgorithm[] { new DijkstraAlgorithm(), new AStarAlgorithm() };
 
