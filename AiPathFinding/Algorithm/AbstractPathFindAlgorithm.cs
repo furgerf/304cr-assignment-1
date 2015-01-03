@@ -79,6 +79,22 @@ namespace AiPathFinding.Algorithm
         /// </summary>
         private readonly List<Action<Graphics>> _segmentDrawActions = new List<Action<Graphics>>();
 
+        /// <summary>
+        /// Contains all the instances of the path find algorithms.
+        /// </summary>
+        public static readonly Dictionary<PathFindName, AbstractPathFindAlgorithm> Algorithms =
+            new Dictionary<PathFindName, AbstractPathFindAlgorithm>
+            {
+                {
+                    PathFindName.AStar, 
+                    new AStarAlgorithm()
+                },
+                {
+                    PathFindName.Dijkstra, 
+                    new DijkstraAlgorithm()
+                }
+            };
+
         #endregion
 
         #region Constructor
@@ -101,11 +117,26 @@ namespace AiPathFinding.Algorithm
         /// <summary>
         /// Attempts target find a data.
         /// </summary>
+        /// <param name="name">Name of the algorithm to use</param>
         /// <param name="playerNode">Starting node of the search</param>
         /// <param name="targetNode">Goal node of the search</param>
         /// <param name="fogMethod">Method target determing where fog should be entered</param>
         /// <param name="fogExploreName">Determines how fog should be explored</param>
-        public void FindPath(Node playerNode, Node targetNode, FogMethod fogMethod, FogExploreName fogExploreName)
+        public static void FindPath(PathFindName name, Node playerNode, Node targetNode, FogMethod fogMethod,
+            FogExploreName fogExploreName)
+        {
+            // call instance method
+            Algorithms[name].FindPath(playerNode, targetNode, fogMethod, fogExploreName);
+        }
+
+        /// <summary>
+        /// Attempts target find a data.
+        /// </summary>
+        /// <param name="playerNode">Starting node of the search</param>
+        /// <param name="targetNode">Goal node of the search</param>
+        /// <param name="fogMethod">Method target determing where fog should be entered</param>
+        /// <param name="fogExploreName">Determines how fog should be explored</param>
+        private void FindPath(Node playerNode, Node targetNode, FogMethod fogMethod, FogExploreName fogExploreName)
         {
             // <----------------- new segment starts here ----------------->
             // prepare data
