@@ -345,12 +345,12 @@ namespace AiPathFinding.Algorithm
 
             var newStep = new AlgorithmStep(g =>
             {
+                // draw current (partial) segment
+                drawStep(g);
+
                 // draw previous segments
                 foreach (var a in previousActions)
                     a(g);
-
-                // draw current (partial) segment
-                drawStep(g);
             }, ExploredClearCells + ExploredFoggyCells, Graph.PassibleNodeCount, PartialCost, comment);
 
             _steps.Add(newStep);
@@ -389,8 +389,7 @@ namespace AiPathFinding.Algorithm
             {
                 var r = MainForm.MapPointToCanvasRectangle(path[i].Item1.Location);
                 var p = new Point(r.Location.X + r.Width / 2, r.Location.Y + r.Height / 2);
-                Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p,
-                    0.3f + ((1 - (float)i / path.Length)) / 0.7f, path[i].Item2);
+                Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p, Utils.GetPathOpacity(i, path.Length), path[i].Item2);
 
                 g.DrawString(cost[i].ToString(CultureInfo.InvariantCulture),
                     new Font("Microsoft Sans Serif", 12, FontStyle.Bold), path[i].Item2 ? Brushes.Orange : Brushes.Red,
@@ -401,14 +400,6 @@ namespace AiPathFinding.Algorithm
         private void SegmentCompleted(Action<Graphics> segmentDrawAction)
         {
             _segmentDrawActions.Insert(0, segmentDrawAction);
-
-            //var oldAction = _partialDrawAction;
-            //var newAction = new Action<Graphics>(g =>
-            //{
-            //    oldAction(g);
-            //    segmentDrawAction(g);
-            //});
-            //_partialDrawAction = newAction;
         }
 
         /// <summary>

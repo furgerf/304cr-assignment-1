@@ -6,10 +6,8 @@ namespace AiPathFinding.Common
 {
     public static class Utils
     {
-        public static void DrawTransparentImage(Graphics g, Bitmap image, int x, int y, float opacity, bool red = false)
-        {
-            DrawTransparentImage(g, image, new Point(x, y), opacity, red);
-        }
+        private const float OpacityMinimum = 0.3f;
+        private const float OpacityIndexOffset = 1f;
 
         public static void DrawTransparentImage(Graphics g, Bitmap image, Point location, float opacity, bool red = false)
         {
@@ -21,6 +19,11 @@ namespace AiPathFinding.Common
             att.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
             g.DrawImage(image, new Rectangle(location.X, location.Y, bmp.Width, bmp.Width), 0, 0,
                 image.Width, image.Height, GraphicsUnit.Pixel, att);
+        }
+
+        public static float GetPathOpacity(int pathIndex, int pathLength)
+        {
+            return OpacityMinimum + (pathIndex + OpacityIndexOffset) / pathLength * (1 - OpacityMinimum);
         }
 
         public static T[] SubArray<T>(this T[] data, int index, int length)
