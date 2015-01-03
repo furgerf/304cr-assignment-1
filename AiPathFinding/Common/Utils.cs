@@ -30,7 +30,7 @@ namespace AiPathFinding.Common
         /// <param name="location">Location, where the image should be drawn</param>
         /// <param name="opacity">Opacity of the image</param>
         /// <param name="red">True if the image should be drawn in red</param>
-        public static void DrawTransparentImage(Graphics g, Bitmap image, Point location, float opacity,
+        public static void DrawTransparentImage(Graphics g, Bitmap image, Rectangle location, float opacity,
             bool red = false)
         {
             // create new bitmap for the modified image
@@ -46,7 +46,7 @@ namespace AiPathFinding.Common
             att.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
             // draw the image
-            g.DrawImage(image, new Rectangle(location.X, location.Y, bmp.Width, bmp.Width), 0, 0,
+            g.DrawImage(image, new Rectangle(location.X, location.Y, location.Width, location.Width), 0, 0,
                 image.Width, image.Height, GraphicsUnit.Pixel, att);
         }
 

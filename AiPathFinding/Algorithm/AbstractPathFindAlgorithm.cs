@@ -437,13 +437,13 @@ namespace AiPathFinding.Algorithm
         {
             for (var i = 0; i < data.Count; i++)
             {
-                var r = MainForm.MapPointToCanvasRectangle(data[i].Item1.Location);
-                var p = new Point(r.Location.X + r.Width / 2, r.Location.Y + r.Height / 2);
-                Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), p, Utils.GetPathOpacity(i, data.Count), data[i].Item3);
+                var nodeRect = MainForm.MapPointToCanvasRectangle(data[i].Item1.Location);
+                var iconRect = new Rectangle(nodeRect.Location.X + nodeRect.Width / 2, nodeRect.Location.Y + nodeRect.Height / 2, nodeRect.Width / 2, nodeRect.Height / 2);
+                Utils.DrawTransparentImage(g, Resources.runner.ToBitmap(), iconRect, Utils.GetPathOpacity(i, data.Count), data[i].Item3);
 
                 g.DrawString(data[i].Item2.ToString(CultureInfo.InvariantCulture),
                     new Font("Microsoft Sans Serif", 12, FontStyle.Bold), data[i].Item3 ? Brushes.Orange : Brushes.Red,
-                    r.Location);
+                    nodeRect.Location);
             }
         }
 
