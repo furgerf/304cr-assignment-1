@@ -138,7 +138,7 @@ namespace AiPathFinding.Algorithm
         {
             // <----------------- new segment starts here ----------------->
             // prepare data
-            Console.WriteLine("\node* " + Name + " is attempting target find a data player " + playerNode + " target " + targetNode + ".");
+            Console.WriteLine("Algorithm " + Name + " is attempting target find a data player " + playerNode + " target " + targetNode + ".");
             var watch = Stopwatch.StartNew();
 
             // set last node to be the player node if it is null, eg. when this is the first instance of the data finding
@@ -175,8 +175,8 @@ namespace AiPathFinding.Algorithm
             }
             else
             {
-                // no data was found. if fog is present, explore it
-                Console.WriteLine("No data found, attempting target explore fog...");
+                // no path was found. if fog is present, explore it
+                Console.WriteLine("No path found, attempting target explore fog...");
                 ExploreFog(playerNode, targetNode, fogMethod, fogExploreName);
             }
         }
@@ -207,19 +207,20 @@ namespace AiPathFinding.Algorithm
                 var clearPossibilities = new List<Node>();
                 foreach (var n in foggyPossibilities)
                 {
-                    if (n.Edges.Count(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue) != 1)
-                        throw new Exception("Dunno which clear neighbor to choose...");
-                    clearPossibilities.Add(n.Edges.First(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue).GetOtherNode(n));
+                    var cheapestClearPossibility = n.Edges.Where(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) < int.MaxValue).Min(e => GetCostFromNode(e.GetOtherNode(n)));
+
+                    clearPossibilities.Add(n.Edges.First(e => e != null && e.GetOtherNode(n).KnownToPlayer && GetCostFromNode(e.GetOtherNode(n)) == cheapestClearPossibility).GetOtherNode(n));
                 }
 
                 // pick "best" clear neighbor to foggy node node
                 var clearFavorite = FogSelector.SelectFoggyNode(playerNode, targetNode, clearPossibilities.ToArray(), fogMethod,
                     CostFromNodeToNode);
-                if (clearFavorite.Edges.Count(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer) != 1)
-                    throw new Exception("Dunno which foggy neighbor to chose");
+
+                //if (clearFavorite.Edges.Count(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer) != 1)
+                //    throw new Exception("Dunno which foggy neighbor to chose");
 
                 // the foggy node to chose is the foggy neighbor to the clear favorite picked by the fogselector
-                var foggyNode = clearFavorite.Edges.First(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer).GetOtherNode(clearFavorite);
+                var foggyNode = clearFavorite.Edges.First(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer && e.GetOtherNode(clearFavorite).Cost != int.MaxValue).GetOtherNode(clearFavorite);
 
                 // maybe the foggy node has a cheaper clear neighbor to move to
                 var minCost = int.MaxValue;
@@ -236,7 +237,11 @@ namespace AiPathFinding.Algorithm
                     }
 
                 if (minCost == int.MaxValue)
-                    throw new Exception("The node has no clear neighbor. Shouldn't happen though...");
+                {
+                    Console.WriteLine("The selected node doesn't have valid neighbor, must try another one...");
+                    FoggyNodes.Remove(foggyNode);
+                    continue;
+                }
 
                 Console.WriteLine("Best node target investigate fog is " + foggyNode);
 
@@ -306,11 +311,24 @@ namespace AiPathFinding.Algorithm
                     // no other exit found, try other foggy node
                     Console.WriteLine("Node " + foggyNode + " didn't yield anything useful, trying next node...");
 
-                    if (result.Item3.Last().Edges.Count(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer) != 1)
-                        throw new Exception("We didn't return on a clear tile :/");
-                    
-                    // set the clear tile where we returned
-                    clearNodeWhereFogWasLeft = result.Item3.Last().Edges.First(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer).GetOtherNode(result.Item3.Last());
+                    if (result.Item3.Length > 0)
+                    {
+                        if (
+                            result.Item3.Last()
+                                .Edges.Count(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer) != 1)
+                            throw new Exception("We didn't return on a clear tile :/");
+
+                        // set the clear tile where we returned
+                        clearNodeWhereFogWasLeft =
+                            result.Item3.Last()
+                                .Edges.First(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer)
+                                .GetOtherNode(result.Item3.Last());
+                    }
+                    else
+                    {
+                        clearNodeWhereFogWasLeft = foggyNode;
+                        FoggyNodes.Remove(foggyNode);
+                    }
 
                     continue;
                 }
@@ -376,8 +394,16 @@ namespace AiPathFinding.Algorithm
             CreateStep(DrawFoggyPath(path, backtrackedNodes), comment);
         }
 
+        /// <summary>
+        /// Moves the player along a path.
+        /// </summary>
+        /// <param name="nodes">Nodes that make up the path</param>
+        /// <param name="comment">Comment for the steps</param>
+        /// <returns>Array containing the costs for the different steps of the path</returns>
         private int[] MovePath(Node[] nodes, string comment)
         {
+            Console.WriteLine("Moving on path to " + nodes.Last());
+
             var cost = new int[nodes.Length];
             for (var i = 0; i < nodes.Length; i++)
             {

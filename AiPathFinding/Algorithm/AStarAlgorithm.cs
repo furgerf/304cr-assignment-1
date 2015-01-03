@@ -75,14 +75,6 @@ namespace AiPathFinding.Algorithm
 
         protected override Action<Graphics> FindAlternativePaths(Node playerNode, Node targetNode)
         {
-            // check for other paths with the same cost
-            // remove all costlier nodes playerNode the list
-            var stillOpen =
-                _openNodes.Where(n => _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2 <= _nodeDataMap[targetNode].Item1)
-                    .ToArray();
-            _openNodes.Clear();
-            _openNodes.AddRange(stillOpen);
-
             // check all remaining nodes
             while (_openNodes.Count > 0)
             {
@@ -95,10 +87,10 @@ namespace AiPathFinding.Algorithm
                 }
 
                 // check node
-                ProcessNode(_openNodes[0]);
+                var currentNode = _openNodes[0];
+                ProcessNode(currentNode);
                 ExploredClearCells++;
-                CreateStep(GetAlgorithmStep(playerNode, _openNodes[0]), "A*: Looking for alternative paths");
-                _openNodes.RemoveAt(0);
+                CreateStep(GetAlgorithmStep(playerNode, currentNode), "A*: Looking for alternative paths");
             }
 
             // add step with all possdible paths
@@ -119,7 +111,6 @@ namespace AiPathFinding.Algorithm
                 currentNode = _openNodes[0];
                 ProcessNode(currentNode);
                 ExploredClearCells++;
-                UpdatedNodes.Add(currentNode);
                 CreateStep(GetAlgorithmStep(playerNode, currentNode), "A*: Exploring " + currentNode);
             }
 
@@ -323,10 +314,11 @@ namespace AiPathFinding.Algorithm
         {
             // move node target closed list
             _openNodes.Remove(node);
+            UpdatedNodes.Add(node);
             _closedNodes.Add(node);
 
             // add foggy neighbors
-            foreach (var e in node.Edges.Where(e => e != null && e.GetOtherNode(node).Cost != int.MaxValue && !FoggyNodes.Contains(node) && !e.GetOtherNode(node).KnownToPlayer))
+            foreach (var e in node.Edges.Where(e => e != null && e.GetOtherNode(node).Cost != int.MaxValue && !FoggyNodes.Contains(e.GetOtherNode(node)) && !e.GetOtherNode(node).KnownToPlayer))
                 FoggyNodes.Add(e.GetOtherNode(node));
 
             // process passible, unvisited neighbors

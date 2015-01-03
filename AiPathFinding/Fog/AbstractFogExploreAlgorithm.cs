@@ -130,9 +130,18 @@ namespace AiPathFinding.Fog
             VisitedNodes.Clear();
             _backtrackedNodes.Clear();
 
+            currentNode = ChooseNextNode(currentNode, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget);
+
+            if (currentNode == null)
+            {
+                Console.WriteLine("Started exploring fog on a node that has no neighbor that can be explored, aborting...");
+                return new Tuple<Node, Node[], Node[]>(null, new Node[0], new Node[0]);
+            }
+            currentNode = position;
+            
             // move on to first foggy tile
             moveInFog(position, new[] { position }, _backtrackedNodes.ToArray(), "Moving onto first foggy node " + position, false);
-            
+
             // loop until a way is found or we are stuck
             while (true)
             {
