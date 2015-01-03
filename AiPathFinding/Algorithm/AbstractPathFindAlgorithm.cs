@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using AiPathFinding.Common;
 using AiPathFinding.Fog;
 using AiPathFinding.Model;
@@ -182,6 +183,7 @@ namespace AiPathFinding.Algorithm
             {
                 // find possible foggy nodes to investigate
                 var foggyPossibilities = new List<Node>();
+                RemoveLonelyFoggyNodes();
                 foggyPossibilities.AddRange(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes));
 
                 if (foggyPossibilities.Count == 0)
@@ -338,6 +340,49 @@ namespace AiPathFinding.Algorithm
         }
 
         /// <summary>
+        /// Removes all foggy nodes where all neighbors are known or otherwise contained in the foggy node list
+        /// </summary>
+        private void RemoveLonelyFoggyNodes()
+        {
+            var deleteIndices = new List<int>();
+            for (var i = 0; i < FoggyNodes.Count; i++)
+            {
+                var delete = true;
+
+                foreach (var e in FoggyNodes[i].Edges)
+                {
+                    if (e == null)
+                        continue;
+
+                    var otherNode = e.GetOtherNode(FoggyNodes[i]);
+
+                    if (otherNode.KnownToPlayer) continue;
+
+                    if (
+                        otherNode.Edges.Any(
+                            ee =>
+                                ee != null && !ee.GetOtherNode(otherNode).KnownToPlayer &&
+                                GetCostFromNode(ee.GetOtherNode(otherNode)) == int.MaxValue && !FoggyNodes.Contains(otherNode)))
+                        delete = false;
+                }
+
+                if (delete)
+                    deleteIndices.Add(i);
+            }
+
+            var removedNodeString = "";
+
+            for (var i = deleteIndices.Count - 1; i >= 0; i--)
+            {
+                removedNodeString += ", " + FoggyNodes[deleteIndices[i]];
+                FoggyNodes.RemoveAt(deleteIndices[i]);
+            }
+
+            if (removedNodeString != "")
+                Console.WriteLine("Removed nodes " + removedNodeString.Substring(2) + " from foggy node list.");
+        }
+
+        /// <summary>
         /// Move player onto node.
         /// </summary>
         /// <param name="node">Node where the player should move to</param>
@@ -428,14 +473,14 @@ namespace AiPathFinding.Algorithm
         /// <param name="path">Current data</param>
         /// <param name="backtrackedNodes">Nodes where the player had to backtrack</param>
         /// <returns></returns>
-        private Action<Graphics> DrawFoggyPath(Node[] path, Node[] backtrackedNodes)
+        private Action<Graphics> DrawFoggyPath(IList<Node> path, IList<Node> backtrackedNodes)
         {
             // calculate current data costs and store them locally
-            var pathCost = new int[path.Length];
-            for (var i = 0; i < path.Length; i++)
+            var pathCost = new int[path.Count];
+            for (var i = 0; i < path.Count; i++)
                 pathCost[i] = GetCostFromNode(path[i]);
-            var backtrackedCost = new int[backtrackedNodes.Length];
-            for (var i = 0; i < backtrackedNodes.Length; i++)
+            var backtrackedCost = new int[backtrackedNodes.Count];
+            for (var i = 0; i < backtrackedNodes.Count; i++)
                 backtrackedCost[i] = GetCostFromNode(backtrackedNodes[i]);
 
             // draw both paths (though the backtracked nodes don't technically form a data...)

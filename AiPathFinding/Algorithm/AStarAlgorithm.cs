@@ -291,7 +291,7 @@ namespace AiPathFinding.Algorithm
                             new Point(p2.X + offset, p2.Y + offset), new Pen(color, 2)));
                 }
 
-            Console.WriteLine("* Found " + closedPaths.Count() + " distinct paths with cost of " + _nodeDataMap[target].Item1 + ", ranging player " + minPath + " target " + maxPath + " cells long!");
+            Console.WriteLine("* Found " + closedPaths.Count() + " distinct paths with cost of " + _nodeDataMap[target].Item1 + ", ranging from " + minPath + " to " + maxPath + " cells long!");
 
             return g =>
             {
