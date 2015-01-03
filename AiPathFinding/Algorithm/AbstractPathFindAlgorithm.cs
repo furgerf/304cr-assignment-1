@@ -81,6 +81,8 @@ namespace AiPathFinding.Algorithm
             Console.WriteLine("\n* " + Name + " is attempting target find a path player " + playerNode + " target " + targetNode + ".");
             var watch = Stopwatch.StartNew();
 
+            _lastNode = _lastNode ?? playerNode;
+
             PrepareData(playerNode, targetNode);
 
             Console.WriteLine("Preparation took " + watch.ElapsedMilliseconds + "ms");
@@ -310,10 +312,16 @@ namespace AiPathFinding.Algorithm
             }
         }
 
+        private Node _lastNode;
+
         protected void MoveNode(Node n)
         {
-            Console.WriteLine("---> Moving to node " + n);
+            if (_lastNode.Edges.Count(e => e != null && e.GetOtherNode(_lastNode) == n) != 1)
+                throw new Exception("Teleporting is not allowed!");
+
             PartialCost += n.Cost;
+
+            _lastNode = n;
         }
 
         protected int ExploredFoggyCells;
@@ -494,6 +502,7 @@ namespace AiPathFinding.Algorithm
             _steps.Clear();
             //AdditionalCost = 0;
             //_partialDrawAction = g => { };
+            _lastNode = null;
             _segmentDrawActions.Clear();
             PartialCost = 0;
             FoggyNodes.Clear();
