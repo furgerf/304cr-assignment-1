@@ -108,6 +108,7 @@ namespace AiPathFinding.Fog
             var currentNode = position;
             DiscardedNodes.AddRange(VisitedNodes);
             VisitedNodes.Clear();
+            VisitedNodes.Add(position);
             _backtrackedNodes.Clear();
 
             // move on to first foggy tile
@@ -204,6 +205,7 @@ namespace AiPathFinding.Fog
             // prepare data
             var clearNeighborsCost = new List<Node>();
             var foggyNeighborsCost = new List<Node>();
+            var lastResortNeighborsCost = new List<Node>();
 
             // iterate over all edges and add them to proper lists
             foreach (var e in position.Edges)
@@ -217,8 +219,12 @@ namespace AiPathFinding.Fog
                 if (neighbor.EntityOnNode == Entity.Target)
                     return neighbor;
 
+                // if the node should be ignored but we have no way to go, we could use them...
+                if (ignoreNodes.Contains(neighbor) && !visitedNodes.Contains(neighbor))
+                    lastResortNeighborsCost.Add(neighbor);
+
                 // ignore some neighbors...
-                if (neighbor.Cost == int.MaxValue || ignoreNodes.Contains(neighbor) || getCostOfNode(neighbor) != int.MaxValue)
+                if ((neighbor.Cost == int.MaxValue || ignoreNodes.Contains(neighbor) || getCostOfNode(neighbor) != int.MaxValue))
                     continue;
 
                 // add neighbor to proper list
@@ -241,10 +247,19 @@ namespace AiPathFinding.Fog
                 return possibilities[rnd.Next(possibilities.Length)];
             }
 
-            // if there are not even foggy nodes, we are stuck
+            // if there are not even foggy nodes, we are fcked
             if (foggyNeighborsCost.Count == 0)
-                return null;
+            {
+                if (lastResortNeighborsCost.Count > 0)
+                {
+                    // well, maybe there is a naughty way after all...
+                    possibilities = lastResortNeighborsCost.Where(n => GetMetric(n, getDistanceToTarget) == lastResortNeighborsCost.Min(nn => GetMetric(nn, getDistanceToTarget))).ToArray();
+                    return possibilities[rnd.Next(possibilities.Length)];
+                }
 
+                return null;
+            }
+                
             // chose among foggy nodes
             possibilities = foggyNeighborsCost.Where(n => GetMetric(n, getDistanceToTarget) == foggyNeighborsCost.Min(nn => GetMetric(nn, getDistanceToTarget))).ToArray();
             return possibilities[rnd.Next(possibilities.Length)];
