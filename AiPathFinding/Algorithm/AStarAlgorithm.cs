@@ -65,7 +65,7 @@ namespace AiPathFinding.Algorithm
 
         protected override void AddCostToNode(Node node, int cost)
         {
-            Console.WriteLine("Setting cost of " + node + " to " + cost);
+            //Console.WriteLine("Setting cost of " + node + " to " + cost);
             
             // set tuple item in nodedatamap
             _nodeDataMap[node] = new Tuple<int, int>(cost, _nodeDataMap[node].Item2);
@@ -135,6 +135,9 @@ namespace AiPathFinding.Algorithm
         {
             if (_nodeDataMap[player].Item1 == int.MaxValue || _nodeDataMap[target].Item1 == int.MaxValue)
                 throw new ArgumentException("I don't know how to get the cheapest path from player to target");
+
+            if (player == target)
+                return new Node[0];
 
             // prepare data for printing path
             var pathData = new List<Node>();
@@ -303,6 +306,11 @@ namespace AiPathFinding.Algorithm
                 // draw paths
                 foreach (var d in pathData)
                     g.DrawLine(d.Item3, d.Item1, d.Item2);
+
+                // draw cost of target
+                g.DrawString(_nodeDataMap[target].Item1.ToString(CultureInfo.InvariantCulture),
+                    new Font("Microsoft Sans Serif", 18, FontStyle.Bold), Brushes.Blue,
+                    MainForm.MapPointToCanvasRectangle(target.Location).Location);
             };
         }
 

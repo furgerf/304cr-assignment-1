@@ -133,6 +133,18 @@ namespace AiPathFinding.Common
             return result;
         }
 
+        /// <summary>
+        /// Gets the subarray of an array.
+        /// </summary>
+        /// <typeparam name="T">Type of the array</typeparam>
+        /// <param name="data">Array itself</param>
+        /// <param name="index">Index, from where the subarray should be retrieved from</param>
+        /// <returns>Subarray</returns>
+        public static T[] SubArray<T>(this T[] data, int index)
+        {
+            return data.SubArray(index, data.Length - index);   
+        }
+
         #endregion
     }
 }

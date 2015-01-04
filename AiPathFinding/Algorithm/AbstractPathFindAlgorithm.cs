@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using AiPathFinding.Common;
 using AiPathFinding.Fog;
 using AiPathFinding.Model;
@@ -178,6 +177,7 @@ namespace AiPathFinding.Algorithm
         {
             // this is where fog was left after the last attempt to exit the current clear area
             Node clearNodeWhereFogWasLeft = null;
+            Node lastFoggyNode = null;
 
             // try different fog nodes until an exit is found or we run out of options
             while (true)
@@ -185,7 +185,9 @@ namespace AiPathFinding.Algorithm
                 // find possible foggy nodes to investigate
                 var foggyPossibilities = new List<Node>();
                 foggyPossibilities.AddRange(RemoveLonelyFoggyNodes(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes)));
-                
+                FoggyNodes.Clear();
+                FoggyNodes.AddRange(foggyPossibilities);
+
                 if (foggyPossibilities.Count == 0)
                     break;
 
@@ -202,81 +204,43 @@ namespace AiPathFinding.Algorithm
                 var clearFavorite = FogSelector.SelectFoggyNode(playerNode, targetNode, clearPossibilities.ToArray(), fogMethod,
                     CostFromNodeToNode);
 
-                //if (clearFavorite.Edges.Count(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer) != 1)
-                //    throw new Exception("Dunno which foggy neighbor to chose");
-
                 // the foggy node to chose is the foggy neighbor to the clear favorite picked by the fogselector
-                var foggyNode = clearFavorite.Edges.First(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer && e.GetOtherNode(clearFavorite).Cost != int.MaxValue).GetOtherNode(clearFavorite);
-
-                // maybe the foggy node has a cheaper clear neighbor to move to
-                var minCost = int.MaxValue;
-                foreach (var e in foggyNode.Edges)
-                    if (e != null)
-                    {
-                        if (GetCostFromNode(playerNode) == int.MaxValue ||
-                            GetCostFromNode(e.GetOtherNode(foggyNode)) == int.MaxValue)
-                            continue;
-
-                        var c = CostFromNodeToNode(playerNode, e.GetOtherNode(foggyNode));
-                        if (c > 0 && c < minCost)
-                            minCost = c;
-                    }
-
-                if (minCost == int.MaxValue)
-                {
-                    Console.WriteLine("The selected node doesn't have valid neighbor, must try another one...");
-                    FoggyNodes.Remove(foggyNode);
-                    continue;
-                }
+                var foggyNode = clearFavorite.Edges.First(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer && e.GetOtherNode(clearFavorite).Cost != int.MaxValue && FoggyNodes.Contains(e.GetOtherNode(clearFavorite))).GetOtherNode(clearFavorite);
 
                 Console.WriteLine("Best node target investigate fog is " + foggyNode);
 
-                CreateStep(g => DrawFoggyAlternatives(g, foggyNode, foggyPossibilities.ToArray()), "Possible foggy nodes to investigate.");
+                // create algorithmstep showing possible foggy nodes
+                var closureFoggyNode = lastFoggyNode;
+                var closureCost = PartialCost;
+                CreateStep(g => DrawFoggyAlternatives(g, foggyNode, foggyPossibilities.ToArray(), closureFoggyNode, closureCost), "Possible foggy nodes to investigate.");
 
-                // find data through clear map part to node
-                var min = int.MaxValue;
-                Node[] path = null;
-                foreach (var e in foggyNode.Edges)
-                    if (e != null && GetCostFromNode(e.GetOtherNode(foggyNode)) < min && e.GetOtherNode(foggyNode).KnownToPlayer)
-                    {
-                        min = GetCostFromNode(e.GetOtherNode(foggyNode));
-                            path = GetPath(playerNode, e.GetOtherNode(foggyNode));
-                    }
+                Node[] path;
 
-                // modify data
-                if (path != null)
+                if (clearNodeWhereFogWasLeft == null)
                 {
-                    var pathList = path.ToList();
-
-                    // remove starting node if it's the player node because that one has already been drawn
-                    if (path[0] == playerNode)
-                        pathList.RemoveAt(0);
-
-                    // if we aren't looking at the first foggy node in this part, do some more modifications
-                    if (clearNodeWhereFogWasLeft != null)
-                    {
-                        if (path.Contains(clearNodeWhereFogWasLeft))
-                        {
-                            // if the data from the player node to the next foggy node crosses the last clear node
-                            // (which is where we currently are)
-                            // then remove the first part of the data (playernode -> clearnode)
-                            while (pathList[0] != clearNodeWhereFogWasLeft)
-                                pathList.RemoveAt(0);
-                        }
-                        else
-                        {
-                            // otherwise, get the data from the playernode to the clear node,
-                            // reverse that part (to get clearnode -> playernode) and insert it
-                            var morePath = GetPath(playerNode, clearNodeWhereFogWasLeft);
-                            pathList.InsertRange(0, morePath.Reverse());
-                        }
-                    }
-
-                    path = pathList.ToArray();
+                    // move from playernode to clearfavorite
+                    path = GetPath(playerNode, clearFavorite);
                 }
+                else
+                {
+                    // move from clearnodewherefogwasleft to playernode and from playernode to clearfavorite
+                    if (clearNodeWhereFogWasLeft != clearFavorite)
+                    {
+                        var part1 = GetPath(playerNode, clearNodeWhereFogWasLeft).Reverse().ToArray();
+                        if (part1.Length > 0)
+                            part1 = part1.SubArray(0, part1.Length - 1);
+                        var part2 = GetPath(playerNode, clearFavorite);
 
+                        path = part1.Concat(part2).ToArray();
+                    }
+                    else
+                        path = new[] {clearFavorite};
+                }
+                
                 // segment completed stuff
-                var pathCostData = MovePath(path, "Moving towards fog at " + foggyNode);
+                int[] pathCostData = null;
+                if (path.Length > 0)
+                    pathCostData = MovePath(path, "Moving towards fog at " + foggyNode);
 
                 // add currently foggy nodes to all foggy nodes
                 _allFoggyNodes.AddRange(FoggyNodes);
@@ -284,8 +248,9 @@ namespace AiPathFinding.Algorithm
                 // update cost of foggy node
                 AddCostToNode(foggyNode, PartialCost + foggyNode.Cost);
 
-                // <----------------- segment ends here ----------------->
-                SegmentCompleted(g => DrawPath(g, path, pathCostData));
+                if (pathCostData != null)
+                    // <----------------- segment ends here ----------------->
+                    SegmentCompleted(g => DrawPath(g, path, pathCostData));
 
                 // <----------------- new segment starts here ----------------->
                 // explore fog
@@ -311,12 +276,18 @@ namespace AiPathFinding.Algorithm
                             result.Item3.Last()
                                 .Edges.First(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer)
                                 .GetOtherNode(result.Item3.Last());
+
+                        lastFoggyNode = result.Item3.Last();
                     }
                     else
                     {
-                        clearNodeWhereFogWasLeft = foggyNode;
+                        clearNodeWhereFogWasLeft = clearFavorite;
                         FoggyNodes.Remove(foggyNode);
+                        lastFoggyNode = foggyNode;
                     }
+
+                    if (!clearNodeWhereFogWasLeft.KnownToPlayer)
+                        throw new ArgumentException("Must be a clear node!");
 
                     continue;
                 }
@@ -347,8 +318,13 @@ namespace AiPathFinding.Algorithm
         /// <param name="g">Graphics reference</param>
         /// <param name="foggyNode">Node that will be explored</param>
         /// <param name="candidates">Other nodes that could have been chosen.</param>
-        private void DrawFoggyAlternatives(Graphics g, Node foggyNode, IEnumerable<Node> candidates)
+        /// <param name="position">Position where the player currently is</param>
+        /// <param name="cost">Cost on the node where the player currently is</param>
+        private static void DrawFoggyAlternatives(Graphics g, Node foggyNode, IEnumerable<Node> candidates, Node position = null, int? cost = null)
         {
+            if (position != null)
+                DrawPath(g, new[] {new Tuple<Node, int, bool>(position, cost.Value, false)});
+
             var p = new Pen(Brushes.Teal, 2);
             var pp = new Pen(Brushes.Salmon, 3);
             foreach (var c in candidates)
@@ -372,6 +348,7 @@ namespace AiPathFinding.Algorithm
             bool loop;
             var removedString = "";
             var removedNodes = new List<Node>();
+            var oldFoggyNodes = _allFoggyNodes.Except(FoggyNodes);
             do
             {
                 loop = false;
@@ -381,7 +358,7 @@ namespace AiPathFinding.Algorithm
                     if (
                         nodes[i].Edges.All(
                             e =>
-                                e == null || nodes.Contains(e.GetOtherNode(nodes[i])) || removedNodes.Contains(e.GetOtherNode(nodes[i])) ||
+                                e == null || nodes.Contains(e.GetOtherNode(nodes[i])) || removedNodes.Contains(e.GetOtherNode(nodes[i])) || oldFoggyNodes.Contains(e.GetOtherNode(nodes[i])) || (e.GetOtherNode(nodes[i]).Cost == int.MaxValue && e.GetOtherNode(nodes[i]).Edges.Any(ee => ee != null && GetCostFromNode(ee.GetOtherNode(e.GetOtherNode(nodes[i]))) != int.MaxValue)) || 
                                 (e.GetOtherNode(nodes[i]).KnownToPlayer &&
                                  GetCostFromNode(e.GetOtherNode(nodes[i])) != int.MaxValue)))
                     {
@@ -407,6 +384,8 @@ namespace AiPathFinding.Algorithm
         {
             if (_lastNode.Edges.Count(e => e != null && e.GetOtherNode(_lastNode) == node) != 1)
                 throw new Exception("Teleporting is not allowed!");
+
+            Console.WriteLine("Moving to node " + node);
 
             // update partial cost since player has travelled
             PartialCost += node.Cost;
@@ -448,7 +427,11 @@ namespace AiPathFinding.Algorithm
         /// <returns>Array containing the costs for the different steps of the path</returns>
         private int[] MovePath(Node[] nodes, string comment)
         {
-            Console.WriteLine("Moving on path to " + nodes.Last());
+            var pathString = "";
+            foreach (var n in nodes)
+                pathString = ", " + n;
+
+            Console.WriteLine("Moving on path to " + nodes.Last() + ": " + pathString.Substring(2));
 
             var cost = new int[nodes.Length];
             for (var i = 0; i < nodes.Length; i++)

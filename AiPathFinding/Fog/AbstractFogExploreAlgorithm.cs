@@ -75,7 +75,6 @@ namespace AiPathFinding.Fog
             return valid;
         }
 
-        //TODO: migrate ignored nodes (previously known foggy nodes) from pathfinding to here...
         /// <summary>
         /// Explores fog.
         /// </summary>
@@ -111,6 +110,9 @@ namespace AiPathFinding.Fog
             VisitedNodes.Clear();
             _backtrackedNodes.Clear();
 
+            // move on to first foggy tile
+            moveInFog(position, new[] { position }, _backtrackedNodes.ToArray(), "Moving onto first foggy node " + position, false);
+
             currentNode = ChooseNextNode(currentNode, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget, getCostFromNode);
 
             if (currentNode == null)
@@ -120,9 +122,6 @@ namespace AiPathFinding.Fog
             }
             currentNode = position;
             
-            // move on to first foggy tile
-            moveInFog(position, new[] { position }, _backtrackedNodes.ToArray(), "Moving onto first foggy node " + position, false);
-
             // loop until a way is found or we are stuck
             while (true)
             {
@@ -160,7 +159,7 @@ namespace AiPathFinding.Fog
                     currentNode = ChooseNextNode(VisitedNodes.Last(), ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget, getCostFromNode);
 
                     // update cost
-                    Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 1] + ".");
+                    //Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 1] + ".");
                     addCostToNode(VisitedNodes[VisitedNodes.Count - 1], oldCost);
 
                     // draw step

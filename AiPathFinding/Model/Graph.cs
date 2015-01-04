@@ -163,7 +163,8 @@ namespace AiPathFinding.Model
                     var r = rnd.NextDouble();
                     var t = (Terrain) 5 - weights.Count(w => r < w);
 
-                    foreach (var e in Entity.Entities)
+                    // ensure that entities don't get stuck on mountains
+                    foreach (var e in Entity.Entities.Where(e => e.Node != null))
                         while (t == Terrain.Mountain && e.Node.Location == new Point(i, j))
                         {
                             r = rnd.NextDouble();
@@ -173,6 +174,10 @@ namespace AiPathFinding.Model
                     nodes[i][j] = new Node(new Point(i, j), rnd.NextDouble() > fog, t);
                 }
             }
+
+            // update entity locations
+            foreach (var e in Entity.Entities.Where(e => e.Node != null))
+                e.Node = nodes[e.Node.Location.X][e.Node.Location.Y];
 
             // add edges
             for (var i = 0; i < width; i++)
