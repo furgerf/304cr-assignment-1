@@ -182,9 +182,14 @@ namespace AiPathFinding.Algorithm
             // try different fog nodes until an exit is found or we run out of options
             while (true)
             {
+                // add currently foggy nodes to all foggy nodes
+                _allFoggyNodes.AddRange(FoggyNodes);
+
                 // find possible foggy nodes to investigate
                 var foggyPossibilities = new List<Node>();
-                foggyPossibilities.AddRange(RemoveLonelyFoggyNodes(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes)));
+                foggyPossibilities.AddRange(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes));
+                var removableNodes = RemoveLonelyFoggyNodes(foggyPossibilities);
+                foggyPossibilities = foggyPossibilities.Except(removableNodes).ToList();
                 FoggyNodes.Clear();
                 FoggyNodes.AddRange(foggyPossibilities);
 
@@ -219,7 +224,7 @@ namespace AiPathFinding.Algorithm
                 if (clearNodeWhereFogWasLeft == null)
                 {
                     // move from playernode to clearfavorite
-                    path = GetPath(playerNode, clearFavorite);
+                    path = GetPath(playerNode, clearFavorite).SubArray(1);
                 }
                 else
                 {
@@ -241,9 +246,6 @@ namespace AiPathFinding.Algorithm
                 int[] pathCostData = null;
                 if (path.Length > 0)
                     pathCostData = MovePath(path, "Moving towards fog at " + foggyNode);
-
-                // add currently foggy nodes to all foggy nodes
-                _allFoggyNodes.AddRange(FoggyNodes);
 
                 // update cost of foggy node
                 AddCostToNode(foggyNode, PartialCost + foggyNode.Cost);
@@ -341,7 +343,7 @@ namespace AiPathFinding.Algorithm
         /// <summary>
         /// Removes all foggy nodes where all neighbors are known or otherwise contained in the foggy node list
         /// </summary>
-        /// <param name="nodes">Collection of foggy nodes</param>
+        /// <param name="nodes">Collection of REMOVABLE nodes</param>
         /// <returns>Nodes without the ones that don't need to be investigated</returns>
         private IEnumerable<Node> RemoveLonelyFoggyNodes(IList<Node> nodes)
         {
@@ -373,7 +375,7 @@ namespace AiPathFinding.Algorithm
             if (removedString != "")
                 Console.WriteLine("Removed nodes " + removedString.Substring(2) + " from foggy node list.");
 
-            return nodes;
+            return removedNodes;
         }
 
         /// <summary>
