@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using AiPathFinding.Common;
 using AiPathFinding.Model;
 using AiPathFinding.View;
 
@@ -56,29 +57,32 @@ namespace AiPathFinding.Controller
                             Map.SetTerrain(new Point(k, l), (Terrain) i1);
                 }));
             }
-            _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
-            _mapCellContextMenu.MenuItems.Add(new MenuItem("Toggle &fog", (s, e) =>
+            _mapCellContextMenu.MenuItems.AddRange(new[]
             {
-                if (_selectedPoints == null) return;
-                for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
-                    for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
-                        Map.SetFog(new Point(k, l), !Map.HasFog(new Point(k, l)));
-            }));
-            _mapCellContextMenu.MenuItems.Add(new MenuItem("Clear &fog", (s, e) =>
-            {
-                if (_selectedPoints == null) return;
-                for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
-                    for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
-                        Map.SetFog(new Point(k, l), false);
-            }));
-            _mapCellContextMenu.MenuItems.Add(new MenuItem("Set &fog", (s, e) =>
-            {
-                if (_selectedPoints == null) return;
-                for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
-                    for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
-                        Map.SetFog(new Point(k, l), true);
-            }));
-            _mapCellContextMenu.MenuItems.Add(new MenuItem("-"));
+                new MenuItem("-"),
+                new MenuItem("Toggle &fog", (s, e) =>
+                {
+                    if (_selectedPoints == null) return;
+                    for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                            Map.SetFog(new Point(k, l), !Map.HasFog(new Point(k, l)));
+                }),
+                new MenuItem("Clear &fog", (s, e) =>
+                {
+                    if (_selectedPoints == null) return;
+                    for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                            Map.SetFog(new Point(k, l), false);
+                }),
+                new MenuItem("Set &fog", (s, e) =>
+                {
+                    if (_selectedPoints == null) return;
+                    for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                            Map.SetFog(new Point(k, l), true);
+                }),
+                new MenuItem("-")
+            });
             for (var i = 0; i < (int) EntityType.Count; i++)
             {
                 var i1 = i;
@@ -96,7 +100,7 @@ namespace AiPathFinding.Controller
 
             // register events
             form.SelectedPointsChanged += OnSelectedPointsChanged;
-            settings.MapSizeChanged += OnMapSizeChanged;
+            settings.MapSizeChanged += Map.SetMapSize;
 
             Console.WriteLine("Controller created!");
         }
@@ -121,17 +125,6 @@ namespace AiPathFinding.Controller
             // the user can only move entities if just one point is selected
             for (var i = 0; i < (int) EntityType.Count; i++)
                 _mapCellContextMenu.MenuItems["Entity"+i].Enabled = points[0] == points[1];
-        }
-
-        /// <summary>
-        /// Changed whenever the map size changed
-        /// </summary>
-        /// <param name="width">New map width</param>
-        /// <param name="height">New map height</param>
-        public void OnMapSizeChanged(int width, int height)
-        {
-            // tell model to adjust map size
-            Map.SetMapSize(width, height);
         }
 
         #endregion 

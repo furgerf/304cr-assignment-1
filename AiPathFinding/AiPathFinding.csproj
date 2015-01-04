@@ -45,21 +45,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Enums.cs" />
     <Compile Include="Common\Utils.cs" />
     <Compile Include="Fog\AbstractFogExploreAlgorithm.cs" />
-    <Compile Include="Algorithm\PathFindName.cs" />
     <Compile Include="Algorithm\AlgorithmStep.cs" />
     <Compile Include="Algorithm\AStarAlgorithm.cs" />
     <Compile Include="Algorithm\DijkstraAlgorithm.cs" />
     <Compile Include="Algorithm\AbstractPathFindAlgorithm.cs" />
     <Compile Include="Fog\MinCostAlgorithm.cs" />
-    <Compile Include="Fog\FogExploreName.cs" />
-    <Compile Include="Fog\FogMethod.cs" />
     <Compile Include="Fog\FogSelector.cs" />
     <Compile Include="Fog\MinCostPlusDistanceToTargetAlgorithm.cs" />
     <Compile Include="Fog\MinDistanceToTargetAlgorithm.cs" />
     <Compile Include="Model\Entity.cs" />
-    <Compile Include="Model\EntityType.cs" />
     <Compile Include="View\AlgorithmSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -67,7 +64,6 @@
       <DependentUpon>AlgorithmSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="Controller\Controller.cs" />
-    <Compile Include="Common\Direction.cs" />
     <Compile Include="Model\Edge.cs" />
     <Compile Include="Model\Graph.cs" />
     <Compile Include="View\MainForm.cs">
@@ -84,7 +80,6 @@
     </Compile>
     <Compile Include="Model\Map.cs" />
     <Compile Include="Model\Node.cs" />
-    <Compile Include="Model\Terrain.cs" />
     <Compile Include="Common\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="View\Status.cs">

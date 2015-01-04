@@ -178,7 +178,7 @@ namespace AiPathFinding.Algorithm
         {
             // this is where fog was left after the last attempt to exit the current clear area
             Node clearNodeWhereFogWasLeft = null;
-            Node lastFoggyNode = null;
+            //Node lastFoggyNode = null;
             var watch = Stopwatch.StartNew();
             Console.WriteLine("\nSince no path was found, fog will be explored...");
 
@@ -223,9 +223,7 @@ namespace AiPathFinding.Algorithm
                 Console.WriteLine("Best node to investigate fog is " + foggyNode);
 
                 // create algorithmstep showing possible foggy nodes
-                var closureFoggyNode = lastFoggyNode;
-                var closureCost = PartialCost;
-                CreateStep(g => DrawFoggyAlternatives(g, foggyNode, foggyPossibilities.ToArray(), closureFoggyNode, closureCost), "Possible foggy nodes to investigate.");
+                CreateStep(g => DrawFoggyAlternatives(g, foggyNode, foggyPossibilities.ToArray()), "Possible foggy nodes to investigate.");
 
                 Node[] path;
 
@@ -245,6 +243,27 @@ namespace AiPathFinding.Algorithm
                         if (part1.Length > 0)
                             part1 = part1.SubArray(0, part1.Length - 1);
                         var part2 = GetPath(playerNode, clearFavorite);
+
+                        for (var i = 0; i < part1.Length; i++)
+                            if (part2.Contains(part1[i]))
+                            {
+                                Console.Write("\npart1: ");
+                                foreach (var p in part1)
+                                    Console.Write(p);
+                                Console.Write("\npart2: ");
+                                foreach (var p in part2)
+                                    Console.Write(p);
+
+                                part2 = part2.SubArray(Array.IndexOf(part2, part1[i]));
+                                part1 = part1.SubArray(0, i);
+
+                                Console.Write("\npart1: ");
+                                foreach (var p in part1)
+                                    Console.Write(p);
+                                Console.Write("\npart2: ");
+                                foreach (var p in part2)
+                                    Console.Write(p);
+                            }
 
                         path = part1.Concat(part2).ToArray();
                     }
@@ -283,26 +302,26 @@ namespace AiPathFinding.Algorithm
                     // no other exit found, try other foggy node
                     Console.WriteLine("Node " + foggyNode + " didn't yield anything useful, trying next node...");
 
-                    if (result.Item3.Length > 0)
+                    if (result.Item2.Length > 0)
                     {
                         if (
-                            result.Item3.Last()
-                                .Edges.Count(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer) != 1)
+                            result.Item2.Last()
+                                .Edges.Count(e => e != null && e.GetOtherNode(result.Item2.Last()).KnownToPlayer) != 1)
                             throw new Exception("We didn't return on a clear tile :/");
 
                         // set the clear tile where we returned
                         clearNodeWhereFogWasLeft =
-                            result.Item3.Last()
-                                .Edges.First(e => e != null && e.GetOtherNode(result.Item3.Last()).KnownToPlayer)
-                                .GetOtherNode(result.Item3.Last());
+                            result.Item2.Last()
+                                .Edges.First(e => e != null && e.GetOtherNode(result.Item2.Last()).KnownToPlayer)
+                                .GetOtherNode(result.Item2.Last());
 
-                        lastFoggyNode = result.Item3.Last();
+                        //lastFoggyNode = result.Item2.Last();
                     }
                     else
                     {
                         clearNodeWhereFogWasLeft = clearFavorite;
                         FoggyNodes.Remove(foggyNode);
-                        lastFoggyNode = foggyNode;
+                        //lastFoggyNode = foggyNode;
                     }
 
                     if (!clearNodeWhereFogWasLeft.KnownToPlayer)
@@ -330,70 +349,6 @@ namespace AiPathFinding.Algorithm
             }
 
             CreateStep(g => g.DrawString("No path found! :(", new Font("Microsoft Sans Serif", 64, FontStyle.Bold), Brushes.Lime, 0, 0), "No path found! :(");
-        }
-
-        /// <summary>
-        /// Draws all possible nodes that could be explored in the fog.
-        /// </summary>
-        /// <param name="g">Graphics reference</param>
-        /// <param name="foggyNode">Node that will be explored</param>
-        /// <param name="candidates">Other nodes that could have been chosen.</param>
-        /// <param name="position">Position where the player currently is</param>
-        /// <param name="cost">Cost on the node where the player currently is</param>
-        private static void DrawFoggyAlternatives(Graphics g, Node foggyNode, IEnumerable<Node> candidates, Node position = null, int? cost = null)
-        {
-            if (position != null)
-                DrawPath(g, new[] {new Tuple<Node, int, bool>(position, cost.Value, false)});
-
-            var p = new Pen(Brushes.Teal, 2);
-            var pp = new Pen(Brushes.Salmon, 3);
-            foreach (var c in candidates)
-            {
-                var r = MainForm.MapPointToCanvasRectangle(c.Location);
-                g.DrawEllipse(p, r.Left, r.Top, r.Width - 1, r.Height - 1);
-            }
-
-            var rr = MainForm.MapPointToCanvasRectangle(foggyNode.Location);
-            g.DrawLine(pp, rr.Left, rr.Top, rr.Right - 1, rr.Bottom - 1);
-            g.DrawLine(pp, rr.Left, rr.Bottom - 1, rr.Right - 1, rr.Top);
-        }
-
-        /// <summary>
-        /// Removes all foggy nodes where all neighbors are known or otherwise contained in the foggy node list
-        /// </summary>
-        /// <param name="nodes">Collection of REMOVABLE nodes</param>
-        /// <returns>Nodes without the ones that don't need to be investigated</returns>
-        private IEnumerable<Node> RemoveLonelyFoggyNodes(IList<Node> nodes)
-        {
-            bool loop;
-            var removedString = "";
-            var removedNodes = new List<Node>();
-            var oldFoggyNodes = _allFoggyNodes.Except(FoggyNodes);
-            do
-            {
-                loop = false;
-
-                for (var i = nodes.Count - 1; i >= 0; i--)
-                {
-                    if (
-                        nodes[i].Edges.All(
-                            e =>
-                                e == null || nodes.Contains(e.GetOtherNode(nodes[i])) || removedNodes.Contains(e.GetOtherNode(nodes[i])) || oldFoggyNodes.Contains(e.GetOtherNode(nodes[i])) || (e.GetOtherNode(nodes[i]).Cost == int.MaxValue && e.GetOtherNode(nodes[i]).Edges.Any(ee => ee != null && GetCostFromNode(ee.GetOtherNode(e.GetOtherNode(nodes[i]))) != int.MaxValue)) || 
-                                (e.GetOtherNode(nodes[i]).KnownToPlayer &&
-                                 GetCostFromNode(e.GetOtherNode(nodes[i])) != int.MaxValue)))
-                    {
-                        loop = true;
-                        removedString += ", " + nodes[i];
-                        removedNodes.Add(nodes[i]);
-                        nodes.RemoveAt(i);
-                    }
-                }
-            } while (loop);
-
-            if (removedString != "")
-                Console.WriteLine("Removed nodes " + removedString.Substring(2) + " from foggy node list.");
-
-            return removedNodes;
         }
 
         /// <summary>
@@ -447,9 +402,9 @@ namespace AiPathFinding.Algorithm
         /// <returns>Array containing the costs for the different steps of the path</returns>
         private int[] MovePath(Node[] nodes, string comment)
         {
-            var pathString = "";
-            foreach (var n in nodes)
-                pathString = ", " + n;
+            //var pathString = "";
+            //foreach (var n in nodes)
+            //    pathString = ", " + n;
 
             //Console.WriteLine("Moving on path to " + nodes.Last() + ": " + pathString.Substring(2));
 
@@ -463,6 +418,44 @@ namespace AiPathFinding.Algorithm
             }
 
             return cost;
+        }
+
+        /// <summary>
+        /// Removes all foggy nodes where all neighbors are known or otherwise contained in the foggy node list
+        /// </summary>
+        /// <param name="nodes">Collection of REMOVABLE nodes</param>
+        /// <returns>Nodes without the ones that don't need to be investigated</returns>
+        private IEnumerable<Node> RemoveLonelyFoggyNodes(IList<Node> nodes)
+        {
+            bool loop;
+            var removedString = "";
+            var removedNodes = new List<Node>();
+            var oldFoggyNodes = _allFoggyNodes.Except(FoggyNodes);
+            do
+            {
+                loop = false;
+
+                for (var i = nodes.Count - 1; i >= 0; i--)
+                {
+                    if (
+                        nodes[i].Edges.All(
+                            e =>
+                                e == null || nodes.Contains(e.GetOtherNode(nodes[i])) || removedNodes.Contains(e.GetOtherNode(nodes[i])) || oldFoggyNodes.Contains(e.GetOtherNode(nodes[i])) || (e.GetOtherNode(nodes[i]).Cost == int.MaxValue && e.GetOtherNode(nodes[i]).Edges.Any(ee => ee != null && GetCostFromNode(ee.GetOtherNode(e.GetOtherNode(nodes[i]))) != int.MaxValue)) || 
+                                (e.GetOtherNode(nodes[i]).KnownToPlayer &&
+                                 GetCostFromNode(e.GetOtherNode(nodes[i])) != int.MaxValue)))
+                    {
+                        loop = true;
+                        removedString += ", " + nodes[i];
+                        removedNodes.Add(nodes[i]);
+                        nodes.RemoveAt(i);
+                    }
+                }
+            } while (loop);
+
+            if (removedString != "")
+                Console.WriteLine("Removed nodes " + removedString.Substring(2) + " from foggy node list.");
+
+            return removedNodes;
         }
 
         /// <summary>
@@ -485,6 +478,30 @@ namespace AiPathFinding.Algorithm
                 foreach (var a in previousActions)
                     a(g);
             }, ExploredClearCells + ExploredFoggyCells, Graph.PassibleNodeCount, PartialCost, comment));
+        }
+
+        /// <summary>
+        /// Draws all possible nodes that could be explored in the fog.
+        /// </summary>
+        /// <param name="g">Graphics reference</param>
+        /// <param name="foggyNode">Node that will be explored</param>
+        /// <param name="candidates">Other nodes that could have been chosen.</param>
+        private static void DrawFoggyAlternatives(Graphics g, Node foggyNode, IEnumerable<Node> candidates)
+        {
+            //if (position != null)
+            //    DrawPath(g, new[] {new Tuple<Node, int, bool>(position, cost, false)});
+
+            var p = new Pen(Brushes.Teal, 2);
+            var pp = new Pen(Brushes.Salmon, 3);
+            foreach (var c in candidates)
+            {
+                var r = MainForm.MapPointToCanvasRectangle(c.Location);
+                g.DrawEllipse(p, r.Left, r.Top, r.Width - 1, r.Height - 1);
+            }
+
+            var rr = MainForm.MapPointToCanvasRectangle(foggyNode.Location);
+            g.DrawLine(pp, rr.Left, rr.Top, rr.Right - 1, rr.Bottom - 1);
+            g.DrawLine(pp, rr.Left, rr.Bottom - 1, rr.Right - 1, rr.Top);
         }
 
         /// <summary>
@@ -601,20 +618,19 @@ namespace AiPathFinding.Algorithm
         protected abstract Action<Graphics> GetAlgorithmStep(Node player, Node target, bool withCost = true);
 
         /// <summary>
-        /// Gets a path from the player to the target (in a known and explored section of the map).
-        /// </summary>
-        /// <param name="player">Starting node of the path</param>
-        /// <param name="target">Target node of the path</param>
-        /// <returns>Array of nodes from player to target</returns>
-        protected abstract Node[] GetPath(Node player, Node target);
-
-        /// <summary>
         /// Gets all alternative paths to the target.
         /// </summary>
         /// <param name="player">Start of the paths</param>
         /// <param name="target">Taget of the paths</param>
         /// <returns>AlgorithmStep that shows all alternatives</returns>
         protected abstract Action<Graphics> GetAlternativesStep(Node player, Node target);
+
+        /// <summary>
+        /// Actual algorithm implementation: Find alternative paths.
+        /// </summary>
+        /// <param name="playerNode">Starting point</param>
+        /// <param name="targetNode">End point</param>
+        protected abstract Action<Graphics> FindAlternativePaths(Node playerNode, Node targetNode);
 
         /// <summary>
         /// Adds a cost to a node. Depends on algorithm implementation.
@@ -631,11 +647,12 @@ namespace AiPathFinding.Algorithm
         protected abstract int GetCostFromNode(Node node);
 
         /// <summary>
-        /// Actual algorithm implementation: Find alternative paths.
+        /// Gets a path from the player to the target (in a known and explored section of the map).
         /// </summary>
-        /// <param name="playerNode">Starting point</param>
-        /// <param name="targetNode">End point</param>
-        protected abstract Action<Graphics> FindAlternativePaths(Node playerNode, Node targetNode);
+        /// <param name="player">Starting node of the path</param>
+        /// <param name="target">Target node of the path</param>
+        /// <returns>Array of nodes from player to target</returns>
+        protected abstract Node[] GetPath(Node player, Node target);
 
         /// <summary>
         /// Actual algorithm implementation: Find shortest data.

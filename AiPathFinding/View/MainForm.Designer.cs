@@ -49,26 +49,26 @@
             this.status.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.status.Location = new System.Drawing.Point(12, 694);
             this.status.Name = "status";
-            this.status.Size = new System.Drawing.Size(208, 313);
+            this.status.Size = new System.Drawing.Size(208, 340);
             this.status.TabIndex = 3;
             // 
             // algorithmSettings
             // 
             this.algorithmSettings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.algorithmSettings.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.algorithmSettings.Location = new System.Drawing.Point(12, 388);
+            this.algorithmSettings.Location = new System.Drawing.Point(12, 12);
             this.algorithmSettings.Name = "algorithmSettings";
             this.algorithmSettings.Size = new System.Drawing.Size(208, 300);
-            this.algorithmSettings.TabIndex = 2;
+            this.algorithmSettings.TabIndex = 1;
             // 
             // mapSettings
             // 
             this.mapSettings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.mapSettings.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mapSettings.Location = new System.Drawing.Point(12, 12);
+            this.mapSettings.Location = new System.Drawing.Point(12, 318);
             this.mapSettings.Name = "mapSettings";
             this.mapSettings.Size = new System.Drawing.Size(208, 370);
-            this.mapSettings.TabIndex = 1;
+            this.mapSettings.TabIndex = 2;
             // 
             // MainForm
             // 

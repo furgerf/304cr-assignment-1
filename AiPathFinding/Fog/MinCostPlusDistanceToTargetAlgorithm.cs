@@ -3,6 +3,9 @@ using AiPathFinding.Model;
 
 namespace AiPathFinding.Fog
 {
+    /// <summary>
+    /// Uses the sum of cost of the node and distance to the target as metric.
+    /// </summary>
     public class MinCostPlusDistanceToTargetAlgorithm : AbstractFogExploreAlgorithm
     {
         #region Methods

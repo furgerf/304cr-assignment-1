@@ -75,6 +75,7 @@ namespace AiPathFinding.Model
         /// <param name="node2Direction">Direction of the edge for the second node</param>
         public static void AddEdge(Node node1, Direction node1Direction, Node node2, Direction node2Direction)
         {
+// ReSharper disable once ObjectCreationAsStatement
             new Edge(node1, node1Direction, node2, node2Direction);
         }
 

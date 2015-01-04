@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using AiPathFinding.Model;
 
 namespace AiPathFinding.Fog
 {
     /// <summary>
-    /// Choses the cheapest neighboring node when exploring fog.
+    /// Uses the cost of the node as metric.
     /// </summary>
     public class MinCostAlgorithm : AbstractFogExploreAlgorithm
     {

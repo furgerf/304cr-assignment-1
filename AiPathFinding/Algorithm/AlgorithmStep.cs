@@ -62,24 +62,5 @@ namespace AiPathFinding.Algorithm
         }
 
         #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Adds more drawing to the step.
-        /// </summary>
-        /// <param name="drawingAction">Action that draws more stuff</param>
-        public void AddDrawing(Action<Graphics> drawingAction)
-        {
-            var oldAction = DrawStep;
-            var newAction = new Action<Graphics>(g =>
-            {
-                oldAction(g);
-                drawingAction(g);
-            });
-            DrawStep = newAction;
-        }
-
-        #endregion
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Drawing;
+using AiPathFinding.Common;
 using AiPathFinding.Properties;
 
 namespace AiPathFinding.Model

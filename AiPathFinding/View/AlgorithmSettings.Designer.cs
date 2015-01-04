@@ -32,6 +32,7 @@
             this.comPrimaryAlgorithm = new System.Windows.Forms.ComboBox();
             this.butStart = new System.Windows.Forms.Button();
             this.grpPlayback = new System.Windows.Forms.GroupBox();
+            this.labComment = new System.Windows.Forms.Label();
             this.labExplored = new System.Windows.Forms.Label();
             this.progressSteps = new System.Windows.Forms.ProgressBar();
             this.labStep = new System.Windows.Forms.Label();
@@ -45,7 +46,6 @@
             this.butRestart = new System.Windows.Forms.Button();
             this.grpFogSelection = new System.Windows.Forms.GroupBox();
             this.comFogMethod = new System.Windows.Forms.ComboBox();
-            this.labComment = new System.Windows.Forms.Label();
             this.grpPrimaryAlgorithm.SuspendLayout();
             this.grpPlayback.SuspendLayout();
             this.grpSecondaryAlgorithm.SuspendLayout();
@@ -60,7 +60,7 @@
             this.grpPrimaryAlgorithm.Size = new System.Drawing.Size(200, 46);
             this.grpPrimaryAlgorithm.TabIndex = 0;
             this.grpPrimaryAlgorithm.TabStop = false;
-            this.grpPrimaryAlgorithm.Text = "Select primary algorithm";
+            this.grpPrimaryAlgorithm.Text = "Path find algorithm";
             // 
             // comPrimaryAlgorithm
             // 
@@ -69,7 +69,7 @@
             this.comPrimaryAlgorithm.Location = new System.Drawing.Point(6, 19);
             this.comPrimaryAlgorithm.Name = "comPrimaryAlgorithm";
             this.comPrimaryAlgorithm.Size = new System.Drawing.Size(188, 21);
-            this.comPrimaryAlgorithm.TabIndex = 0;
+            this.comPrimaryAlgorithm.TabIndex = 1;
             this.comPrimaryAlgorithm.SelectedIndexChanged += new System.EventHandler(this.comPrimaryAlgorithm_SelectedIndexChanged);
             // 
             // butStart
@@ -77,7 +77,7 @@
             this.butStart.Location = new System.Drawing.Point(3, 271);
             this.butStart.Name = "butStart";
             this.butStart.Size = new System.Drawing.Size(62, 23);
-            this.butStart.TabIndex = 1;
+            this.butStart.TabIndex = 0;
             this.butStart.Text = "Start";
             this.butStart.UseVisualStyleBackColor = true;
             this.butStart.Click += new System.EventHandler(this.butStart_Click);
@@ -99,6 +99,15 @@
             this.grpPlayback.TabIndex = 2;
             this.grpPlayback.TabStop = false;
             this.grpPlayback.Text = "Algorithm Playback";
+            // 
+            // labComment
+            // 
+            this.labComment.AutoSize = true;
+            this.labComment.Location = new System.Drawing.Point(6, 89);
+            this.labComment.Name = "labComment";
+            this.labComment.Size = new System.Drawing.Size(73, 13);
+            this.labComment.TabIndex = 7;
+            this.labComment.Text = "(No comment)";
             // 
             // labExplored
             // 
@@ -184,7 +193,7 @@
             this.grpSecondaryAlgorithm.Size = new System.Drawing.Size(200, 46);
             this.grpSecondaryAlgorithm.TabIndex = 4;
             this.grpSecondaryAlgorithm.TabStop = false;
-            this.grpSecondaryAlgorithm.Text = "Select secondary algorithm";
+            this.grpSecondaryAlgorithm.Text = "Fog exploration method";
             // 
             // comSecondaryAlgorithm
             // 
@@ -215,7 +224,7 @@
             this.grpFogSelection.Size = new System.Drawing.Size(200, 46);
             this.grpFogSelection.TabIndex = 6;
             this.grpFogSelection.TabStop = false;
-            this.grpFogSelection.Text = "Select method to pick fog";
+            this.grpFogSelection.Text = "Foggy node selection method";
             // 
             // comFogMethod
             // 
@@ -226,15 +235,6 @@
             this.comFogMethod.Size = new System.Drawing.Size(188, 21);
             this.comFogMethod.TabIndex = 0;
             this.comFogMethod.SelectedIndexChanged += new System.EventHandler(this.comFogMethod_SelectedIndexChanged);
-            // 
-            // labComment
-            // 
-            this.labComment.AutoSize = true;
-            this.labComment.Location = new System.Drawing.Point(6, 89);
-            this.labComment.Name = "labComment";
-            this.labComment.Size = new System.Drawing.Size(73, 13);
-            this.labComment.TabIndex = 7;
-            this.labComment.Text = "(No comment)";
             // 
             // AlgorithmSettings
             // 

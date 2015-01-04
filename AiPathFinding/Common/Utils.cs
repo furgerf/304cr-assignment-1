@@ -51,11 +51,13 @@ namespace AiPathFinding.Common
             },
             {
                 FogExploreName.MinCostPlusDistanceToTarget,
-                new MinDistanceToTargetAlgorithm()
+                new MinCostPlusDistanceToTargetAlgorithm()
             }
         };
 
         #endregion
+
+        #region Constructor
 
         /// <summary>
         /// Static constructor ensuring that the dictionaries contain proper data.
@@ -67,6 +69,8 @@ namespace AiPathFinding.Common
             if (FogExploreAlgorithms.Keys.Count != (int) FogExploreName.Count)
                 throw new Exception("Make sure all fog explore algorithms are added to the dictionary");
         }
+
+        #endregion
 
         #region Methods
 
@@ -81,9 +85,6 @@ namespace AiPathFinding.Common
         public static void DrawTransparentImage(Graphics g, Bitmap image, Rectangle location, float opacity,
             bool red = false)
         {
-            // create new bitmap for the modified image
-            var bmp = new Bitmap(image.Width, image.Height);
-
             // create the colormatrix to modify the image
             var matrix = new ColorMatrix {Matrix33 = opacity};
             if (red)
@@ -119,7 +120,7 @@ namespace AiPathFinding.Common
         }
 
         /// <summary>
-        /// Gets the subarray of an array.
+        /// Gets the subarray of an array, starting at index and having a specific length.
         /// </summary>
         /// <typeparam name="T">Type of the array</typeparam>
         /// <param name="data">Array itself</param>
@@ -134,7 +135,7 @@ namespace AiPathFinding.Common
         }
 
         /// <summary>
-        /// Gets the subarray of an array.
+        /// Gets the subarray of an array, starting at index.
         /// </summary>
         /// <typeparam name="T">Type of the array</typeparam>
         /// <param name="data">Array itself</param>

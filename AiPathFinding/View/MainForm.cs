@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -267,18 +266,17 @@ namespace AiPathFinding.View
                 Title = "Select File to load"
             };
 
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                // load map
-                Map.LoadMap(dlg.FileName);
+            if (dlg.ShowDialog() != DialogResult.OK) return;
 
-                // update entity locations
-                foreach (var e in Entity.Entities)
-                    e.Node = Map.Graph.Nodes[e.Node.Location.X][e.Node.Location.Y];
+            // load map
+            Map.LoadMap(dlg.FileName);
 
-                // re-create algorithms with new map
-                algorithmSettings.RegisterGraph(Map.Graph);
-            }
+            // update entity locations
+            foreach (var e in Entity.Entities)
+                e.Node = Map.Graph.Nodes[e.Node.Location.X][e.Node.Location.Y];
+
+            // re-create algorithms with new map
+            algorithmSettings.RegisterGraph(Map.Graph);
         }
 
         /// <summary>
@@ -389,7 +387,7 @@ namespace AiPathFinding.View
         /// Draws the entities.
         /// </summary>
         /// <param name="g">Graphics used for drawing</param>
-        private void DrawEntities(Graphics g)
+        private static void DrawEntities(Graphics g)
         {
             foreach (var e in Entity.Entities.Where(ee => ee.IsVisible))
                 g.DrawIcon(e.Icon, MapPointToCanvasRectangle(new Point(e.Node.Location.X, e.Node.Location.Y)));

@@ -1,5 +1,6 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Drawing;
+using AiPathFinding.Common;
 
 namespace AiPathFinding.Model
 {
@@ -13,27 +14,19 @@ namespace AiPathFinding.Model
         /// <summary>
         /// Cost which is required to travel onto that node.
         /// </summary>
-        public int Cost
+        public int Cost { get { return TerrainCostMap[Terrain]; } }
+
+        /// <summary>
+        /// Contains the mapping of terrain to the cost.
+        /// </summary>
+        public static readonly Dictionary<Terrain, int> TerrainCostMap = new Dictionary<Terrain, int>
         {
-            get
-            {
-                switch (Terrain)
-                {
-                    case Terrain.Street:
-                        return 1;
-                    case Terrain.Plains:
-                        return 2;
-                    case Terrain.Forest:
-                        return 3;
-                    case Terrain.Hill:
-                        return 5;
-                    case Terrain.Mountain:
-                        return int.MaxValue;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
+            {Terrain.Street, 1},
+            {Terrain.Plains, 2},
+            {Terrain.Forest, 3},
+            {Terrain.Hill, 5},
+            {Terrain.Mountain, int.MaxValue}
+        };
 
         /// <summary>
         /// Terrain of the node.

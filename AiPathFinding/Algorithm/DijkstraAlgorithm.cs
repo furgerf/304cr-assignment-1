@@ -1,3 +1,4 @@
+using AiPathFinding.Common;
 using AiPathFinding.Model;
 
 namespace AiPathFinding.Algorithm
@@ -9,6 +10,9 @@ namespace AiPathFinding.Algorithm
     {
         #region Constructor
 
+        /// <summary>
+        /// Creates new instance of the Dijkstra algorithm.
+        /// </summary>
         public DijkstraAlgorithm()
             : base(PathFindName.Dijkstra)
         {

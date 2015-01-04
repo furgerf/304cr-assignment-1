@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using AiPathFinding.Common;
 using AiPathFinding.Model;
 
 namespace AiPathFinding.Fog

@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using AiPathFinding.Algorithm;
 using AiPathFinding.Common;
-using AiPathFinding.Fog;
 using AiPathFinding.Model;
 using AiPathFinding.Properties;
 

@@ -50,6 +50,8 @@
             this.label6 = new System.Windows.Forms.Label();
             this.txtStreet = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.txtAverageCost = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.grpEntities.SuspendLayout();
             this.grpMap.SuspendLayout();
             this.SuspendLayout();
@@ -145,6 +147,8 @@
             // 
             // grpMap
             // 
+            this.grpMap.Controls.Add(this.txtAverageCost);
+            this.grpMap.Controls.Add(this.label11);
             this.grpMap.Controls.Add(this.txtFog);
             this.grpMap.Controls.Add(this.label10);
             this.grpMap.Controls.Add(this.txtMountain);
@@ -159,7 +163,7 @@
             this.grpMap.Controls.Add(this.label5);
             this.grpMap.Location = new System.Drawing.Point(3, 132);
             this.grpMap.Name = "grpMap";
-            this.grpMap.Size = new System.Drawing.Size(200, 175);
+            this.grpMap.Size = new System.Drawing.Size(200, 202);
             this.grpMap.TabIndex = 1;
             this.grpMap.TabStop = false;
             this.grpMap.Text = "Map";
@@ -272,6 +276,24 @@
             this.label5.TabIndex = 2;
             this.label5.Text = "Street";
             // 
+            // txtAverageCost
+            // 
+            this.txtAverageCost.Location = new System.Drawing.Point(115, 175);
+            this.txtAverageCost.Name = "txtAverageCost";
+            this.txtAverageCost.ReadOnly = true;
+            this.txtAverageCost.Size = new System.Drawing.Size(79, 20);
+            this.txtAverageCost.TabIndex = 15;
+            this.txtAverageCost.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(6, 178);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(71, 13);
+            this.label11.TabIndex = 14;
+            this.label11.Text = "Average Cost";
+            // 
             // Status
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -281,7 +303,7 @@
             this.Controls.Add(this.grpMap);
             this.Controls.Add(this.grpEntities);
             this.Name = "Status";
-            this.Size = new System.Drawing.Size(206, 310);
+            this.Size = new System.Drawing.Size(206, 337);
             this.grpEntities.ResumeLayout(false);
             this.grpEntities.PerformLayout();
             this.grpMap.ResumeLayout(false);
@@ -314,5 +336,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox txtPlains;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txtAverageCost;
+        private System.Windows.Forms.Label label11;
     }
 }

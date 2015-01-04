@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
+using AiPathFinding.Common;
 using AiPathFinding.Model;
 
 namespace AiPathFinding.View
@@ -78,11 +79,6 @@ namespace AiPathFinding.View
         {
             InitializeComponent();
 
-            // throw error in case the entities get extended
-            // and the status control doesn't get updated
-            if ((int) EntityType.Count != 2)
-                throw new ArgumentException();
-
             _terrainBoxes = new[] {txtStreet, txtPlains, txtForest, txtHill, txtMountain};
 
             // track changes from the entities
@@ -131,12 +127,25 @@ namespace AiPathFinding.View
                 terrains = new[] {Terrain.Street, Terrain.Plains, Terrain.Forest, Terrain.Hill, Terrain.Mountain};
 
             if (terrains != null)
+            {
+                var totalCost = 0;
+                var passibleTileCount = 0;
                 foreach (var t in terrains)
                 {
                     var count = map.Graph.Nodes.Sum(n => n == null ? 0 : n.Count(nn => nn != null && nn.Terrain == t));
+
+                    if (Node.TerrainCostMap[t] != int.MaxValue)
+                    {
+                        totalCost += count*Node.TerrainCostMap[t];
+                        passibleTileCount += count;
+                    }
+
                     _terrainBoxes[(int) t].Text = count + "/" + cellCount + " (" +
                                                   Math.Round((double) 100*count/cellCount, 1) + "%)";
                 }
+
+                txtAverageCost.Text = Math.Round((double) totalCost/passibleTileCount, 2).ToString(CultureInfo.InvariantCulture);
+            }
 
             // fog
             if (!fog)

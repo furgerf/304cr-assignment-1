@@ -138,10 +138,10 @@ namespace AiPathFinding.Fog
                     if (VisitedNodes.Count == 1)
                     {
                         // update cost
-                        addCostToNode(position, oldCost + position.Cost);
+                        //addCostToNode(position, oldCost + position.Cost);
 
                         // add backtracking algorithm step
-                        _backtrackedNodes.Add(VisitedNodes.Last());
+                        //_backtrackedNodes.Add(VisitedNodes.Last());
 
                         //moveInFog(position, new[] { position }.Concat(VisitedNodes).ToArray(),
                         //    _backtrackedNodes.ToArray(), "Backtracking to node " + position, true);
@@ -267,6 +267,12 @@ namespace AiPathFinding.Fog
             return possibilities[rnd.Next(possibilities.Length)];
         }
 
+        /// <summary>
+        /// Gets the metric of a candidate which is used to pick the best candidate.
+        /// </summary>
+        /// <param name="candidate">Node that is a candidate</param>
+        /// <param name="getDistanceToTarget">Function that returns a heuristic distance of a node to the target</param>
+        /// <returns></returns>
         protected abstract int GetMetric(Node candidate, Func<Node, int> getDistanceToTarget);
 
         #endregion
