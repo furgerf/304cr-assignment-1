@@ -111,7 +111,7 @@ namespace AiPathFinding.Fog
             VisitedNodes.Clear();
             _backtrackedNodes.Clear();
 
-            currentNode = ChooseNextNode(currentNode, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget);
+            currentNode = ChooseNextNode(currentNode, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget, getCostFromNode);
 
             if (currentNode == null)
             {
@@ -128,7 +128,7 @@ namespace AiPathFinding.Fog
             {
                 // move
                 var oldCost = getCostFromNode(currentNode);
-                currentNode = ChooseNextNode(currentNode, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget);
+                currentNode = ChooseNextNode(currentNode, ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget, getCostFromNode);
 
                 while (currentNode == null)
                 {
@@ -157,7 +157,7 @@ namespace AiPathFinding.Fog
                     _backtrackedNodes.Add(VisitedNodes.Last());
                     VisitedNodes.Remove(VisitedNodes.Last());
                     oldCost += VisitedNodes.Last().Cost;
-                    currentNode = ChooseNextNode(VisitedNodes.Last(), ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget);
+                    currentNode = ChooseNextNode(VisitedNodes.Last(), ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget, getCostFromNode);
 
                     // update cost
                     Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 1] + ".");
@@ -197,8 +197,61 @@ namespace AiPathFinding.Fog
         /// <param name="ignoreNodes">All nodes to ignore</param>
         /// <param name="visitedNodes">All nodes that have previously been visited</param>
         /// <param name="getDistanceToTarget">Function that returns the heuristic distance to the target</param>
+        /// <param name="getCostOfNode">Function that returns the cost of the node</param>
         /// <returns>Best node to move to</returns>
-        protected abstract Node ChooseNextNode(Node position, Node[] ignoreNodes, Node[] visitedNodes, Func<Node, int> getDistanceToTarget);
+        protected Node ChooseNextNode(Node position, Node[] ignoreNodes, Node[] visitedNodes,
+            Func<Node, int> getDistanceToTarget, Func<Node, int> getCostOfNode)
+        {
+            // prepare data
+            var clearNeighborsCost = new List<Node>();
+            var foggyNeighborsCost = new List<Node>();
+
+            // iterate over all edges and add them to proper lists
+            foreach (var e in position.Edges)
+            {
+                if (e == null)
+                    continue;
+
+                var neighbor = e.GetOtherNode(position);
+
+                // if the neighbor is the target, move there
+                if (neighbor.EntityOnNode == Entity.Target)
+                    return neighbor;
+
+                // ignore some neighbors...
+                if (neighbor.Cost == int.MaxValue || ignoreNodes.Contains(neighbor) || getCostOfNode(neighbor) != int.MaxValue)
+                    continue;
+
+                // add neighbor to proper list
+                if (neighbor.KnownToPlayer)
+                    clearNeighborsCost.Add(neighbor);
+                else
+                    if (!visitedNodes.Contains(neighbor))
+                        foggyNeighborsCost.Add(neighbor);
+            }
+
+            // choose randomly among cheapest nodes
+            var rnd = new Random();
+            Node[] possibilities;
+
+            // if possible, choose among non-foggy nodes
+            if (clearNeighborsCost.Count > 0)
+            {
+                possibilities =
+                    clearNeighborsCost.Where(n => GetMetric(n, getDistanceToTarget) == clearNeighborsCost.Min(nn => GetMetric(nn, getDistanceToTarget))).ToArray();
+                return possibilities[rnd.Next(possibilities.Length)];
+            }
+
+            // if there are not even foggy nodes, we are stuck
+            if (foggyNeighborsCost.Count == 0)
+                return null;
+
+            // chose among foggy nodes
+            possibilities = foggyNeighborsCost.Where(n => GetMetric(n, getDistanceToTarget) == foggyNeighborsCost.Min(nn => GetMetric(nn, getDistanceToTarget))).ToArray();
+            return possibilities[rnd.Next(possibilities.Length)];
+        }
+
+        protected abstract int GetMetric(Node candidate, Func<Node, int> getDistanceToTarget);
 
         #endregion
     }
