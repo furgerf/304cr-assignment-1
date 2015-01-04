@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Linq.Expressions;
 using AiPathFinding.Common;
 using AiPathFinding.Fog;
 using AiPathFinding.Model;
@@ -123,7 +123,7 @@ namespace AiPathFinding.Algorithm
         {
             // <----------------- new segment starts here ----------------->
             // prepare data
-            Console.WriteLine("Algorithm " + Name + " is attempting target find a data player " + playerNode + " target " + targetNode + ".");
+            Console.WriteLine("Algorithm " + Name + " is attempting target find a path from " + playerNode + " to " + targetNode + ".");
             var watch = Stopwatch.StartNew();
 
             // set last node to be the player node if it is null, eg. when this is the first instance of the data finding
@@ -149,6 +149,7 @@ namespace AiPathFinding.Algorithm
 
                 // look for alternative, equal-cost paths
                 var step = FindAlternativePaths(playerNode, targetNode);
+                PartialCost = GetCostFromNode(targetNode);
                 CreateStep(step, "Alternative paths to the target");
                 Console.WriteLine("Looking for alternative paths required " + (_steps.Count - mainSteps) +
                                   " steps and took " +
@@ -183,9 +184,8 @@ namespace AiPathFinding.Algorithm
             {
                 // find possible foggy nodes to investigate
                 var foggyPossibilities = new List<Node>();
-                RemoveLonelyFoggyNodes();
-                foggyPossibilities.AddRange(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes));
-
+                foggyPossibilities.AddRange(RemoveLonelyFoggyNodes(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes)));
+                
                 if (foggyPossibilities.Count == 0)
                     break;
 
@@ -230,6 +230,8 @@ namespace AiPathFinding.Algorithm
                 }
 
                 Console.WriteLine("Best node target investigate fog is " + foggyNode);
+
+                CreateStep(g => DrawFoggyAlternatives(g, foggyNode, foggyPossibilities.ToArray()), "Possible foggy nodes to investigate.");
 
                 // find data through clear map part to node
                 var min = int.MaxValue;
@@ -340,46 +342,61 @@ namespace AiPathFinding.Algorithm
         }
 
         /// <summary>
+        /// Draws all possible nodes that could be explored in the fog.
+        /// </summary>
+        /// <param name="g">Graphics reference</param>
+        /// <param name="foggyNode">Node that will be explored</param>
+        /// <param name="candidates">Other nodes that could have been chosen.</param>
+        private void DrawFoggyAlternatives(Graphics g, Node foggyNode, IEnumerable<Node> candidates)
+        {
+            var p = new Pen(Brushes.Teal, 2);
+            var pp = new Pen(Brushes.Salmon, 3);
+            foreach (var c in candidates)
+            {
+                var r = MainForm.MapPointToCanvasRectangle(c.Location);
+                g.DrawEllipse(p, r.Left, r.Top, r.Width - 1, r.Height - 1);
+            }
+
+            var rr = MainForm.MapPointToCanvasRectangle(foggyNode.Location);
+            g.DrawLine(pp, rr.Left, rr.Top, rr.Right - 1, rr.Bottom - 1);
+            g.DrawLine(pp, rr.Left, rr.Bottom - 1, rr.Right - 1, rr.Top);
+        }
+
+        /// <summary>
         /// Removes all foggy nodes where all neighbors are known or otherwise contained in the foggy node list
         /// </summary>
-        private void RemoveLonelyFoggyNodes()
+        /// <param name="nodes">Collection of foggy nodes</param>
+        /// <returns>Nodes without the ones that don't need to be investigated</returns>
+        private IEnumerable<Node> RemoveLonelyFoggyNodes(IList<Node> nodes)
         {
-            var deleteIndices = new List<int>();
-            for (var i = 0; i < FoggyNodes.Count; i++)
+            bool loop;
+            var removedString = "";
+            var removedNodes = new List<Node>();
+            do
             {
-                var delete = true;
+                loop = false;
 
-                foreach (var e in FoggyNodes[i].Edges)
+                for (var i = nodes.Count - 1; i >= 0; i--)
                 {
-                    if (e == null)
-                        continue;
-
-                    var otherNode = e.GetOtherNode(FoggyNodes[i]);
-
-                    if (otherNode.KnownToPlayer) continue;
-
                     if (
-                        otherNode.Edges.Any(
-                            ee =>
-                                ee != null && !ee.GetOtherNode(otherNode).KnownToPlayer &&
-                                GetCostFromNode(ee.GetOtherNode(otherNode)) == int.MaxValue && !FoggyNodes.Contains(otherNode)))
-                        delete = false;
+                        nodes[i].Edges.All(
+                            e =>
+                                e == null || nodes.Contains(e.GetOtherNode(nodes[i])) || removedNodes.Contains(e.GetOtherNode(nodes[i])) ||
+                                (e.GetOtherNode(nodes[i]).KnownToPlayer &&
+                                 GetCostFromNode(e.GetOtherNode(nodes[i])) != int.MaxValue)))
+                    {
+                        loop = true;
+                        removedString += ", " + nodes[i];
+                        removedNodes.Add(nodes[i]);
+                        nodes.RemoveAt(i);
+                    }
                 }
+            } while (loop);
 
-                if (delete)
-                    deleteIndices.Add(i);
-            }
+            if (removedString != "")
+                Console.WriteLine("Removed nodes " + removedString.Substring(2) + " from foggy node list.");
 
-            var removedNodeString = "";
-
-            for (var i = deleteIndices.Count - 1; i >= 0; i--)
-            {
-                removedNodeString += ", " + FoggyNodes[deleteIndices[i]];
-                FoggyNodes.RemoveAt(deleteIndices[i]);
-            }
-
-            if (removedNodeString != "")
-                Console.WriteLine("Removed nodes " + removedNodeString.Substring(2) + " from foggy node list.");
+            return nodes;
         }
 
         /// <summary>
