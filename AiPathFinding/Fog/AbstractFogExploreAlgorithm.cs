@@ -142,8 +142,9 @@ namespace AiPathFinding.Fog
 
                         // add backtracking algorithm step
                         _backtrackedNodes.Add(VisitedNodes.Last());
-                        moveInFog(position, new[] { position }.Concat(VisitedNodes).ToArray(),
-                            _backtrackedNodes.ToArray(), "Backtracking to node " + position, true);
+
+                        //moveInFog(position, new[] { position }.Concat(VisitedNodes).ToArray(),
+                        //    _backtrackedNodes.ToArray(), "Backtracking to node " + position, true);
                         _backtrackedNodes.Add(position);
 
                         var bar = new List<Node>();
@@ -164,6 +165,7 @@ namespace AiPathFinding.Fog
                     addCostToNode(VisitedNodes[VisitedNodes.Count - 1], oldCost);
 
                     // draw step
+                    //if (VisitedNodes.Last() != position)
                     moveInFog(VisitedNodes.Last(), new[] {position}.Concat(VisitedNodes).ToArray(),
                         _backtrackedNodes.ToArray(), "Backtracking to node " + VisitedNodes.Last(), true);
                 }

@@ -122,7 +122,7 @@ namespace AiPathFinding.Algorithm
         {
             // <----------------- new segment starts here ----------------->
             // prepare data
-            Console.WriteLine("Algorithm " + Name + " is attempting target find a path from " + playerNode + " to " + targetNode + ".");
+            Console.WriteLine("\nAlgorithm " + Name + " is attempting target find a path from " + playerNode + " to " + targetNode + ".");
             var watch = Stopwatch.StartNew();
 
             // set last node to be the player node if it is null, eg. when this is the first instance of the data finding
@@ -131,15 +131,16 @@ namespace AiPathFinding.Algorithm
             // prepare implementation-dependent data
             PrepareData(playerNode, targetNode);
 
-            Console.WriteLine("Preparation took " + watch.ElapsedMilliseconds + "ms");
+            Console.WriteLine("Preparation for path finding took " + watch.ElapsedMilliseconds + "ms");
             watch.Restart();
 
             // find data
+            var mainSteps = _steps.Count;
             var pathFound = FindShortestPath(playerNode, targetNode);
 
-            var mainSteps = _steps.Count;
-            Console.WriteLine("Main calculation required " + _steps.Count + " steps and took " + watch.ElapsedMilliseconds + "ms");
+            Console.WriteLine("Main calculation required " + (_steps.Count - mainSteps) + " steps and took " + watch.ElapsedMilliseconds + "ms");
             watch.Restart();
+            mainSteps = _steps.Count;
 
             if (pathFound)
             {
@@ -178,12 +179,14 @@ namespace AiPathFinding.Algorithm
             // this is where fog was left after the last attempt to exit the current clear area
             Node clearNodeWhereFogWasLeft = null;
             Node lastFoggyNode = null;
+            var watch = Stopwatch.StartNew();
+            Console.WriteLine("\nSince no path was found, fog will be explored...");
 
             // try different fog nodes until an exit is found or we run out of options
             while (true)
             {
-                var previousFoggyNodes = new List<Node>();
-                previousFoggyNodes.AddRange(_allFoggyNodes);
+                //var previousFoggyNodes = new List<Node>();
+                //previousFoggyNodes.AddRange(_allFoggyNodes);
 
                 // add currently foggy nodes to all foggy nodes
                 foreach (var n in FoggyNodes.Where(n => !_allFoggyNodes.Contains(n)))
@@ -193,7 +196,8 @@ namespace AiPathFinding.Algorithm
                 var foggyPossibilities = new List<Node>();
                 foggyPossibilities.AddRange(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes));
                 var removableNodes = RemoveLonelyFoggyNodes(foggyPossibilities);
-                foggyPossibilities = foggyPossibilities.Except(removableNodes).Except(previousFoggyNodes).ToList();
+                foggyPossibilities = foggyPossibilities.Except(removableNodes).Where(n => GetCostFromNode(n) == int.MaxValue).ToList();
+
                 FoggyNodes.Clear();
                 FoggyNodes.AddRange(foggyPossibilities);
 
@@ -216,7 +220,7 @@ namespace AiPathFinding.Algorithm
                 // the foggy node to chose is the foggy neighbor to the clear favorite picked by the fogselector
                 var foggyNode = clearFavorite.Edges.First(e => e != null && !e.GetOtherNode(clearFavorite).KnownToPlayer && e.GetOtherNode(clearFavorite).Cost != int.MaxValue && FoggyNodes.Contains(e.GetOtherNode(clearFavorite))).GetOtherNode(clearFavorite);
 
-                Console.WriteLine("Best node target investigate fog is " + foggyNode);
+                Console.WriteLine("Best node to investigate fog is " + foggyNode);
 
                 // create algorithmstep showing possible foggy nodes
                 var closureFoggyNode = lastFoggyNode;
@@ -260,10 +264,17 @@ namespace AiPathFinding.Algorithm
                     // <----------------- segment ends here ----------------->
                     SegmentCompleted(g => DrawPath(g, path, pathCostData));
 
+                Console.WriteLine("Preparation for fog exploration took " + watch.ElapsedMilliseconds + "ms");
+                watch.Restart();
+
                 // <----------------- new segment starts here ----------------->
                 // explore fog
+                var mainSteps = _steps.Count;
                 var result = AbstractFogExploreAlgorithm.ExploreFog(fogExploreName, foggyNode, _allFoggyNodes.ToArray(), GetCostFromNode, AddCostToNode, MoveFog, n => GetHeuristic(n, targetNode));
-                
+
+                Console.WriteLine("Fog exploration required " + (_steps.Count - mainSteps) + " steps and took " + watch.ElapsedMilliseconds + "ms");
+                watch.Restart();
+
                 // <----------------- segment ends here ----------------->
                 SegmentCompleted(DrawFoggyPath(result.Item2, result.Item3));
 
@@ -440,7 +451,7 @@ namespace AiPathFinding.Algorithm
             foreach (var n in nodes)
                 pathString = ", " + n;
 
-            Console.WriteLine("Moving on path to " + nodes.Last() + ": " + pathString.Substring(2));
+            //Console.WriteLine("Moving on path to " + nodes.Last() + ": " + pathString.Substring(2));
 
             var cost = new int[nodes.Length];
             for (var i = 0; i < nodes.Length; i++)
