@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -180,9 +181,17 @@ namespace AiPathFinding.View
             };
 
             // settings buttons event handling
-            mapSettings.butLoadMap.Click += (s, e) => LoadMap();
+            mapSettings.butLoadMap.Click += (s, e) =>
+            {
+                algorithmSettings.ResetAlgorithm();
+                LoadMap();
+            };
             mapSettings.butSaveMap.Click += (s, e) => SaveMap();
-            mapSettings.butGenerate.Click += (s, e) => RegenerateMap();
+            mapSettings.butGenerate.Click += (s, e) =>
+            {
+                algorithmSettings.ResetAlgorithm();
+                RegenerateMap();
+            };
 
             // algorithm stuff
             algorithmSettings.AlgorithmStepChanged += OnAlgorithmStepChanged;

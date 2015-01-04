@@ -182,6 +182,14 @@ namespace AiPathFinding.View
         }
 
         /// <summary>
+        /// Resets the algorithm.
+        /// </summary>
+        public void ResetAlgorithm()
+        {
+            butClear_Click();
+        }
+
+        /// <summary>
         /// Clears data from the last pathfinding
         /// </summary>
         /// <param name="sender">unused</param>

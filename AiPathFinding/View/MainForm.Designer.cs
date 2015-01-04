@@ -74,14 +74,15 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1039, 1019);
+            this.ClientSize = new System.Drawing.Size(1039, 885);
             this.Controls.Add(this.status);
             this.Controls.Add(this.algorithmSettings);
             this.Controls.Add(this.mapSettings);
             this.Controls.Add(this._canvas);
+            this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.Name = "MainForm";
-            this.Text = "MainForm";
+            this.Text = "AI Path Finding";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.ResumeLayout(false);
 
