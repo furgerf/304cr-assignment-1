@@ -182,14 +182,18 @@ namespace AiPathFinding.Algorithm
             // try different fog nodes until an exit is found or we run out of options
             while (true)
             {
+                var previousFoggyNodes = new List<Node>();
+                previousFoggyNodes.AddRange(_allFoggyNodes);
+
                 // add currently foggy nodes to all foggy nodes
-                _allFoggyNodes.AddRange(FoggyNodes);
+                foreach (var n in FoggyNodes.Where(n => !_allFoggyNodes.Contains(n)))
+                    _allFoggyNodes.Add(n);
 
                 // find possible foggy nodes to investigate
                 var foggyPossibilities = new List<Node>();
                 foggyPossibilities.AddRange(AbstractFogExploreAlgorithm.RemoveKnownFoggyNodes(FoggyNodes));
                 var removableNodes = RemoveLonelyFoggyNodes(foggyPossibilities);
-                foggyPossibilities = foggyPossibilities.Except(removableNodes).ToList();
+                foggyPossibilities = foggyPossibilities.Except(removableNodes).Except(previousFoggyNodes).ToList();
                 FoggyNodes.Clear();
                 FoggyNodes.AddRange(foggyPossibilities);
 
@@ -224,7 +228,9 @@ namespace AiPathFinding.Algorithm
                 if (clearNodeWhereFogWasLeft == null)
                 {
                     // move from playernode to clearfavorite
-                    path = GetPath(playerNode, clearFavorite).SubArray(1);
+                    path = GetPath(playerNode, clearFavorite);
+                    if (path.Length > 0)
+                        path = path.SubArray(1);
                 }
                 else
                 {
@@ -298,8 +304,9 @@ namespace AiPathFinding.Algorithm
                 if (result.Item1.EntityOnNode == Entity.Target)
                 {
                     // exit was the target, WE ARE DONE!
-                    Console.WriteLine("Found data target target through fog!");
-                    break;
+                    Console.WriteLine("Found path to target through fog!");
+
+                    return;
                 }
                 
                 // exit was another fog-less area, start pathfinding
