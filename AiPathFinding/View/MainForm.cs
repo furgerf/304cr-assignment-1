@@ -417,6 +417,26 @@ namespace AiPathFinding.View
                 g.DrawLine(_gridPen, i, 0, i, _canvas.Height);
         }
 
+        /// <summary>
+        /// Arranges the 4 main controls depending on which are visible.
+        /// </summary>
+        private void ArrangeControls()
+        {
+            _canvas.Left = !algorithmSettings.Visible && !mapSettings.Visible && !status.Visible
+                ? toolStrip.Left + toolStrip.Width + 6
+                : algorithmSettings.Left + algorithmSettings.Width + 6;
+
+            if (mapSettings.Visible)
+            {
+                mapSettings.Top = algorithmSettings.Visible ? algorithmSettings.Top + algorithmSettings.Height + 6 : 12;
+
+                if (status.Visible)
+                    status.Top = mapSettings.Top + mapSettings.Height + 6;
+            }
+            else if (status.Visible)
+                status.Top = algorithmSettings.Visible ? algorithmSettings.Top + algorithmSettings.Height + 6 : 12;
+        }
+
         #endregion
 
         #region Event Handling
@@ -577,6 +597,48 @@ namespace AiPathFinding.View
         {
             // save map
             Map.SaveMap(AutosaveMapName);
+        }
+
+        /// <summary>
+        /// Toggles visibility of the algorithm settings.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
+        private void butAlgorithmSettings_Click(object sender = null, EventArgs e = null)
+        {
+            butAlgorithmSettings.Checked = !butAlgorithmSettings.Checked;
+
+            algorithmSettings.Visible = butAlgorithmSettings.Checked;
+
+            ArrangeControls();
+        }
+
+        /// <summary>
+        /// Toggles visibility of the map settings.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
+        private void butMapSettings_Click(object sender = null, EventArgs e = null)
+        {
+            butMapSettings.Checked = !butMapSettings.Checked;
+
+            mapSettings.Visible = butMapSettings.Checked;
+
+            ArrangeControls();
+        }
+
+        /// <summary>
+        /// Toggles visibility of the status overview.
+        /// </summary>
+        /// <param name="sender">unused</param>
+        /// <param name="e">unused</param>
+        private void butStatus_Click(object sender = null, EventArgs e = null)
+        {
+            butStatus.Checked = !butStatus.Checked;
+
+            status.Visible = butStatus.Checked;
+
+            ArrangeControls();
         }
 
         #endregion
