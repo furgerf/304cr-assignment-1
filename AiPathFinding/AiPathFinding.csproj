@@ -130,7 +130,7 @@
     <None Include="Resources\hill.jpg" />
     <None Include="Resources\mountain.jpg" />
     <None Include="Resources\plains.jpg" />
-    <None Include="Resources\logo.png" />
+    <None Include="Resources\logo.ico" />
     <Content Include="Resources\runner.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

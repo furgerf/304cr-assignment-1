@@ -58,7 +58,7 @@
             this.butStatus});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(32, 885);
+            this.toolStrip.Size = new System.Drawing.Size(24, 885);
             this.toolStrip.TabIndex = 4;
             this.toolStrip.Text = "toolStrip1";
             this.toolStrip.TextDirection = System.Windows.Forms.ToolStripTextDirection.Vertical270;
@@ -71,7 +71,7 @@
             this.butAlgorithmSettings.Image = ((System.Drawing.Image)(resources.GetObject("butAlgorithmSettings.Image")));
             this.butAlgorithmSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butAlgorithmSettings.Name = "butAlgorithmSettings";
-            this.butAlgorithmSettings.Size = new System.Drawing.Size(29, 98);
+            this.butAlgorithmSettings.Size = new System.Drawing.Size(21, 98);
             this.butAlgorithmSettings.Text = "Algorithm Settings";
             this.butAlgorithmSettings.Click += new System.EventHandler(this.butAlgorithmSettings_Click);
             // 
@@ -83,7 +83,7 @@
             this.butMapSettings.Image = ((System.Drawing.Image)(resources.GetObject("butMapSettings.Image")));
             this.butMapSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butMapSettings.Name = "butMapSettings";
-            this.butMapSettings.Size = new System.Drawing.Size(29, 73);
+            this.butMapSettings.Size = new System.Drawing.Size(21, 73);
             this.butMapSettings.Text = "Map Settings";
             this.butMapSettings.Click += new System.EventHandler(this.butMapSettings_Click);
             // 
@@ -95,7 +95,7 @@
             this.butStatus.Image = ((System.Drawing.Image)(resources.GetObject("butStatus.Image")));
             this.butStatus.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.butStatus.Name = "butStatus";
-            this.butStatus.Size = new System.Drawing.Size(29, 65);
+            this.butStatus.Size = new System.Drawing.Size(21, 65);
             this.butStatus.Text = "Status Info";
             this.butStatus.Click += new System.EventHandler(this.butStatus_Click);
             // 
@@ -137,6 +137,7 @@
             this.Controls.Add(this.mapSettings);
             this.Controls.Add(this._canvas);
             this.DoubleBuffered = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "MainForm";
             this.Text = "AI Path Finding";
