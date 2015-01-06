@@ -107,8 +107,10 @@ namespace AiPathFinding.Algorithm
         public static void FindPath(PathFindName name, Node playerNode, Node targetNode, FogMethod fogMethod,
             FogExploreName fogExploreName)
         {
+            var watch = Stopwatch.StartNew();
             // call instance method
             Utils.PathFindAlgorithms[name].FindPath(playerNode, targetNode, fogMethod, fogExploreName);
+            Console.WriteLine("The complete calculation took " + watch.ElapsedMilliseconds + "ms and required " + Utils.PathFindAlgorithms[name]._steps.Count + " steps.");
         }
 
         /// <summary>
@@ -180,7 +182,7 @@ namespace AiPathFinding.Algorithm
             Node clearNodeWhereFogWasLeft = null;
             //Node lastFoggyNode = null;
             var watch = Stopwatch.StartNew();
-            Console.WriteLine("\nSince no path was found, fog will be explored...");
+            Console.WriteLine("\nStarting fog exploration...");
 
             // try different fog nodes until an exit is found or we run out of options
             while (true)
@@ -360,7 +362,7 @@ namespace AiPathFinding.Algorithm
             if (_lastNode.Edges.Count(e => e != null && e.GetOtherNode(_lastNode) == node) != 1)
                 throw new Exception("Teleporting is not allowed!");
 
-            Console.WriteLine("Moving to node " + node);
+            //Console.WriteLine("Moving to node " + node);
 
             // update partial cost since player has travelled
             PartialCost += node.Cost;
