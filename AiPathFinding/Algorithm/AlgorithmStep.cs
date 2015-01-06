@@ -4,7 +4,7 @@ using System.Drawing;
 namespace AiPathFinding.Algorithm
 {
     /// <summary>
-    /// Contains information about a step of an algorithm, mostly about how to draw it on the map.
+    /// Contains information about a step of an algorithm. This information includes the action to draw the step, data on how many nodes have been explored and how much the path costs up to now.
     /// </summary>
     public sealed class AlgorithmStep
     {
@@ -13,17 +13,17 @@ namespace AiPathFinding.Algorithm
         /// <summary>
         /// Action that draws the step using the Graphics provided as parameter.
         /// </summary>
-        public Action<Graphics> DrawStep { get; private set; }
+        public readonly Action<Graphics> DrawStep;
 
         /// <summary>
         /// Number of cells that have been explored.
         /// </summary>
-        public int Explored { get; private set; }
+        public readonly int Explored;
 
         /// <summary>
         /// Number of cells that can be explored (all cells except the impassible ones).
         /// </summary>
-        public int Explorable { get; private set; }
+        public readonly int Explorable;
 
         /// <summary>
         /// Returns the percentage of explored cells.
@@ -33,19 +33,19 @@ namespace AiPathFinding.Algorithm
         /// <summary>
         /// Contains the cost of the currently travelled path.
         /// </summary>
-        public int CurrentCost { get; set; }
+        public readonly int CurrentCost;
 
         /// <summary>
         /// Comment about what happens in the step.
         /// </summary>
-        public string Comment { get; private set; }
+        public readonly string Comment;
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Creates a new step.
+        /// Default constructor that creates a new step.
         /// </summary>
         /// <param name="drawStep">Action that draws the step</param>
         /// <param name="explored">Number of explored cells</param>

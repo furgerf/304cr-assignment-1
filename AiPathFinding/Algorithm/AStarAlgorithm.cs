@@ -14,20 +14,20 @@ namespace AiPathFinding.Algorithm
     /// </summary>
     public class AStarAlgorithm : AbstractPathFindAlgorithm
     {
-        #region Fields
+        #region Private Fields
 
         /// <summary>
-        /// List of currently open nodes.
+        /// Part of the implementation - specific data: List of currently open nodes.
         /// </summary>
         private readonly List<Node> _openNodes = new List<Node>();
 
         /// <summary>
-        /// List of already closed nodes.
+        /// Part of the implementation - specific data: List of already closed nodes.
         /// </summary>
         private readonly List<Node> _closedNodes = new List<Node>();
 
         /// <summary>
-        /// Assigns a value for "g" and "h" target each node.
+        /// Part of the implementation - specific data: Dictionary that assigns a value for "g" (cost) and "h" (metric) to each node.
         /// </summary>
         private readonly Dictionary<Node, Tuple<int, int>> _nodeDataMap = new Dictionary<Node, Tuple<int, int>>(); 
 
@@ -71,25 +71,26 @@ namespace AiPathFinding.Algorithm
             _openNodes.Add(playerNode);
         }
 
-        protected override bool FindShortestPath(Node playerNode, Node to)
+        protected override bool FindShortestPath(Node playerNode, Node targetNode)
         {
             // if we know that the target is unreachable, return
-            if (to.KnownToPlayer && to.Cost == int.MaxValue)
+            if (targetNode.KnownToPlayer && targetNode.Cost == int.MaxValue)
                 return false;
 
             Node currentNode = null;
             // loop while we have options an at least one of the options and we have not yet found a way
-            while (_openNodes.Count > 0 && _nodeDataMap[to].Item1 == int.MaxValue)
+            while (_openNodes.Count > 0 && _nodeDataMap[targetNode].Item1 == int.MaxValue)
             {
-                // look for a path playerNode the first open node
+                // look for a path through the first open node
                 currentNode = _openNodes[0];
+
                 ProcessNode(currentNode);
                 ExploredClearCells++;
                 CreateStep(GetAlgorithmStep(playerNode, currentNode), "A*: Exploring " + currentNode);
             }
 
             // pathfinding has terminated, tell about result
-            return currentNode != null && currentNode.Edges.Any(e => e != null && e.GetOtherNode(currentNode) == to);
+            return currentNode != null && currentNode.Edges.Any(e => e != null && e.GetOtherNode(currentNode) == targetNode);
         }
 
         protected override Action<Graphics> FindAlternativePaths(Node playerNode, Node targetNode)
@@ -97,6 +98,7 @@ namespace AiPathFinding.Algorithm
             // check all remaining nodes
             while (_openNodes.Count > 0)
             {
+                // skip nodes whose cost exceeds the cost to the target
                 if (_openNodes[0] == targetNode ||
                     _nodeDataMap[_openNodes[0]].Item1 + _nodeDataMap[_openNodes[0]].Item2 >
                     _nodeDataMap[targetNode].Item1)
@@ -118,32 +120,39 @@ namespace AiPathFinding.Algorithm
 
         public override void ResetAlgorithm()
         {
+            // reset parent
             base.ResetAlgorithm();
 
+            // reset self
             _openNodes.Clear();
             _closedNodes.Clear();
             _nodeDataMap.Clear();
         }
 
-        protected override Node[] GetPath(Node player, Node target)
+        protected override Node[] GetPath(Node start, Node end)
         {
-            if (_nodeDataMap[player].Item1 == int.MaxValue || _nodeDataMap[target].Item1 == int.MaxValue)
-                throw new ArgumentException("I don't know how to get the cheapest path from player to target");
+            if (_nodeDataMap[start].Item1 == int.MaxValue || _nodeDataMap[end].Item1 == int.MaxValue)
+                throw new ArgumentException("I don't know how to get the cheapest path from start to target");
 
-            if (player == target)
+            if (start == end)
                 return new Node[0];
 
-            // prepare data for printing path
+            // prepare data for path
             var pathData = new List<Node>();
-            var node = target;
-            while (node != player)
+            var node = end;
+
+            // look for path in reverse (from end to start)
+            // loop until start has been reached
+            while (node != start)
             {
                 // find neighbor where you would "come from"
                 var edges = node.Edges.Where(e => e != null && _nodeDataMap[e.GetOtherNode(node)].Item1 != int.MaxValue && e.GetOtherNode(node).KnownToPlayer && !_openNodes.Contains(e.GetOtherNode(node))).ToList();
+
                 // find cheapest edge
                 edges.Sort(
                     (a, b) =>
                     {
+                        // comparator for f/g/h-data (non-trivial!)
                         var ag = _nodeDataMap[a.GetOtherNode(node)].Item1;
                         var ah = _nodeDataMap[a.GetOtherNode(node)].Item2;
                         var af = ag + ah;
@@ -159,31 +168,32 @@ namespace AiPathFinding.Algorithm
                             return 0;
                         return ag < bg ? -1 : 1;
                     });
+
                 var minNode = edges.First().GetOtherNode(node);
 
                 pathData.Add(node);
-
                 node = minNode;
             }
 
             pathData.Add(node);
 
+            // reverse path to have it in the right "direction"
             pathData.Reverse();
 
             return pathData.ToArray();
         }
 
-        protected override Action<Graphics> GetAlgorithmStep(Node player, Node target, bool withCost = true)
+        protected override Action<Graphics> GetAlgorithmStep(Node start, Node end, bool withCost = true)
         {
             // prepare data for printing cost
             var costData = new List<Tuple<string, Point, Brush, Font>>();
 
             if (withCost)
-                costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue && UpdatedNodes.Contains(k) || _openNodes.Contains(k)).Select(n => new Tuple<string, Point, Brush, Font>("g=" + _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture), n.Location, n == target ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 10, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
+                costData = _nodeDataMap.Keys.Where(k => _nodeDataMap[k].Item1 != int.MaxValue && UpdatedNodes.Contains(k) || _openNodes.Contains(k)).Select(n => new Tuple<string, Point, Brush, Font>("g=" + _nodeDataMap[n].Item1.ToString(CultureInfo.InvariantCulture) + "\nh=" + _nodeDataMap[n].Item2.ToString(CultureInfo.InvariantCulture) + "\nf=" + (_nodeDataMap[n].Item1 + _nodeDataMap[n].Item2).ToString(CultureInfo.InvariantCulture), n.Location, n == end ? Brushes.DarkRed : Brushes.Turquoise, new Font("Microsoft Sans Serif", 10, _openNodes.Contains(n) ? FontStyle.Bold : FontStyle.Regular))).ToList();
 
             // prepare data for printing path
             var pathData = new List<Tuple<Point, Point>>();
-            var path = GetPath(player, target);
+            var path = GetPath(start, end);
             for (var i = 0; i < path.Length - 1; i++)
             {
                 var p1 = MainForm.MapPointToCanvasRectangle(path[i].Location);
@@ -216,25 +226,17 @@ namespace AiPathFinding.Algorithm
             var closedPaths = new List<List<Node>>();
             do
             {
-                var min = int.MaxValue;
-                foreach (var e in openPaths[0].Last().Edges)
-                    if (e != null && GetCostFromNode(e.GetOtherNode(openPaths[0].Last())) < min)
-                        min = GetCostFromNode(e.GetOtherNode(openPaths[0].Last()));
+                int[] min = {int.MaxValue};
+                foreach (var e in openPaths[0].Last().Edges.Where(e => e != null && GetCostFromNode(e.GetOtherNode(openPaths[0].Last())) < min[0]))
+                    min[0] = GetCostFromNode(e.GetOtherNode(openPaths[0].Last()));
 
-                var foo = new List<Edge>();
-                foreach (var e in openPaths[0].Last().Edges)
-                    if (e != null && GetCostFromNode(e.GetOtherNode(openPaths[0].Last())) == min)
-                        foo.Add(e);
+                var foo = openPaths[0].Last().Edges.Where(e => e != null && GetCostFromNode(e.GetOtherNode(openPaths[0].Last())) == min[0]).ToList();
 
-                foreach (var e in foo)
-                    if (e.GetOtherNode(openPaths[0].Last()) == player)
-                    {
-                        foo.Clear();
-                        foreach (var ee in openPaths[0].Last().Edges)
-                            if (ee != null && ee.GetOtherNode(openPaths[0].Last()) == player)
-                                foo.Add(ee);
-                        break;
-                    }
+                if (foo.Any(e => e.GetOtherNode(openPaths[0].Last()) == player))
+                {
+                    foo.Clear();
+                    foo.AddRange(openPaths[0].Last().Edges.Where(ee => ee != null && ee.GetOtherNode(openPaths[0].Last()) == player));
+                }
 
                 var cheapestEdges = foo.ToArray();
 
@@ -246,7 +248,7 @@ namespace AiPathFinding.Algorithm
                     openPaths[0].Add(cheapestEdges[0].GetOtherNode(openPaths[0].Last()));
                 else
                 {
-                    // copy current path target end of openpaths and add the different nodes
+                    // copy current path to end of openpaths and add the different nodes
                     for (var j = 1; j < cheapestEdges.Length; j++)
                     {
                         var newList = new Node[openPaths[0].Count];
@@ -311,8 +313,6 @@ namespace AiPathFinding.Algorithm
 
         protected override void AddCostToNode(Node node, int cost)
         {
-            //Console.WriteLine("Setting cost of " + node + " to " + cost);
-            
             // set tuple item in nodedatamap
             _nodeDataMap[node] = new Tuple<int, int>(cost, _nodeDataMap[node].Item2);
         }
@@ -321,6 +321,18 @@ namespace AiPathFinding.Algorithm
         {
             // return tuple item from nodedatamap
             return _nodeDataMap[node].Item1;
+        }
+
+        /// <summary>
+        /// Returns heuristic distance between nodes. Uses the manhatten distance as the heuristic.
+        /// </summary>
+        /// <param name="node1">One node</param>
+        /// <param name="node2">Other node</param>
+        /// <returns>Distance</returns>
+        protected override int GetHeuristic(Node node1, Node node2)
+        {
+            // Manhatten Distance
+            return Math.Abs(node2.Location.X - node1.Location.X) + Math.Abs(node2.Location.Y - node1.Location.Y);
         }
 
         #endregion
@@ -366,33 +378,26 @@ namespace AiPathFinding.Algorithm
                     }
                 }
 
-                if (insert)
-                {
-                    // insert node in proper place
-                    if (_openNodes.Count == 0)
-                        _openNodes.Add(n);
-                    else
-                    {
-                        for (var i = 0; i < _openNodes.Count; i++)
-                            if (_nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 >= _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2)
-                            {
-                                _openNodes.Insert(i, n);
-                                insert = false;
-                                break;
-                            }
+                if (!insert) continue;
 
-                        // couldn't insert, our node must be the most expensive one
-                        if (insert)
-                            _openNodes.Add(n);
-                    }
+                // insert node in proper place (based on cost)
+                if (_openNodes.Count == 0)
+                    _openNodes.Add(n);
+                else
+                {
+                    for (var i = 0; i < _openNodes.Count; i++)
+                        if (_nodeDataMap[_openNodes[i]].Item1 + _nodeDataMap[_openNodes[i]].Item2 >= _nodeDataMap[n].Item1 + _nodeDataMap[n].Item2)
+                        {
+                            _openNodes.Insert(i, n);
+                            insert = false;
+                            break;
+                        }
+
+                    // couldn't insert, our node must be the most expensive one so add it in the end
+                    if (insert)
+                        _openNodes.Add(n);
                 }
             }
-        }
-
-        protected override int GetHeuristic(Node node, Node target)
-        {
-            // Manhatten Distance
-            return Math.Abs(target.Location.X - node.Location.X) + Math.Abs(target.Location.Y - node.Location.Y);
         }
 
         #endregion

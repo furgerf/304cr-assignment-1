@@ -22,7 +22,13 @@ namespace AiPathFinding.Algorithm
 
         #region Main Methods
 
-        protected override int GetHeuristic(Node node, Node target)
+        /// <summary>
+        /// Returns heuristic distance between nodes. Uses zero as the heuristic value.
+        /// </summary>
+        /// <param name="node1">One node</param>
+        /// <param name="node2">Other node</param>
+        /// <returns>Distance</returns>
+        protected override int GetHeuristic(Node node1, Node node2)
         {
             // zero
             return 0;
