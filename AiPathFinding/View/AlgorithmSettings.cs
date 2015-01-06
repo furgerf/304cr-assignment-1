@@ -107,7 +107,7 @@ namespace AiPathFinding.View
             butClear_Click();
 
             // tell algorithms about new graph
-            AbstractPathFindAlgorithm.Graph = graph;
+            AbstractPathFindAlgorithm.RegisterGraph(graph);
 
             // also register to event so the algorithm can only be started if both entities are in play
             Entity.NodeChanged += (o, n, e) => SetStartButtonEnabled();

@@ -63,7 +63,6 @@
     <Compile Include="View\AlgorithmSettings.Designer.cs">
       <DependentUpon>AlgorithmSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controller\Controller.cs" />
     <Compile Include="Model\Edge.cs" />
     <Compile Include="Model\Graph.cs" />
     <Compile Include="View\MainForm.cs">

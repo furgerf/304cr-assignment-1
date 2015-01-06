@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using AiPathFinding.Algorithm;
+using AiPathFinding.Common;
 using AiPathFinding.Model;
 using AiPathFinding.Properties;
 
@@ -67,7 +68,7 @@ namespace AiPathFinding.View
         /// <summary>
         /// Controller.
         /// </summary>
-        public readonly Controller.Controller Controller;
+        //public readonly Controller.Controller Controller;
         /// <summary>
         /// View: MainForm instance.
         /// </summary>
@@ -81,6 +82,17 @@ namespace AiPathFinding.View
         // field for handling shift/control key
         private bool _controlKeyActive;
         private bool _shiftKeyActive;
+
+
+        /// <summary>
+        /// ContextMenu that is displayed when cell on the map is right-clicked.
+        /// </summary>
+        private readonly ContextMenu _mapCellContextMenu = new ContextMenu();
+
+        /// <summary>
+        /// Start- and endpoint of the range of points that have been selected by the user.
+        /// </summary>
+        private Point[] _selectedPoints;
 
         #endregion
 
@@ -120,8 +132,8 @@ namespace AiPathFinding.View
                 ? Map.FromMapFile(AutosaveMapName)
                 : new Map(Graph.EmptyGraph(mapSettings.MapWidth, mapSettings.MapHeight));
 
-            // create controller
-            Controller = new Controller.Controller(Map, this, _canvas, mapSettings);
+            // create context menu
+            CreateContextMenu();
 
             // create tooltip
             var toolTip = new ToolTip {BackColor = Color.LightGreen, ForeColor = Color.DarkGreen};
@@ -191,12 +203,18 @@ namespace AiPathFinding.View
                 algorithmSettings.ResetAlgorithm();
                 RegenerateMap();
             };
+            mapSettings.MapSizeChanged += Map.SetMapSize;
 
             // algorithm stuff
             algorithmSettings.AlgorithmStepChanged += OnAlgorithmStepChanged;
             algorithmSettings.RegisterGraph(Map.Graph);
-            
-            SelectedPointsChanged += a => _canvas.Invalidate();
+
+            SelectedPointsChanged += UpdateSelectedPoints;
+            SelectedPointsChanged += a =>
+            {
+                UpdateSelectedPoints(a);
+                _canvas.Invalidate();
+            };
 
             // prepare GUI (depending on whether map was loaded
             if (File.Exists(AutosaveMapName))
@@ -437,6 +455,63 @@ namespace AiPathFinding.View
                 status.Top = algorithmSettings.Visible ? algorithmSettings.Top + algorithmSettings.Height + 6 : 12;
         }
 
+        /// <summary>
+        /// Creates the context menu and sets it to the canvas.
+        /// </summary>
+        private void CreateContextMenu()
+        {
+            for (var i = 0; i < (int)Terrain.Count; i++)
+            {
+                var i1 = i;
+                _mapCellContextMenu.MenuItems.Add(new MenuItem("Change terrain to &" + (Terrain)i, (s, e) =>
+                {
+                    if (_selectedPoints == null) return;
+                    for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                            Map.SetTerrain(new Point(k, l), (Terrain)i1);
+                }));
+            }
+            _mapCellContextMenu.MenuItems.AddRange(new[]
+            {
+                new MenuItem("-"),
+                new MenuItem("Toggle &fog", (s, e) =>
+                {
+                    if (_selectedPoints == null) return;
+                    for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                            Map.SetFog(new Point(k, l), !Map.HasFog(new Point(k, l)));
+                }),
+                new MenuItem("Clear &fog", (s, e) =>
+                {
+                    if (_selectedPoints == null) return;
+                    for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                            Map.SetFog(new Point(k, l), false);
+                }),
+                new MenuItem("Set &fog", (s, e) =>
+                {
+                    if (_selectedPoints == null) return;
+                    for (var k = _selectedPoints[0].X; k <= _selectedPoints[1].X; k++)
+                        for (var l = _selectedPoints[0].Y; l <= _selectedPoints[1].Y; l++)
+                            Map.SetFog(new Point(k, l), true);
+                }),
+                new MenuItem("-")
+            });
+            for (var i = 0; i < (int)EntityType.Count; i++)
+            {
+                var i1 = i;
+                _mapCellContextMenu.MenuItems.Add(new MenuItem("Set &" + (EntityType)i1 + " entity here",
+                    (s, e) =>
+                    {
+                        if (_selectedPoints == null) return;
+                        if (_selectedPoints[0] != _selectedPoints[1])
+                            throw new Exception();
+                        Map.SetEntityLocation(Entity.Entities[i1], _selectedPoints[0]);
+                    }) { Name = "Entity" + i });
+            }
+            _canvas.ContextMenu = _mapCellContextMenu;
+        }
+
         #endregion
 
         #region Event Handling
@@ -639,6 +714,24 @@ namespace AiPathFinding.View
             status.Visible = butStatus.Checked;
 
             ArrangeControls();
+        }
+
+        /// <summary>
+        /// Called whenever the selected points change
+        /// </summary>
+        /// <param name="points"></param>
+        public void UpdateSelectedPoints(Point[] points)
+        {
+            // ensure data is valid
+            if (points.Length != 2)
+                throw new ArgumentException();
+
+            // update data
+            _selectedPoints = points;
+
+            // the user can only move entities if just one point is selected
+            for (var i = 0; i < (int)EntityType.Count; i++)
+                _mapCellContextMenu.MenuItems["Entity" + i].Enabled = points[0] == points[1];
         }
 
         #endregion
