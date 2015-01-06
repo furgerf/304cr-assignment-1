@@ -76,11 +76,11 @@ namespace AiPathFinding.Fog
         }
 
         /// <summary>
-        /// Explores fog.
+        /// Explores fog using the specified method and starting on the specified node.
         /// </summary>
-        /// <param name="name">Name of the method how to chose new, unknown foggy node</param>
+        /// <param name="name">Name of the method how to chose adjacent unknown foggy node</param>
         /// <param name="position">Node where the exploration starts</param>
-        /// <param name="ignoreNodes">Nodes to ignore, eg from prevous fog explorations</param>
+        /// <param name="ignoreNodes">Nodes to ignore, eg. from previous fog explorations or those that are "known" foggy nodes from pathfinding</param>
         /// <param name="getCostFromNode">Function that returns the cost of a node</param>
         /// <param name="addCostToNode">Action that updates the cost of a node</param>
         /// <param name="moveInFog">Action that moves onto another node in the fog</param>
@@ -93,10 +93,10 @@ namespace AiPathFinding.Fog
         }
 
         /// <summary>
-        /// Explores fog.
+        /// Explores fog using the specified method and starting on the specified node.
         /// </summary>
         /// <param name="position">Node where the exploration starts</param>
-        /// <param name="ignoreNodes">Nodes to ignore, eg from prevous fog explorations</param>
+        /// <param name="ignoreNodes">Nodes to ignore, eg. from previous fog explorations or those that are "known" foggy nodes from pathfinding</param>
         /// <param name="getCostFromNode">Function that returns the cost of a node</param>
         /// <param name="addCostToNode">Action that updates the cost of a node</param>
         /// <param name="moveInFog">Action that moves onto another node in the fog</param>
@@ -137,14 +137,6 @@ namespace AiPathFinding.Fog
                     // if we can't backtrack, return without result
                     if (VisitedNodes.Count == 1)
                     {
-                        // update cost
-                        //addCostToNode(position, oldCost + position.Cost);
-
-                        // add backtracking algorithm step
-                        //_backtrackedNodes.Add(VisitedNodes.Last());
-
-                        //moveInFog(position, new[] { position }.Concat(VisitedNodes).ToArray(),
-                        //    _backtrackedNodes.ToArray(), "Backtracking to node " + position, true);
                         _backtrackedNodes.Add(position);
 
                         var bar = new List<Node>();
@@ -161,11 +153,9 @@ namespace AiPathFinding.Fog
                     currentNode = ChooseNextNode(VisitedNodes.Last(), ignoreNodes, VisitedNodes.Concat(DiscardedNodes).ToArray(), getDistanceToTarget, getCostFromNode);
 
                     // update cost
-                    //Console.WriteLine("Backtracking to node " + VisitedNodes[VisitedNodes.Count - 1] + ".");
                     addCostToNode(VisitedNodes[VisitedNodes.Count - 1], oldCost);
 
                     // draw step
-                    //if (VisitedNodes.Last() != position)
                     moveInFog(VisitedNodes.Last(), new[] {position}.Concat(VisitedNodes).ToArray(),
                         _backtrackedNodes.ToArray(), "Backtracking to node " + VisitedNodes.Last(), true);
                 }
@@ -272,7 +262,7 @@ namespace AiPathFinding.Fog
         /// </summary>
         /// <param name="candidate">Node that is a candidate</param>
         /// <param name="getDistanceToTarget">Function that returns a heuristic distance of a node to the target</param>
-        /// <returns></returns>
+        /// <returns>Metric</returns>
         protected abstract int GetMetric(Node candidate, Func<Node, int> getDistanceToTarget);
 
         #endregion
