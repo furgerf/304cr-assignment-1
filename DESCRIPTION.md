@@ -93,7 +93,7 @@ If only a single `Node` has been selected, it is also possible to move the __Pla
 
 
 # Sequence of Events during Path Finding
-![alt text](https://github.com/mystyfly/304cr-assignment-1/pathfinding.png "Path finding workflow")
+![alt text](https://github.com/mystyfly/304cr-assignment-1/blob/master/pathfinding.png "Path finding workflow")
 
 # Examples of Path Finding
 
