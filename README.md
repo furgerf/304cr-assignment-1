@@ -8,6 +8,6 @@ extensively edited, saved and loaded. Furthermore, apart from normal, __clear__ 
 TODO
 
 ## Further Information
-More detailed description of the components of the project as well as the usage can be found in the description file.
+More detailed description of the components of the project as well as the usage can be found in the [description file](https://github.com/mystyfly/304cr-assignment-1/blob/master/DESCRIPTION.md).
 
 
