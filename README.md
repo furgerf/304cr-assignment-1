@@ -10,4 +10,5 @@ TODO
 ## Further Information
 More detailed description of the components of the project as well as the usage can be found in the [description file](https://github.com/mystyfly/304cr-assignment-1/blob/master/DESCRIPTION.md).
 
-
+## Examples
+Example maps showcasing different features/limitations of the project can be found in the [example file](https://github.com/mystyfly/304cr-assignment-1/blob/master/EXAMPLE.md).

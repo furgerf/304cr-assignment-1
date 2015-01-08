@@ -1,0 +1,17 @@
+Player;{X=0,Y=15}	Target;{X=25,Y=0}
+F;S;F;F;F;S;S;H;H;F;P;S;P;F;S;F;F;M;F;S;S;H;P;S;F;S
+P;F;F;P;H;S;P;P;S;S;M;S;M;F;F;F;F;P;F;S;S;S;H;P;H;F
+P;S;P;S;S;S;P;P;P;S;S;P;S;P;H;S;H;S;F;P;S;S;P;P;M;M
+F;S;S;F;H;S;P;P;P;S;H;S;S;P;S;F;M;H;P;S;S;P;S;F;S;M
+S;S;P;F;S;M;M;P;S;H;S;S;F;M;P;P;S;P;S;P;P;M;F;F;F;H
+S;S;S;S;S;S;S;H;S;F;S;H;S;P;H;S;S;S;F;F;H;S;P;S;F;S
+S;F;F;H;S;F;M;F;S;F;F;P;H;H;S;H;F;S;F;F;M;H;S;S;S;S
+F;F;P;M;P;S;S;M;F;F;S;F;S;M;S;F;S;S;F;H;F;S;H;F;S;F
+F;S;H;H;S;F;H;P;P;P;F;M;M;F;S;M;S;P;S;M;S;P;M;H;F;F
+F;S;M;S;H;S;P;S;F;F;F;S;S;F;P;F;F;M;M;M;S;F;F;S;F;P
+M;M;S;F;S;S;S;F;P;P;F;S;F;F;S;S;H;M;F;P;F;F;F;S;P;S
+S;P;P;P;P;S;P;H;S;F;F;S;S;S;P;H;F;S;S;M;S;M;F;S;F;H
+P;M;P;F;M;S;S;S;S;M;M;S;F;S;P;S;F;S;S;P;F;S;S;P;M;H
+P;F;H;P;M;S;P;H;S;M;S;S;F;S;F;P;F;F;M;P;P;P;F;F;H;M
+F;P;H;S;P;H;P;M;S;S;S;P;P;F;P;H;S;S;P;S;S;P;S;S;P;P
+S;F;S;F;M;P;S;F;P;S;H;P;P;P;F;F;P;M;F;S;S;S;P;S;F;S

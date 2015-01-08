@@ -1,0 +1,17 @@
+Player;{X=0,Y=15}	Target;{X=25,Y=0}
+P*;P*;F*;S*;M*;P*;S*;P*;S*;F*;P*;F*;H*;S*;S*;H*;P*;S*;P;P;F;H;H;F;P;P
+S*;P*;S*;M*;P*;F*;S*;P*;F*;S*;P*;F*;S*;H*;H*;F*;S*;F*;F;P;P;F;S;F;S;S
+M*;S*;S*;P*;F*;S*;P*;F*;F*;F*;S*;F*;F*;S*;F*;S*;F*;P*;P;S;F;P;P;S;M;F
+S*;F*;M*;F*;H*;M*;S*;F*;F*;M*;F*;P*;P*;F*;H*;P*;S*;S*;S*;F*;S*;S*;M*;S*;S*;M*
+S*;S*;S*;F*;S*;M*;S*;F*;P*;P*;M*;S*;S*;S*;P*;S*;S*;H*;F*;P*;P*;P*;S*;H*;F*;F*
+F*;S*;P*;S*;M*;P*;P*;F*;F*;H*;S*;P*;S*;F*;F*;H*;S*;S*;S*;S*;F*;F*;S*;S*;S*;S*
+F*;M*;P*;S*;F*;F*;S*;S*;F*;S*;F*;S*;S*;S*;F*;H*;S*;S*;S*;H*;S*;P*;S*;P*;S*;H*
+S*;M*;S*;S*;P*;S*;M*;H*;S*;H*;P*;H*;S*;S*;P*;F*;F*;M*;P*;M*;S*;M*;F*;S*;S*;P*
+S*;S*;H*;H*;P*;F*;M*;F*;F*;S*;S*;F*;M*;F*;H*;S*;F*;F*;P*;S*;F*;S*;F*;H*;S*;F*
+H*;M*;F*;S*;S*;F*;P*;F*;F*;S*;S*;F*;H*;P*;H*;F*;F*;S*;S*;F*;F*;S*;P*;M*;S*;F*
+F*;S*;S*;H*;H*;F*;F*;M*;F*;M*;P*;S*;F*;S*;F*;M*;P*;P*;S*;S*;S*;F*;F*;H*;H*;P*
+S;P;H;S;H;F;S;S;P;S;S;S;M;S;P;F;S;M;F;F;S;F;S;M;S;S
+F;S;S;S;S;M;M;S;S;F;P;F;H;M;F;F;F;S;P;S;H;F;H;S;S;S
+S;S;H;S;S;F;P;S;P;F;P;S;H;H;S;F;S;F;S;S;M;F;S;M;P;F
+S;M;S;S;S;S;F;S;F;M;S;P;P;S;S;P;S;S;P;H;H;S;F;S;S;P
+S;S;F;S;S;S;H;F;S;S;P;S;S;F;F;S;S;S;S;M;F;P;P;F;F;F

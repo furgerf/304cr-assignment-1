@@ -48,7 +48,7 @@ below.
 ### AlgorithmSettings
 The user can adjust settings related to the path finding algorithm as well as how fog exploration should be handled. Currently, these options are available:
 
-__Path finding algorithm__
+__Path find algorithm__
 - Dijkstra: Use the Dijkstra-Algorithm for path finding
 - AStar: Use the A\*-Algorithm for path finding
 
@@ -89,13 +89,39 @@ If only a single `Node` has been selected, it is also possible to move the __Pla
 
 ## Path Finding
 
+### Overview
+The most interesting component clearly is the path finding logic. Instances of the path find algorithm and the fog explore algorithms are stored in dictionaries in `Utils` where they can be accessed with the algorithm's enum member.
+
+Path finding is started by calling the `AbstractPathFindAlgorithm`s static `FindPath(PathFindName name, Node playerNode, Node targetNode, FogMethod fogMethod, FogExploreName fogExploreName)` method. The `name` parameter is used to obtain the path finding
+instance from the dictionary in `Utils` as mentionned above. `fogMethod` and `fogExploreName` are two further enum members that control by which criteria the foggy node to explore should be selected and by which criteria a neighboring `Node` should be
+selected when exploring fog.
+
+More details about how the path finding works is explained below.
+
+Path finding algorithms have to implement a few methods that carry out algorithm-specific tasks such as updating the cost of a `Node` or obtaining the cost of a `Node`. Most importantly, Algorithms must implement `FindShortestPath(Node playerNode, Node targetNode)` which kicks off the concrete path finding.
+
+### A\* Algorithm
+`AStarAlgorithm` is such an implementation. It has three fields to store all relevant data: two lists that hold the currently open `Node`s and those `Node`s that have already been processed and a dictionary that assigns two integer values to each `Node` -
+one that is the cost _g_ to the `Node` and the other that is the heuristic distance to the target _h_.
+
+When looking for the shortest path, the first `Node` in the list of open `Node`s is being processed until the __Target__ is found or the list is empty (in which case the search returns unsuccessfully). It is always the first `Node` in the list that should
+be processed since the list is always ordered according to the _f_-value which is _f = g+h_.
+
+Processing a `Node` moves it from the list of open `Node`s to the list of closed `Node`s. The neighbors are examined and possibly added to a list:
+- if the neighbor is passible and foggy and not yet in the `AbstractAlgorithm`'s list of foggy `Node`s, it is added to that list
+- if the neighbor is passible and not foggy and is not yet in the list of open `Node`s, it is added to that list
+
+
+
+
+
 
 
 
 # Sequence of Events during Path Finding
 ![alt text](https://github.com/mystyfly/304cr-assignment-1/blob/master/pathfinding.png "Path finding workflow")
 
-# Examples of Path Finding
+TODO
 
 
 # Known Issues/Limitations
@@ -106,6 +132,7 @@ Interesting stuff
 - partition into segments
 - looks for alternative paths
 - mention console output
+- why path alternatives are investigated
 
 Issues
 - after unsuccessfully investigating fog, moves back to start and from there to next fog
