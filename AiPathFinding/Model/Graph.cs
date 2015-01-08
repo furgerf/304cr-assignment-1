@@ -171,7 +171,7 @@ namespace AiPathFinding.Model
                             t = (Terrain)5 - weights.Count(w => r < w);
                         }
 
-                    nodes[i][j] = new Node(new Point(i, j), Entity.Player.Node.Location == new Point(i, j) || rnd.NextDouble() > fog, t);
+                    nodes[i][j] = new Node(new Point(i, j), Entity.Player.Node != null && Entity.Player.Node.Location == new Point(i, j) || rnd.NextDouble() > fog, t);
                 }
             }
 

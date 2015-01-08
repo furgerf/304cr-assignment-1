@@ -173,7 +173,7 @@ In order to avoid this sub-optimal behavior, path finding for the already known 
 
 Another issue is that, during fog exploration, if the __Player__ finds another clear area that has already been explored previously, he will never move there (except when backtracking to the `Node` where he started the fog exploration). This is primarily to avoid endless loops where the __Player__ keeps moving back and forth between
 two clear areas. That could of course be avoided as well but again, this goes beyond the scope of this project. A downside of never visiting known clear areas is that the player may get stuck and terminate path finding without a result even though a path
-would indeed exist. An example of that can be seen in the [examples](https://github.com/mystyfly/304cr-assignment-1/blob/master/EXAMPLE.md).
+would indeed exist. An example of that can be seen in the [examples](https://github.com/mystyfly/304cr-assignment-1/blob/master/EXAMPLES.md).
 
 Maps with complex foggy area/clear area structures can break the program by entering an infinite loop.
 

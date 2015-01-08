@@ -157,6 +157,7 @@ namespace AiPathFinding.Algorithm
             if (pathFound)
             {
                 // path was found!
+                ExploredClearCells++;
                 CreateStep(GetAlgorithmStep(playerNode, targetNode), "Path to target " + targetNode + " found!");
 
                 // look for alternative, equal-cost paths
