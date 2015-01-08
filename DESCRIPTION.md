@@ -112,31 +112,68 @@ Processing a `Node` moves it from the list of open `Node`s to the list of closed
 - if the neighbor is passible and not foggy and is not yet in the list of open `Node`s, it is added to that list
 
 
+## Fog Exploration
 
+### Overview
+Fog exploration is started by calling `AbstractFogExploreAlgorithm`'s static `ExploreFog(...)` method. Analogously to `AbstractPathFindAlgorithm`, it uses an enum member to start fog exploration with a specific implementation that is contained in a
+dictionary in `Utils`.
 
+Merely one method is left to implement for concrete algorithms to explore fog: `GetMetric(Node candidate, Func<Node, int> getDistanceToTarget)`. This method returns a metric value for the candidate according to the implementing class' criteria, while all
+information is either retrieved directly from the candidate `Node` or with the passed function pointer which retrieves the heuristic distance to the __Target__.
 
+__NOTE__: When using a path finding algorithm that always uses 0 ("zero") for its heuristic distance like Dijkstra, the fog exploration is affected as well since this will basically call `AbstractPathFindAlgorithm`'s `GetHeuristic(Node node1, Node node2)`
+method.
 
+When fog exploration generally follows these steps, which are repeated until the __Target__ or a clear area is found or there are no further foggy `Node`s to explore.
+- select a foggy neighbor
+- if no valid neighbor exists, backtrack
+- if a valid neighbor exists, move there
+
+Which neighbor is selected in the first step depends on the fog explore algorithm implementation since it is determined solely by the metric that is calculated for each candidate.
 
 
 # Sequence of Events during Path Finding
+The sequence of steps that are being taken in order to try and find a path to the __Target__ are best summed up in the following diagram.
+
 ![alt text](https://github.com/mystyfly/304cr-assignment-1/blob/master/pathfinding.png "Path finding workflow")
 
-TODO
+Initially, path finding is started which attempts to find a path through the clear `Node`s to the __Target__. If such a path is discovered, alternative, equal-cost paths are being investigated as well, after which the program terminates.
+
+If the __Target__ has not been found and no foggy `Node`s have been encountered that could be explored, the program terminates as well. Otherwise, one of the foggy `Node`s is being chosen where the fog exploration will start.
+
+If the fog exploration "stumbles" upon the __Target__, the program terminates (without looking for alternative paths since the __Player__ currently is in the fog. Otherwise, if a previously unknown clear area is discovered, path finding restarts. If no new
+area has been discovered, the __Player__ will backtrack until he returns to the foggy `Node` where he initially entered the fog. From there, if there is another foggy `Node` he could explore, he moves to that, otherwise the search terminates without
+finding a path.
+
+__NOTE__: More details on what happens during the different stages can be found in the console output.
+
+
+# Interesting features
+Before chosing a foggy `Node` to explore, _bad_ candidates are removed in two steps:
+- firstly, all `Node`s are removed that border on a foggy `Node` that has previously been explored and does not contain further interesting neighbors
+- secondly, all foggy `Node`s where each neighbor is either clear, impassible or contained in the foggy `Node` list are removed since they won't offer interesting foggy paths to explore
+
+This is done for the sake of optimization since unsuccessful fog exploration is extremely costly: Moving through the clear section to the fog, moving through the fog, backtracking trough the fog, and eventually moving towards another foggy `Node`.
+
+Finding a path from the __Player__ to the __Target__ is partitionned into _segments_. Each segment either is path finding or fog exploration. One of the big advantages of this approach is related to drawing: When a segment is complete, the action that
+draws the complete segment is added to a list of actions that will, from now on, always be drawn. That means that the path through previous segments is always visible.
+
+I've chosen to not terminate the path finding as soon as a path has been found but to look for alternative paths with equal cost first. These paths are always equal in cost but may differ in the number of `Node`s that are covered. This information may be
+desirable for example when taking other parameters into account, like locations of friendly or opposing units.
 
 
 # Known Issues/Limitations
+Most issues are related to the fog exploration. Firstly, the player must always start on a clear tile.
 
+Also, if a foggy area has been explored without result (and the __Player__ backtracked to the initial `Node`, if the next foggy `Node` is chosen based on the cost to the player, the cost will be calculated starting from the `Node` where the __Player__
+started the path finding in the clear area. That means that further foggy `Node`s will not have lowest cost from the current __Player__ position and that the __Player__ must also first move back to that `Node` rather than moving directly to the new foggy
+`Node`. If the path back to the starting `Node` and the path to the new foggy `Node` share a common part then this part is being ignored of course.
 
-Interesting stuff
-- multi-step removal of shitty foggy nodes
-- partition into segments
-- looks for alternative paths
-- mention console output
-- why path alternatives are investigated
+In order to avoid this sub-optimal behavior, path finding for the already known clear area would have to be restarted which is linked with several new problems and would exceed the scope of this project which is why I decided to neglect that.
 
-Issues
-- after unsuccessfully investigating fog, moves back to start and from there to next fog
- -> reason: would have to restart pathfinding all the time
- -> this is slightly reduced by ignoring common parts of the path
-- can NOT find path when one would be possible if clear patch is found after investigating fog but that clear patch doesn't lead to the target
- -> no backtracking to last clear area
+Another issue is that, during fog exploration, if the __Player__ finds another clear area that has already been explored previously, he will never move there (except when backtracking to the `Node` where he started the fog exploration). This is primarily to avoid endless loops where the __Player__ keeps moving back and forth between
+two clear areas. That could of course be avoided as well but again, this goes beyond the scope of this project. A downside of never visiting known clear areas is that the player may get stuck and terminate path finding without a result even though a path
+would indeed exist. An example of that can be seen in the [examples](https://github.com/mystyfly/304cr-assignment-1/blob/master/EXAMPLE.md).
+
+Maps with complex foggy area/clear area structures can break the program by entering an infinite loop.
+
