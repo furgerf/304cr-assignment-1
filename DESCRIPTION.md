@@ -1,8 +1,8 @@
 # Overview
-The application consists of three main parts: the model, the path finding logic and the view. Since not much special user input handling is required and the user input is received by means of events in the view, the "controller"-part in the traditional
-MVC-layout is integrated in the view. The view displays the model and allows the user to adjust the aspects of the model (map and entity locations). Once the path finding is started, the path finding logic uses that model as a basis for the algorithms.
+The application consists of three main parts: the model, the path finding logic and the view. Since not much special user input handling is required and the user input is received by means of events in the view anyway, the "controller"-part in the traditional
+MVC-layout is integrated in the view completely. The view displays the model and allows the user to adjust the aspects of the model (map and entity locations). Once the path finding is started, the path finding logic uses that model as a basis for the algorithms.
 
-This document contains information about the different parts in some detail, what is working as well as some known issues and limitations.
+This document contains information about the different parts in some detail, what aspects of the application are working well and some known issues and limitations.
 
 
 # Components
@@ -11,7 +11,7 @@ The `Map` forms the core as it represents the world which contains the `Entity` 
 which are connected by `Edge`s.
 
 ### Map
-The `Map` class can be considered a wrapper around the actual data which is accessible via its `Graph`-property. Its main purpose is to regulate access to the map; that is offer methods that can read or write certain properties.
+The `Map` class can be considered a wrapper around the actual data which is accessible via its `Graph`-property. Its main purpose is to regulate access to the map; that is, to offer methods that can read or write certain properties.
 
 Furthermore, this class
 offers several events that are triggered when parts of the `Map` change.
@@ -22,15 +22,15 @@ Lastly, it offers methods to save/load maps to/from text files and to _regenerat
 The `Graph` class simplifies access to the `Node`-matrix as a whole. An example of that is the property `PassibleNodeCount` which returns the number of passible nodes on the map. More importantly though, it offers three different methods for creating a `Graph` (and thus, a `Map`):
 - `EmptyGraph(int width, int height)`: This creates a `Graph` with a specific width and height but leaves all `Node`s _empty_, which means they're all un-foggy street `Node`s.
 - `FromData(string[] data)`: This instantiates a `Graph` with an array of strings that contain data from a previously stored `Graph`.
-- `Random(int width, int height, double[] weights, double fog)`: The last and probably most interesting method creates a random `Graph` according to some parameters. The weights are used to determine how common specific kinds of `Terrain`s should be and the fog parameter is used to determine how likely it is that a tile is covered by fog.
+- `Random(int width, int height, double[] weights, double fog)`: The last and probably most interesting method creates a random `Graph` according to some parameters. The weights are used to determine how common specific kinds of `Terrain`s should be and the fog parameter is used to determine how likely it is that a `Node` is covered by fog.
 
-Since it is possible to load a `Graph` from text data, it is also possible to perform the reverse action; that is to retrieve a text representation of the current `Graph`. For that purpose, the `object`'s `ToString()`-method has been overridden.
+Since it is possible to load a `Graph` from text data, it is also possible to perform the reverse action; that is, to retrieve a text representation of the current `Graph`. For that purpose, the `object`'s `ToString()`-method has been overridden.
 
 ### Node
-Finally, the smallest building block of the model is the `Node`. It contains information about the cost for moving to the tile (with a 32-bit integer maxvalue denoting an impassible `Node`) which is determined by the `Terrain` of the `Node`. Also, it has a
-reference to any `Entity` that is currently on the `Node`. Lastly, each `Node` contains a flag that defines whether the `Node` is foggy or whether it is known to the player.
+Finally, the smallest building block of the model is the `Node`. It contains information about the cost for moving to the `Node` (with a 32-bit integer maxvalue denoting an impassible `Node`) which is determined by the `Terrain` of the `Node`. Also, it has a
+reference to any `Entity` that is currently on the `Node`. Lastly, each `Node` contains a flag that defines whether the `Node` is foggy or whether it is known to the __Player__.
 
-`Node`s are arranged in the `Graph` in a matrix which means that each `Node` has an identifying (x/y)-coordinate and that each has up to four neighbors.
+`Node`s are arranged in the `Graph` in a matrix which means that each `Node` has an identifying (x/y)-coordinate and up to four neighbors.
 
 ### Edge
 Adjacent `Node`s are connected via `Edge`s. The only way to instantiate an `Edge` is with two `Node`s in order to help prevent reference irregularities. The `Edge` itself doesn't contain additional data and is merely used to connect `Node`s.
@@ -42,7 +42,7 @@ A `Entity` is a special object that can be placed on the `Map`. Each `Entity` ha
 ## View
 Only one form has been used, the `MainForm`. It has four main components: three custom `UserControl`s `AlgorithmSettings`, `MapSettings`, and `Status` and a large `Panel` where the map is drawn on.
 
-The three custom `UserControl`s can be hidden with the buttons on the toolbar on the left-hand side of the Form, which makes usage of the Program on screens with smaller resolution easier. Each component of the main UI as well as its usage is explained
+The three custom `UserControl`s can be hidden with the buttons on the toolbar on the left-hand side of the Form, which makes usage of the program on screens with smaller resolution easier. Each component of the main UI as well as its usage is explained
 below.
 
 ### AlgorithmSettings
@@ -70,16 +70,16 @@ Besides drawing a visual representation of the step on the map, further informat
 been.
 
 ### MapSettings
-This component lets the user change the size of the map and the CellSize - the latter is merely for visual convenience. Apart from merely changing the dimensions of the map, the user can save the current map, load a previously saved map or create a new
+This component lets the user change the size of the map and the CellSize - the latter is merely for visual convenience. Apart from simply changing the dimensions of the map, the user can save the current map, load a previously saved map or create a new
 random map with the current dimensions by _regenerating_ it.
 
-In order to have some control about the generated map, weights can be used to increase or decrease the occurrence of different terrain types and the likelyhood that any give tile is covered in fog.
+In order to have some control about the generated map, weights can be used to increase or decrease the occurrence of different terrain types and the likelyhood that any give `Node` is covered in fog.
 
 ### Status
 Contrary to the other two components, this one is merely informative and displays some numbers about the map and the entities. Since the individual elements are fairly self-explanatory I will not elaborate on them.
 
 ### Map
-The visual representation of the `Map`. The different terrains are displayed with icons and foggy tiles have a transparent gray overlay.
+The visual representation of the `Map`. The different terrains are displayed with icons and foggy `Node`s have a transparent gray overlay.
 
 In order to modify the map, one or more `Node`s have to be selected by clicking or clicking-and-dragging on the map. The context menu that opens after a right mouse click gives the option to change the terrain or to set, clear or
 toggle fog on the selected `Node`s.
@@ -102,7 +102,7 @@ Path finding algorithms have to implement a few methods that carry out algorithm
 
 ### A\* Algorithm
 `AStarAlgorithm` is such an implementation. It has three fields to store all relevant data: two lists that hold the currently open `Node`s and those `Node`s that have already been processed and a dictionary that assigns two integer values to each `Node` -
-one that is the cost _g_ to the `Node` and the other that is the heuristic distance to the target _h_.
+one that is the cost _g_ to the `Node` and the other that is the heuristic distance to the __Target__ _h_.
 
 When looking for the shortest path, the first `Node` in the list of open `Node`s is being processed until the __Target__ is found or the list is empty (in which case the search returns unsuccessfully). It is always the first `Node` in the list that should
 be processed since the list is always ordered according to the _f_-value which is _f = g+h_.
@@ -118,7 +118,7 @@ Processing a `Node` moves it from the list of open `Node`s to the list of closed
 Fog exploration is started by calling `AbstractFogExploreAlgorithm`'s static `ExploreFog(...)` method. Analogously to `AbstractPathFindAlgorithm`, it uses an enum member to start fog exploration with a specific implementation that is contained in a
 dictionary in `Utils`.
 
-Merely one method is left to implement for concrete algorithms to explore fog: `GetMetric(Node candidate, Func<Node, int> getDistanceToTarget)`. This method returns a metric value for the candidate according to the implementing class' criteria, while all
+Merely one method is left to implement for concrete algorithms to explore fog: `GetMetric(Node candidate, Func<Node, int> getDistanceToTarget)`. This method returns a metric value for the candidate according to the implementing classes criteria, while all
 information is either retrieved directly from the candidate `Node` or with the passed function pointer which retrieves the heuristic distance to the __Target__.
 
 __NOTE__: When using a path finding algorithm that always uses 0 ("zero") for its heuristic distance like Dijkstra, the fog exploration is affected as well since this will basically call `AbstractPathFindAlgorithm`'s `GetHeuristic(Node node1, Node node2)`
@@ -163,16 +163,16 @@ desirable for example when taking other parameters into account, like locations 
 
 
 # Known Issues/Limitations
-Most issues are related to the fog exploration. Firstly, the player must always start on a clear tile.
+Most issues are related to the fog exploration. Firstly, the __Player__ must always start on a clear `Node`.
 
-Also, if a foggy area has been explored without result (and the __Player__ backtracked to the initial `Node`, if the next foggy `Node` is chosen based on the cost to the player, the cost will be calculated starting from the `Node` where the __Player__
-started the path finding in the clear area. That means that further foggy `Node`s will not have lowest cost from the current __Player__ position and that the __Player__ must also first move back to that `Node` rather than moving directly to the new foggy
-`Node`. If the path back to the starting `Node` and the path to the new foggy `Node` share a common part then this part is being ignored of course.
+Also, if a foggy area has been explored without result (and the __Player__ backtracked to the initial `Node`), if the next foggy `Node` is chosen based on the cost to the __Player__, the cost will be calculated starting from the `Node` where the __Player__
+started the path finding in the clear area (rather than from where the __Player__ currently is positionned). That means that further foggy `Node`s will not have lowest cost from the current __Player__ position and that the __Player__ must also first move back to that `Node` rather than moving directly to the new foggy
+`Node`. If the path back to the starting `Node` and the path to the new foggy `Node` share a common part then this part is being skipped of course.
 
 In order to avoid this sub-optimal behavior, path finding for the already known clear area would have to be restarted which is linked with several new problems and would exceed the scope of this project which is why I decided to neglect that.
 
 Another issue is that, during fog exploration, if the __Player__ finds another clear area that has already been explored previously, he will never move there (except when backtracking to the `Node` where he started the fog exploration). This is primarily to avoid endless loops where the __Player__ keeps moving back and forth between
-two clear areas. That could of course be avoided as well but again, this goes beyond the scope of this project. A downside of never visiting known clear areas is that the player may get stuck and terminate path finding without a result even though a path
+two clear areas. That could of course be avoided as well but again, this goes beyond the scope of this project. A downside of never visiting known clear areas is that the __Player__ may get stuck and terminate path finding without a result even though a path
 would indeed exist. An example of that can be seen in the [examples](https://github.com/mystyfly/304cr-assignment-1/blob/master/EXAMPLES.md).
 
 Maps with complex foggy area/clear area structures can break the program by entering an infinite loop.

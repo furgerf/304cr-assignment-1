@@ -25,7 +25,7 @@ The __Player__ might get stuck while exploring...
 
 ![alt text](https://github.com/mystyfly/304cr-assignment-1/blob/master/examples/e2-fog-stuck.png "Example 2: Stuck in the fog")
 
-... so he would backtrack until he finds new explorable foggy `Node`s...
+... so he would backtrack until he finds new explorable foggy Nodes...
 
 ![alt text](https://github.com/mystyfly/304cr-assignment-1/blob/master/examples/e2-backtracked.png "Example 2: Backtracking in the fog")
 
@@ -39,24 +39,25 @@ From there, normal path finding is carried out to find a path to the __Target__.
 
 
 # Example 3
-The different means of choosing a foggy `Node` to start the exploration and to choose a foggy neighboring `Node` in the fog have a significant impact on the result of the path finding.
+The different means of choosing a foggy Node to start the exploration and to choose a foggy neighboring Node in the fog have a significant impact on the result of the path finding.
 
-Generally, moving to the foggy `Node` that is closest to the player and, in the fog, moving to the `Node` that has lowest cost yields the worst results.
+Generally, moving to the foggy Node that is closest to the player and, in the fog, moving to the Node that has lowest cost yields the worst results.
 
 ![alt text](https://github.com/mystyfly/304cr-assignment-1/blob/master/examples/e3-mincost-closesttoplayer.png "Example 3: Choose closest Node to the player and move to cheapest Node")
 
-Just by chaning the behavior in the fog to moving to the `Node` that gets the __Player__ closest to the __Target__, the result usually is already greatly improved.
+Just by chaning the behavior in the fog to moving to the Node that gets the __Player__ closest to the __Target__, the result usually is already greatly improved.
 
 ![alt text](https://github.com/mystyfly/304cr-assignment-1/blob/master/examples/e3-mindist-closesttoplayer.png "Example 3: Choose closest Node to the player and move to nearest Node to Target")
 
-However, normally the best results are achieved by exploring a foggy `Node` that is already closest to the __Target__ since the path to the `Node` is likely fairly good as it has been discovered by path finding rather than try-and-error. Even when moving
-to the `Node` with lowest cost when in the fog, this method reduces the total cost by another 20% in this example.
+However, normally the best results are achieved by exploring a foggy Node that is already closest to the __Target__ since the path to the Node is likely fairly good as it has been discovered by path finding rather than try-and-error. Even when moving
+to the Node with lowest cost when in the fog, this method reduces the total cost by another 20% in this example.
 
 ![alt text](https://github.com/mystyfly/304cr-assignment-1/blob/master/examples/e3-mincost-closesttotarget.png "Example 3: Choose closest Node to the target and move to cheapest Node")
 
 
 # Example 4
-Unfortounately, it's not always possible to find a path through complex fog, as displayed here. This shows the situation in a hand-crafted map where the player finds a clear area from where all bordering fog in turn borders on already explored fog.
+Unfortunately, it's not always possible to find a path through complex fog, as displayed here. This shows the situation in a hand-crafted map where the player finds a clear area from where all bordering fog in turn borders on already explored clear
+sections of the map.
 
 ![alt text](https://github.com/mystyfly/304cr-assignment-1/blob/master/examples/e4-about-to-be-stuck.png "Example 4: About to be stuck")
 
